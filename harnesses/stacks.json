@@ -10,8 +10,8 @@
       "notes": "Prefer bun when bun.lock exists. Stryker is if-present; a missing config is n/a, not a fake 80."
     },
     "python": {
-      "markers": ["pyproject.toml", "pytest.ini", "setup.cfg", "setup.py", "requirements.txt"],
-      "unit": "python -m pytest",
+      "markers": ["pyproject.toml", "pytest.ini", "setup.cfg", "setup.py", "requirements.txt", "tests/*.py"],
+      "unit": "python -m pytest | python3 tests/validate.py",
       "mutation": "mutmut run",
       "mutation_available": true,
       "notes": "mutmut or cosmic-ray. Score is project policy."

@@ -26,6 +26,12 @@ expect "$TMP/py" primary python
 expect "$TMP/py" unit_cmd "python -m pytest"
 expect "$TMP/py" mutator mutmut
 
+mkdir -p "$TMP/spec/tests"
+echo 'print("ok")' >"$TMP/spec/tests/validate.py"
+expect "$TMP/spec" primary python
+expect "$TMP/spec" unit_cmd "python3 tests/validate.py"
+expect "$TMP/spec" mutator mutmut
+
 mkdir -p "$TMP/rs"
 printf '[package]\nname="x"\nversion="0.0.0"\n' >"$TMP/rs/Cargo.toml"
 expect "$TMP/rs" primary rust

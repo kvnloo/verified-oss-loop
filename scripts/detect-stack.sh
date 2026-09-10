@@ -36,6 +36,8 @@ if has Cargo.toml; then STACKS+=(rust); fi
 if has go.mod; then STACKS+=(go); fi
 if has pyproject.toml || has pytest.ini || has setup.cfg || has setup.py || has requirements.txt; then
   STACKS+=(python)
+elif has tests/validate.py || compgen -G "$ROOT/tests/*.py" >/dev/null; then
+  STACKS+=(python)
 fi
 
 if [[ ${#STACKS[@]} -eq 0 ]]; then
@@ -61,8 +63,10 @@ if has package.json; then
 fi
 
 if printf '%s\n' "${STACKS[@]}" | grep -qx python; then
-  if has pyproject.toml || has pytest.ini || has tests || has test; then
-    if [[ "$UNIT_CMD" == "unknown" ]]; then
+  if [[ "$UNIT_CMD" == "unknown" ]]; then
+    if has tests/validate.py; then
+      UNIT_CMD="python3 tests/validate.py"
+    else
       UNIT_CMD="python -m pytest"
     fi
   fi
