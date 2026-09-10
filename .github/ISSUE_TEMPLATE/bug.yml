@@ -1,0 +1,26 @@
+name: Bug
+description: Something is broken in the protocol or the onboarding scripts.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search open issues and PRs first. Issues are not claims.
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+    validations:
+      required: true
+  - type: textarea
+    id: red
+    attributes:
+      label: Red command
+      description: Prefer `bash tests/smoke.sh` or a script path
+      placeholder: bash tests/smoke.sh

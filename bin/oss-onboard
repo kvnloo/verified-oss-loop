@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Copy the Verified OSS Loop into a repo. Never overwrites LICENSE.
+# Usage:
+#   oss-onboard DIR [init-oss-repo flags...]
+#   oss-onboard --init [--with-automation] [--labels] [--force]
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+INIT="$HERE/scripts/init-oss-repo.sh"
+
+args=()
+TARGET=""
+for arg in "$@"; do
+  case "$arg" in
+    --init)
+      TARGET="$(pwd)"
+      ;;
+    -h|--help)
+      sed -n '2,6p' "$0" | sed 's/^# //'
+      echo
+      "$INIT" --help
+      exit 0
+      ;;
+    *)
+      args+=("$arg")
+      ;;
+  esac
+done
+
+if [[ -z "$TARGET" ]]; then
+  if [[ ${#args[@]} -eq 0 ]]; then
+    echo "usage: oss-onboard DIR | oss-onboard --init" >&2
+    exit 2
+  fi
+  TARGET="${args[0]}"
+  args=("${args[@]:1}")
+fi
+
+if [[ ${#args[@]} -gt 0 ]]; then
+  exec "$INIT" --target "$TARGET" "${args[@]}"
+fi
+exec "$INIT" --target "$TARGET"

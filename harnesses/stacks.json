@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "rule": "Pick tools from the target tree. A catalog row is not proof mutation is installed. If mutation is n/a, say so — do not invent a score.",
+  "stacks": {
+    "js": {
+      "markers": ["package.json", "bun.lock", "bun.lockb"],
+      "unit": "bun test | npm test | pnpm test | yarn test",
+      "mutation": "bunx stryker run | npx stryker run",
+      "mutation_available": "if-present",
+      "notes": "Prefer bun when bun.lock exists. Stryker is if-present; a missing config is n/a, not a fake 80."
+    },
+    "python": {
+      "markers": ["pyproject.toml", "pytest.ini", "setup.cfg", "setup.py", "requirements.txt"],
+      "unit": "python -m pytest",
+      "mutation": "mutmut run",
+      "mutation_available": true,
+      "notes": "mutmut or cosmic-ray. Score is project policy."
+    },
+    "rust": {
+      "markers": ["Cargo.toml"],
+      "unit": "cargo test",
+      "mutation": "cargo mutants",
+      "mutation_available": true,
+      "notes": "cargo-mutants. Not cargo fuzz."
+    },
+    "go": {
+      "markers": ["go.mod"],
+      "unit": "go test ./...",
+      "mutation": null,
+      "mutation_available": false,
+      "notes": "No default Go mutator. Fail closed: mutation n/a."
+    }
+  }
+}

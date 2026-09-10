@@ -1,0 +1,26 @@
+name: Feature
+description: A proposed change to the protocol or the onboarding kit.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not start work until this issue is `claimable` and you hold a claim lease.
+        Do not invent a second spec. Extend SPEC.md or the kit, not both unless the claim says so.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance
+      placeholder: tests/smoke.sh case, SPEC.md section, or template path

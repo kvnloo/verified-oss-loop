@@ -51,6 +51,30 @@ Verified OSS Loop adds the missing contribution contract:
 9. **No ceremonial automation.** Small projects can adopt this with labels and a Markdown receipt.
 10. **Project policy wins.** This protocol never overrides CONTRIBUTING, security, AI disclosure, CLA/DCO, or review rules.
 
+## Use as boilerplate
+
+This repo is the protocol (`SPEC.md`) plus an onboarding kit. It does not generate an application. Cookiecutter/copier generate *codebases*; this copies a contribution contract.
+
+```bash
+git clone https://github.com/kvnloo/verified-oss-loop
+./bin/oss-onboard /path/to/repo --with-automation
+# or, inside the target:
+# /path/to/verified-oss-loop/bin/oss-onboard --init --with-automation
+```
+
+What it does:
+
+- Detects stack from the tree (`pyproject.toml`, `package.json`/`bun.lock`, `Cargo.toml`, `go.mod`).
+- Writes `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, issue/PR templates, and `skills/{autodevelop,tdd,verify}` **only if missing**.
+- Pins the unit and mutation commands it saw. If mutation is `n/a`, the receipt says `n/a` — it does not invent a score.
+- `--with-automation` adds stale/labeler workflows, CODEOWNERS, and `create-labels.sh`.
+- `--labels` creates GitHub labels when `gh` is authenticated.
+- Never overwrites `LICENSE`. Never copies another project's UI, `.env`, or device tests.
+
+See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), and [docs/prior-art.md](docs/prior-art.md).
+
+Proof for this kit: `bash tests/smoke.sh`.
+
 ## Minimal adoption
 
 A project needs only:
@@ -63,6 +87,28 @@ A project needs only:
 - human merge gate
 
 See [SPEC.md](SPEC.md) for the complete contracts.
+
+## Onboarding a repo
+
+This repository is also a **stack-detecting kit**. It does not dump bun scripts into a Python or Rust project. It copies community-health files and prints the verify recipe for the tree you pointed at.
+
+```bash
+# new project
+./scripts/init-oss-repo.sh --new ./my-lib --name my-lib --owner YOUR_LOGIN --git
+
+# existing checkout
+./scripts/init-oss-repo.sh --target /path/to/repo
+./scripts/detect-stack.sh /path/to/repo
+./scripts/setup-verify.sh --root /path/to/repo
+```
+
+`--with-automation` adds optional labeler/stale workflows. It still does not merge.
+
+`--install` on `setup-verify.sh` is opt-in and only installs a mutator for the *detected* primary stack ([Stryker](https://github.com/stryker-mutator/stryker-js), [mutmut](https://github.com/boxed/mutmut), or [cargo-mutants](https://github.com/sourcefrog/cargo-mutants)). Go gets `go test` / fuzz and an honest `n/a` mutation field.
+
+Sources and credits: [REFERENCES.md](REFERENCES.md).
+
+Smoke: `bash tests/smoke.sh`.
 
 ## Scope
 
