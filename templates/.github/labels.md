@@ -1,6 +1,6 @@
 # Labels for the Verified OSS Loop
 
-Create these in GitHub Settings → Labels, or run `templates/.github/scripts/create-labels.sh`.
+Create these in GitHub Settings → Labels, or copy and run `.github/scripts/create-labels.sh` (`--labels` on init).
 
 ## Loop
 
