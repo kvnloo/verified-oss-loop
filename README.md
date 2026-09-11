@@ -65,7 +65,7 @@ git clone https://github.com/kvnloo/verified-oss-loop
 What it does:
 
 - Detects stack from the tree (`pyproject.toml`, `package.json`/`bun.lock`, `Cargo.toml`, `go.mod`).
-- Writes `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, issue/PR templates, and kit skills (`autodevelop`, `orient`, `tdd`, `anti-slop`, `pstack`, `dr-eggbot`, `verify`) via [kit inventory](docs/kit-inventory.md). Re-runs update **kit** files; they never overwrite `source: local` skills (pstack plugin copies, hand-written tools).
+- Writes `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, a paste-ready `prompt.md` that links to **that** repo, issue/PR templates, and kit skills (`autodevelop`, `orient`, `tdd`, `anti-slop`, `pstack`, `dr-eggbot`, `verify`) via [kit inventory](docs/kit-inventory.md). Re-runs update **kit** files; they never overwrite `source: local` skills (pstack plugin copies, hand-written tools).
 - Pins the unit and mutation commands it saw. If mutation is `n/a`, the receipt says `n/a` — it does not invent a score.
 - `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, and `create-labels.sh`. Still does not merge. AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
 - Does **not** run GitNexus, dump pstack, or rewrite `AGENTS.md` with a second H1. Graph/LSP/pstack/eggbot: [docs/agent-onboarding.md](docs/agent-onboarding.md).

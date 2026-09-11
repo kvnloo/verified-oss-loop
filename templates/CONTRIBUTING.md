@@ -10,7 +10,7 @@ See the README for install, run, and configuration. Do not commit secrets.
 
 ### Autodevelop (agents)
 
-If you were told to autodevelop, donate a coding pass, or pick the next issue: read `AGENTS.md` and `skills/autodevelop/SKILL.md`. Do not invent a parallel process.
+If you were told to autodevelop, donate a coding pass, or pick the next issue: paste `prompt.md` (it links to this repo) and follow `AGENTS.md` and `skills/autodevelop/SKILL.md`. Do not invent a parallel process.
 
 Workers:
 

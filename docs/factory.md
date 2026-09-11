@@ -44,7 +44,7 @@ Then, in that repo:
 1. Fill `AGENTS.md` ownership and pin the unit command `detect-stack.sh` already wrote.
 2. Protect `main` (PR required, receipt + unit checks, no worker merge).
 3. Optionally install **one** AI reviewer (Greptile / CodeRabbit / Bugbot) and coverage/perf apps. Catalog: [quality-bots.md](quality-bots.md).
-4. Re-run `oss-onboard` after a kit release. Inventory (`.verified-oss-loop/inventory.yml`) updates kit skills and leaves local pstack/eggbot copies alone. See [kit-inventory.md](kit-inventory.md).
+4. Re-run `oss-onboard` after a kit release. Inventory (`.verified-oss-loop/inventory.yml`) updates kit skills and leaves local pstack/eggbot copies alone. See [kit-inventory.md](kit-inventory.md). Paste that repo's `prompt.md` into any harness (it links to itself).
 5. Orient (`skills/orient/SKILL.md`) then TDD, then shrink (`skills/anti-slop/SKILL.md`). Do not run `gitnexus analyze` unless the maintainer already uses GitNexus.
 6. Open a PR with an evidence receipt. **Never merge.**
 

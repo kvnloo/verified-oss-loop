@@ -20,6 +20,7 @@ LABELS=0
 NAME=""
 OWNER=""
 REPO=""
+REPO_URL=""
 UNIT_CMD="unknown"
 MUTATOR_CMD="n/a"
 RUNTIME_CMD="n/a — project-specific"
@@ -75,6 +76,8 @@ if [[ -z "$REPO" ]]; then
     REPO="$(git -C "$TARGET" remote get-url origin | sed -E 's#.*[:/][^/]+/([^/]+)(\.git)?$#\1#' | sed 's/\.git$//')"
   fi
 fi
+# Public clone URL only. Never copy origin (it may contain a token).
+REPO_URL="https://github.com/${OWNER}/${REPO}"
 
 sed_escape() {
   printf '%s' "$1" | sed -e 's/[|&\\]/\\&/g'
@@ -103,9 +106,11 @@ subst() {
   unit="$(sed_escape "$UNIT_CMD")"
   mut="$(sed_escape "$MUTATOR_CMD")"
   runtime="$(sed_escape "$RUNTIME_CMD")"
+  url="$(sed_escape "$REPO_URL")"
   sed -e "s|{{PROJECT}}|$project|g" \
       -e "s|{{OWNER}}|$owner|g" \
       -e "s|{{REPO}}|$repo|g" \
+      -e "s|{{REPO_URL}}|$url|g" \
       -e "s|{{UNIT_CMD}}|$unit|g" \
       -e "s|{{MUTATOR_CMD}}|$mut|g" \
       -e "s|{{MUTATION_CMD}}|$mut|g" \
@@ -166,6 +171,7 @@ HEALTH=(
   AGENTS.md
   CONTRIBUTING.md
   SECURITY.md
+  prompt.md
   roadmap.example.yml
   skills/autodevelop/SKILL.md
   skills/orient/SKILL.md

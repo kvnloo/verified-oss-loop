@@ -14,5 +14,6 @@ This repository is the protocol and the onboarding kit. It is not an application
 - Smallest complete change (`skills/anti-slop/SKILL.md`). Do not duplicate `AGENTS.md` into `CLAUDE.md`.
 - pstack / Dr eggbot: `skills/pstack/SKILL.md`, `skills/dr-eggbot/SKILL.md`. Use the Cursor plugin or Grok bot if already installed; do not dump those trees. Workers never merge even if a pstack playbook lands PRs.
 - Kit vs local skills: `.verified-oss-loop/inventory.yml`. Re-run `oss-onboard` to pick up new kit skills. Never overwrite `source: local`.
+- Paste `prompt.md` into any harness to autodevelop this kit. Onboarded repos get a `prompt.md` that links to themselves.
 
-If you are donating a pass: pick one issue, claim it, open a PR with an evidence receipt, stop.
+If you are donating a pass: paste `prompt.md` into any harness (it links to this repo), pick one issue, claim it, open a PR with an evidence receipt, stop.

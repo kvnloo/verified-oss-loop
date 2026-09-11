@@ -68,10 +68,15 @@ if grep -q 'gitnexus/src' "$TMP/py/skills/orient/SKILL.md"; then
   fail "orient skill looks like vendored GitNexus"
 fi
 grep -q 'KEEP-LICENSE' "$TMP/py/LICENSE" || fail "LICENSE was overwritten"
+[[ -f "$TMP/py/prompt.md" ]] || fail "prompt.md not copied"
+grep -q 'https://github.com/kvnloo/PyKit' "$TMP/py/prompt.md" || fail "prompt.md must link to the onboarded repo"
+if grep -q '{{REPO_URL}}' "$TMP/py/prompt.md"; then fail "placeholder left in prompt.md"; fi
+if grep -q 'x-access-token:' "$TMP/py/prompt.md"; then fail "prompt.md leaked a token"; fi
 
 mkdir -p "$TMP/new"
 "$HERE/scripts/init-oss-repo.sh" --new "$TMP/new" --name Smoke --owner kvnloo >/dev/null
 [[ -f "$TMP/new/AGENTS.md" ]] || fail "init did not write AGENTS.md"
+grep -q 'https://github.com/kvnloo/Smoke' "$TMP/new/prompt.md" || fail "downstream prompt.md must link to itself"
 grep -q 'Smoke' "$TMP/new/AGENTS.md" || fail "name not substituted"
 [[ ! -f "$TMP/new/.github/workflows/stale.yml" ]] || fail "automation copied without --with-automation"
 "$HERE/scripts/init-oss-repo.sh" --target "$TMP/new" --name Smoke --owner kvnloo >/dev/null
@@ -109,7 +114,8 @@ grep -q 'query' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catal
 if [[ -d "$HERE/gitnexus" ]] || [[ -d "$HERE/GitNexus" ]]; then
   fail "GitNexus source must not be vendored into this kit"
 fi
-grep -q 'Orient on the existing tree' "$HERE/SPEC.md" || fail "SPEC missing orient sentence"
+grep -q 'https://github.com/kvnloo/verified-oss-loop' "$HERE/prompt.md" || fail "kit prompt.md must link to this repo"
+grep -q '{{REPO_URL}}' "$HERE/templates/prompt.md" || fail "template prompt.md missing REPO_URL"
 
 python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-good.md" \
   --head 1234567890abcdef1234567890abcdef12345678 >/dev/null \
