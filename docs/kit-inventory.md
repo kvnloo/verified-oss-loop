@@ -2,7 +2,7 @@
 
 Child repos that already ran `oss-onboard` need to pick up **new** standard skills when this kit releases, without clobbering tools a developer added by hand.
 
-This is onboard mechanics, not a second contribution loop. [SPEC.md](../SPEC.md) still owns claims, receipts, and merge.
+This is onboard mechanics, not a second contribution loop. [SPEC.md](../SPEC.md) still owns claims, receipts, and merge of `main`/`dev`. Channel speed is [rollout.md](rollout.md).
 
 ## Where provenance lives
 

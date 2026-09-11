@@ -2,7 +2,7 @@
 # Copy the Verified OSS Loop into a repo. Never overwrites LICENSE.
 # Usage:
 #   oss-onboard DIR [init-oss-repo flags...]
-#   oss-onboard --init [--with-automation] [--labels] [--force]
+#   oss-onboard --init [--with-automation] [--labels] [--force] [--scheme rolling|staged|stable]
 #   oss-onboard DIR --status
 set -euo pipefail
 

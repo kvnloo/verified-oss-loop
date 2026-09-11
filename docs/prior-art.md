@@ -64,8 +64,9 @@ Canonical short list: [REFERENCES.md](../REFERENCES.md).
 | Dependabot | https://github.com/dependabot/dependabot-core | Actions ecosystem only in this kit | npm/pip/cargo ecosystems on a spec repo |
 | Greptile / CodeRabbit / Bugbot | greptile.com · coderabbit.ai · cursor.com | one independent reviewer | four overlapping comment bots |
 | GitHub merge queue | https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue | `merge_group` CI when the project enables a queue | queue merge as worker authority |
+| Arch Linux rolling release | https://wiki.archlinux.org/title/Arch_Linux | bleeding-edge default channel (`rolling`) | worker merge of `main`; one scheme for every repo |
 
-Factory HITL mapping: [factory.md](factory.md). Copied vs catalog: [quality-bots.md](quality-bots.md).
+Factory HITL mapping: [factory.md](factory.md). Copied vs catalog: [quality-bots.md](quality-bots.md). Channel speed: [rollout.md](rollout.md).
 
 ## Agentic onboarding tools (orient; do not vendor)
 

@@ -6,7 +6,7 @@ How [kvnloo/oss-factory](https://github.com/kvnloo/oss-factory) uses **this** pr
 
 | Kind | Apply this kit? | Rule |
 |---|---|---|
-| `kvnloo/*` that opted into the standard | **Yes** | `./bin/oss-onboard DIR --with-automation --labels` |
+| `kvnloo/*` that opted into the standard | **Yes** | `./bin/oss-onboard DIR --with-automation --labels` (default `--scheme rolling`) |
 | Origin OSS (LiteLLM, rust-lang, HA, …) | **No dump** | Follow *their* CONTRIBUTING, CODEOWNERS, and bots. Map factory HITL onto *their* process |
 | Private factory IaC (`oss-factory`) | Contract only | HITL columns below; do not onboard terraform as an app |
 
@@ -42,11 +42,11 @@ bash /path/to/repo/tests/smoke.sh 2>/dev/null || true
 Then, in that repo:
 
 1. Fill `AGENTS.md` ownership and pin the unit command `detect-stack.sh` already wrote.
-2. Protect `main` (PR required, receipt + unit checks, no worker merge).
+2. Protect `main` and `dev` (PR required, receipt + unit checks, no worker merge). `preview`/`nightly` stay loose under the default `rolling` scheme. [rollout.md](rollout.md).
 3. Optionally install **one** AI reviewer (Greptile / CodeRabbit / Bugbot) and coverage/perf apps. Catalog: [quality-bots.md](quality-bots.md).
 4. Re-run `oss-onboard` after a kit release. Inventory (`.verified-oss-loop/inventory.yml`) updates kit skills and leaves local pstack/eggbot copies alone. See [kit-inventory.md](kit-inventory.md). Paste that repo's `prompt.md` into any harness (it links to itself).
 5. Orient (`skills/orient/SKILL.md`) then TDD, then shrink (`skills/anti-slop/SKILL.md`). Do not run `gitnexus analyze` unless the maintainer already uses GitNexus.
-6. Open a PR with an evidence receipt. **Never merge.**
+6. Open a PR with an evidence receipt. **Never merge `main` or `dev`.**
 
 Do not:
 

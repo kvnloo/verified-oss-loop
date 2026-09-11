@@ -4,7 +4,7 @@
 # Usage:
 #   init-oss-repo.sh --target DIR [--name NAME] [--owner LOGIN] [--repo REPO]
 #   init-oss-repo.sh --new DIR [--name NAME] [--owner LOGIN] [--git]
-#   Flags: --with-automation  --labels  --force  --status
+#   Flags: --with-automation  --labels  --force  --status  --scheme rolling|staged|stable
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
@@ -24,6 +24,7 @@ REPO_URL=""
 UNIT_CMD="unknown"
 MUTATOR_CMD="n/a"
 RUNTIME_CMD="n/a — project-specific"
+SCHEME="rolling"
 
 usage() {
   sed -n '3,8p' "$0" | sed 's/^# //'
@@ -42,6 +43,14 @@ while [[ $# -gt 0 ]]; do
     --labels) LABELS=1; shift ;;
     --force) FORCE=1; shift ;;
     --status) STATUS=1; shift ;;
+    --scheme)
+      SCHEME="$2"
+      case "$SCHEME" in
+        rolling|staged|stable) ;;
+        *) echo "scheme must be rolling, staged, or stable" >&2; exit 2 ;;
+      esac
+      shift 2
+      ;;
     -h|--help) usage 0 ;;
     *) echo "unknown arg: $1" >&2; usage 2 ;;
   esac
@@ -99,7 +108,7 @@ load_stack() {
 
 subst() {
   local src="$1" dest="$2"
-  local project owner repo unit mut runtime
+  local project owner repo unit mut runtime url scheme
   project="$(sed_escape "$NAME")"
   owner="$(sed_escape "$OWNER")"
   repo="$(sed_escape "$REPO")"
@@ -107,10 +116,12 @@ subst() {
   mut="$(sed_escape "$MUTATOR_CMD")"
   runtime="$(sed_escape "$RUNTIME_CMD")"
   url="$(sed_escape "$REPO_URL")"
+  scheme="$(sed_escape "$SCHEME")"
   sed -e "s|{{PROJECT}}|$project|g" \
       -e "s|{{OWNER}}|$owner|g" \
       -e "s|{{REPO}}|$repo|g" \
       -e "s|{{REPO_URL}}|$url|g" \
+      -e "s|{{SCHEME}}|$scheme|g" \
       -e "s|{{UNIT_CMD}}|$unit|g" \
       -e "s|{{MUTATOR_CMD}}|$mut|g" \
       -e "s|{{MUTATION_CMD}}|$mut|g" \
@@ -187,6 +198,7 @@ HEALTH=(
   .github/ISSUE_TEMPLATE/claim.yml
   .github/labels.md
   .verified-oss-loop/README.md
+  .verified-oss-loop/rollout.yml
 )
 
 for f in "${HEALTH[@]}"; do
@@ -194,6 +206,9 @@ for f in "${HEALTH[@]}"; do
 done
 
 copy_raw .verified-oss-loop/kit-inventory.py "$HERE/scripts/kit-inventory.py"
+copy_raw .verified-oss-loop/rollout.py "$HERE/scripts/rollout.py"
+copy_raw scripts/rollout.py "$HERE/scripts/rollout.py"
+copy_raw scripts/ensure-rollout-branches.sh "$HERE/scripts/ensure-rollout-branches.sh" 755
 
 if [[ -e "$TARGET/LICENSE" ]]; then
   echo "keep existing: LICENSE"
@@ -209,6 +224,9 @@ if [[ "$AUTOMATION" -eq 1 ]]; then
   copy_file .github/dependabot.yml
   copy_file .github/CODEOWNERS
   copy_file .github/scripts/create-labels.sh
+  copy_file .github/workflows/automerge-preview.yml
+  copy_file .github/workflows/automerge-nightly.yml
+  copy_file .github/workflows/promote-preview.yml
   if [[ -f "$TARGET/.github/scripts/create-labels.sh" ]]; then
     chmod +x "$TARGET/.github/scripts/create-labels.sh"
   fi
@@ -241,6 +259,7 @@ echo "next:"
 echo "  1. Edit AGENTS.md ownership if this repo has split surfaces"
 echo "  2. gh auth + .github/scripts/create-labels.sh  (or rerun with --labels)"
 echo "  3. Fill SECURITY.md with a real private contact"
-echo "  4. Protect main (PR + receipt/unit checks). Optional: one AI reviewer from docs/quality-bots.md"
-echo "  5. Commit .verified-oss-loop/inventory.yml (kit vs local provenance)"
-echo "  6. Workers never merge main"
+echo "  4. Protect main and dev (PR + receipt/unit). preview/nightly stay loose. docs/rollout.md"
+echo "  5. bash scripts/ensure-rollout-branches.sh --root . --push   (preview, nightly, dev)"
+echo "  6. Commit .verified-oss-loop/inventory.yml (kit vs local provenance)"
+echo "  7. Workers never merge main or dev"

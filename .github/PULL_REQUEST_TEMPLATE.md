@@ -11,7 +11,7 @@
 - [ ] **Mode** (select one):
   - [ ] **Unattended** — donated compute (cloud agent, autonomous run)
   - [ ] **Copilot** — human reviewed the diff before this PR
-- [ ] **Workers never merge**: this PR waits for a human maintainer
+- [ ] **Workers never merge `main`/`dev`**: this PR does not grant worker merge of production
 
 ## Changes
 

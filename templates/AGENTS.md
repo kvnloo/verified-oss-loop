@@ -1,13 +1,13 @@
 # Notes for agents — {{PROJECT}}
 
-You are a contributor, not a maintainer. Workers open PRs. They never merge `main`.
+You are a contributor, not a maintainer. Workers open PRs. They never merge `main` or `dev`.
 
 This project follows the [Verified OSS Loop](https://github.com/kvnloo/verified-oss-loop). Issues are not claims. AI work is untrusted until proven.
 
 ## First 60 seconds
 
 1. Read this file, then `CONTRIBUTING.md`.
-2. `git fetch origin` and branch from `origin/main` unless the issue names another base.
+2. `git fetch origin`. `python3 .verified-oss-loop/rollout.py show`. Branch from `origin/$(python3 .verified-oss-loop/rollout.py get worker_base)` unless the issue names another base. Day-pass PRs target `feature_target`. Overnight unattended PRs target `overnight_target`. See `docs/rollout.md` in the kit (or `.verified-oss-loop/rollout.yml` here).
 3. Search open issues and PRs. Do not duplicate in-flight work.
 4. Orient (`skills/orient/SKILL.md`). If GitNexus MCP is already there: `query` → `context` → `impact`. Do not run `gitnexus analyze` unless a human asked. Else Serena symbols, else `rg` + read.
 
@@ -27,7 +27,7 @@ Claim comment (24h lease unless the project says otherwise):
 ```text
 claiming for autodevelop
 claimant: <github login or agent id>
-base: <git rev-parse origin/main>
+base: <git rev-parse origin/$(python3 .verified-oss-loop/rollout.py get worker_base)>
 expires: <now + 24h UTC>
 scope: <one sentence>
 ```
@@ -49,13 +49,13 @@ Commands were filled by `init-oss-repo.sh` / `oss-onboard` from the tree it saw.
 3. Keep the smallest complete change (`skills/anti-slop/SKILL.md`).
 4. Run unit tests on the touched surface.
 5. If mutation is not `n/a`, run it on the contract you changed. A surviving mutant is a missing assertion.
-6. Open a PR. Fill `.github/PULL_REQUEST_TEMPLATE.md`. Never merge.
+6. Open a PR at `feature_target` (or `overnight_target` if unattended overnight). Fill `.github/PULL_REQUEST_TEMPLATE.md`. Never merge `main` or `dev`. Do not merge preview/nightly yourself; automerge may, when `rollout.yml` allows.
 7. If the project runs an independent review bot (Greptile, CodeRabbit, Bugbot, Copilot, …), treat its comments as review, not merge. Fix real findings. Do not wait for a bot to approve itself.
 
 ## Do not
 
 - Commit secrets, tokens, `.env`, or pairing files.
-- Merge `main`.
+- Merge `main` or `dev`.
 - Redefine the roadmap.
 - Claim mutation coverage that the stack cannot run.
 - Overwrite `LICENSE`.

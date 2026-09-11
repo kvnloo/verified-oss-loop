@@ -12,7 +12,7 @@
 - [ ] **Mode** (select one):
   - [ ] **Unattended** — donated compute (cloud agent)
   - [ ] **Copilot** — human-supervised
-- [ ] **Workers never merge**: this PR waits for a human maintainer
+- [ ] **Workers never merge `main`/`dev`**: this PR does not grant worker merge of production
 
 ## Evidence
 
