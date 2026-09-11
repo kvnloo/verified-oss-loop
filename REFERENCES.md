@@ -40,6 +40,20 @@ Expanded table: [docs/prior-art.md](docs/prior-art.md).
 
 Grew from the [Community-wide Distributed Self-Development Loop](https://github.com/AndyMik90/Aperant/discussions/306), then Hermes autoresearch ([#5114](https://github.com/NousResearch/hermes-agent/issues/5114)) and reversible harness refinement ([#93306](https://github.com/NousResearch/hermes-agent/issues/93306)).
 
+## Quality bots (Level 1 assistants, not merge)
+
+| Source | What we take | What we do not take |
+|---|---|---|
+| [BerriAI/litellm](https://github.com/BerriAI/litellm) ([#40744](https://github.com/BerriAI/litellm/pull/40744)) | Greptile + CodSpeed + Codecov as independent evidence on one PR; Scorecard/CodeQL/Semgrep/mutation as required checks | copying their full workflow tree; Greptile score as merge |
+| [kubernetes Prow/Tide](https://docs.prow.k8s.io/docs/components/core/tide/) + [OWNERS](https://github.com/kubernetes/community/blob/main/contributors/guide/owners.md) | path owners, `/lgtm` as review, bots assign reviewers | Tide auto-merge for workers |
+| [rust-lang/triagebot](https://github.com/rust-lang/triagebot) | claim/label/nominate commands | homu/bors worker merge keys |
+| [python/bedevere](https://github.com/python/bedevere) | receipt completeness before human review time | auto-merge |
+| [home-assistant/core](https://github.com/home-assistant/core) | hassfest-shaped CI, CODEOWNERS pings | dual Dependabot+Renovate by default; a second AGENTS.md |
+| [ossf/scorecard](https://github.com/ossf/scorecard) | branch-protection and token-permission health | Scorecard as a correctness proof |
+| Greptile / CodeRabbit / Cursor Bugbot / Copilot review | one independent AI reviewer | stacking four commenters; bot self-approve |
+
+Catalog and factory mapping: [docs/quality-bots.md](docs/quality-bots.md), [docs/factory.md](docs/factory.md).
+
 ## Gap those projects leave
 
 None of the above give you, together:

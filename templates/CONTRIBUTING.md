@@ -34,7 +34,9 @@ Every PR fills `.github/PULL_REQUEST_TEMPLATE.md`:
 - mutation command and score, or `n/a`
 - contribution mode: unattended (cloud agent) or copilot (human-supervised)
 
-Tests from another head are not evidence.
+Tests from another head are not evidence. `--with-automation` adds a CI check that the YAML keys exist and `head_revision` matches the PR SHA.
+
+Independent review bots the project already installed (Greptile, CodeRabbit, Bugbot, Copilot, Codecov, CodSpeed) are reviewers and evidence, not merge authority.
 
 ## Prior art
 

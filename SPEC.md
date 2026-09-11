@@ -123,7 +123,11 @@ Labels, claim comment, PR evidence template, human review.
 
 ### Level 1: Assisted
 
-Bots check expiry, duplicates, receipt completeness, and exact head.
+Bots check expiry, duplicates, receipt completeness, and exact head. They do not merge.
+
+This kit's `--with-automation` copies that layer as stack-neutral workflows (claim expiry, receipt + exact-head check, stale/labeler, OpenSSF Scorecard, Actions Dependabot, CODEOWNERS). Catalog of review/coverage/perf apps that need accounts: [docs/quality-bots.md](docs/quality-bots.md). Project policy still wins; do not dump Greptile, Codecov, or a language lockfile updater into every target.
+
+S-tier OSS (Kubernetes Prow/Tide, rust-lang triagebot, CPython bedevere, Home Assistant hassfest, LiteLLM Greptile+CodSpeed+Codecov) uses many specialized bots around a human or explicitly authorized merge path. Independent review bots are SPEC §5 reviewers. They are not SPEC §6 merge authority.
 
 ### Level 2: Distributed
 

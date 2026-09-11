@@ -71,11 +71,34 @@ grep -q 'Smoke' "$TMP/new/AGENTS.md" || fail "second init clobbered or lost name
 mkdir -p "$TMP/auto"
 "$HERE/scripts/init-oss-repo.sh" --new "$TMP/auto" --name Auto --owner kvnloo --with-automation >/dev/null
 [[ -f "$TMP/auto/.github/workflows/stale.yml" ]] || fail "automation did not copy stale.yml"
+[[ -f "$TMP/auto/.github/workflows/receipt.yml" ]] || fail "automation did not copy receipt.yml"
+[[ -f "$TMP/auto/.github/workflows/claim-expiry.yml" ]] || fail "automation did not copy claim-expiry.yml"
+[[ -f "$TMP/auto/.github/workflows/scorecard.yml" ]] || fail "automation did not copy scorecard.yml"
+[[ -f "$TMP/auto/.github/dependabot.yml" ]] || fail "automation did not copy dependabot.yml"
 [[ -f "$TMP/auto/.github/scripts/create-labels.sh" ]] || fail "create-labels.sh missing"
+[[ -f "$TMP/auto/.github/scripts/check-receipt.py" ]] || fail "check-receipt.py missing"
+[[ -f "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh missing"
+[[ -x "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh not executable"
+if grep -q 'package-ecosystem: npm' "$TMP/auto/.github/dependabot.yml"; then
+  fail "dependabot baked a language ecosystem"
+fi
+grep -q 'Verified OSS Loop' "$HERE/docs/factory.md" || fail "factory adapter missing"
+grep -q 'workers never merge' "$HERE/docs/quality-bots.md" || fail "quality-bots catalog missing protocol rule"
+
+python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-good.md" \
+  --head 1234567890abcdef1234567890abcdef12345678 >/dev/null \
+  || fail "good receipt should pass"
+if python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-good.md" --head deadbeef >/dev/null; then
+  fail "good receipt must fail exact-head mismatch"
+fi
+if python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-bad.md" >/dev/null; then
+  fail "bad receipt should fail"
+fi
 
 for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh"; do
   bash -n "$s" || fail "bash -n $s"
 done
 python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.json"
+python3 -m py_compile "$HERE/scripts/check-receipt.py" || fail "check-receipt.py"
 
 echo "ok"

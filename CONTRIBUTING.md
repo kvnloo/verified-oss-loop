@@ -8,3 +8,5 @@ This repo is the Verified OSS Loop: a protocol (`SPEC.md`) plus an onboarding ki
 4. Workers never merge `main`.
 
 Project policy here wins over a worker's house rules. See `REFERENCES.md` for credited sources.
+
+CI checks the evidence YAML and exact head (`scripts/check-receipt.py`). Quality-bot catalog: `docs/quality-bots.md`. Factory mapping: `docs/factory.md`.

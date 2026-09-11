@@ -145,10 +145,28 @@ if [[ -e "$TARGET/LICENSE" ]]; then
   echo "keep existing: LICENSE"
 fi
 
+copy_script() {
+  local src="$1" dest="$2"
+  mkdir -p "$(dirname "$dest")"
+  if [[ -e "$dest" && "$FORCE" -eq 0 ]]; then
+    echo "skip existing: ${dest#"$TARGET"/}"
+    return 0
+  fi
+  cp "$src" "$dest"
+  if [[ "$dest" == *.sh ]]; then
+    chmod +x "$dest"
+  fi
+  echo "wrote ${dest#"$TARGET"/}"
+}
+
 if [[ "$AUTOMATION" -eq 1 ]]; then
   copy_file .github/labeler.yml
   copy_file .github/workflows/labeler.yml
   copy_file .github/workflows/stale.yml
+  copy_file .github/workflows/receipt.yml
+  copy_file .github/workflows/claim-expiry.yml
+  copy_file .github/workflows/scorecard.yml
+  copy_file .github/dependabot.yml
   copy_file .github/CODEOWNERS
   mkdir -p "$TARGET/.github/scripts"
   if [[ -e "$TARGET/.github/scripts/create-labels.sh" && "$FORCE" -eq 0 ]]; then
@@ -158,6 +176,8 @@ if [[ "$AUTOMATION" -eq 1 ]]; then
     chmod +x "$TARGET/.github/scripts/create-labels.sh"
     echo "wrote .github/scripts/create-labels.sh"
   fi
+  copy_script "$HERE/scripts/check-receipt.py" "$TARGET/.github/scripts/check-receipt.py"
+  copy_script "$HERE/scripts/expire-claims.sh" "$TARGET/.github/scripts/expire-claims.sh"
 fi
 
 if [[ "$LABELS" -eq 1 ]]; then
@@ -185,4 +205,5 @@ echo "next:"
 echo "  1. Edit AGENTS.md ownership if this repo has split surfaces"
 echo "  2. gh auth + .github/scripts/create-labels.sh  (or rerun with --labels)"
 echo "  3. Fill SECURITY.md with a real private contact"
-echo "  4. Workers never merge main"
+echo "  4. Protect main (PR + receipt/unit checks). Optional: one AI reviewer from docs/quality-bots.md"
+echo "  5. Workers never merge main"

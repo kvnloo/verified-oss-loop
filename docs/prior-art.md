@@ -50,6 +50,23 @@ Canonical short list: [REFERENCES.md](../REFERENCES.md).
 | Rust | `cargo test` | [cargo-mutants](https://github.com/sourcefrog/cargo-mutants) | |
 | Go | `go test ./...` | n/a by default | do not fake a score |
 
+## Quality-bot mesh (adapt; bots never become workers-who-merge)
+
+| Name | URL | Reuse | Skip |
+|---|---|---|---|
+| LiteLLM PR bot mesh | https://github.com/BerriAI/litellm/pull/40744 | Greptile confidence + CodSpeed + Codecov on the exact head | requiring 4/5 to merge; dumping their Actions tree |
+| kubernetes Prow + Tide | https://docs.prow.k8s.io/docs/components/core/tide/ | OWNERS, reviewer assignment, label merge *criteria* | Tide as a coding-agent merge bot |
+| rust-lang/triagebot | https://github.com/rust-lang/triagebot | `/claim`-like commands, labels, nominate | bors keys for unattended workers |
+| python/bedevere | https://github.com/python/bedevere | NEWS/issue/CLA completeness gates | language-specific NEWS as a global rule |
+| home-assistant hassfest | https://developers.home-assistant.io/ | integration CI + codeowner ping | HA-specific integration layout |
+| OpenSSF Scorecard Action | https://github.com/ossf/scorecard-action | weekly SARIF, branch protection | treating 10/10 as KEEP |
+| CodeQL / Semgrep / OSV / zizmor | GitHub Advanced Security · semgrep · osv.dev · zizmorcore/zizmor | security_checks[] on the receipt | silent SARIF that nobody reads |
+| Dependabot | https://github.com/dependabot/dependabot-core | Actions ecosystem only in this kit | npm/pip/cargo ecosystems on a spec repo |
+| Greptile / CodeRabbit / Bugbot | greptile.com · coderabbit.ai · cursor.com | one independent reviewer | four overlapping comment bots |
+| GitHub merge queue | https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue | `merge_group` CI when the project enables a queue | queue merge as worker authority |
+
+Factory HITL mapping: [factory.md](factory.md). Copied vs catalog: [quality-bots.md](quality-bots.md).
+
 ## What still does not exist (this repo)
 
 A stack-detecting **onboarding script** that writes the contribution contract (labels, claim lease, evidence PR, AGENTS.md, workers-never-merge) without generating an application. Cookiecutter/copier/create-typescript-app generate *codebases*. Scorecard lints *security*. issue-spec models *issue DAGs*. None of them bind AI work to a revision-bound receipt and a human merge gate.

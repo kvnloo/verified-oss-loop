@@ -48,6 +48,7 @@ Commands were filled by `init-oss-repo.sh` / `oss-onboard` from the tree it saw.
 3. Run unit tests on the touched surface.
 4. If mutation is not `n/a`, run it on the contract you changed. A surviving mutant is a missing assertion.
 5. Open a PR. Fill `.github/PULL_REQUEST_TEMPLATE.md`. Never merge.
+6. If the project runs an independent review bot (Greptile, CodeRabbit, Bugbot, Copilot, …), treat its comments as review, not merge. Fix real findings. Do not wait for a bot to approve itself.
 
 ## Do not
 

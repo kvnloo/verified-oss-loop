@@ -67,12 +67,13 @@ What it does:
 - Detects stack from the tree (`pyproject.toml`, `package.json`/`bun.lock`, `Cargo.toml`, `go.mod`).
 - Writes `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, issue/PR templates, and `skills/{autodevelop,tdd,verify}` **only if missing**.
 - Pins the unit and mutation commands it saw. If mutation is `n/a`, the receipt says `n/a` — it does not invent a score.
-- `--with-automation` adds stale/labeler workflows, CODEOWNERS, and `create-labels.sh`. Still does not merge.
+- `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, and `create-labels.sh`. Still does not merge. AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
+- Factory control plane: [docs/factory.md](docs/factory.md) maps Linear HITL onto this loop so other opted-in repos get the same contract.
 - `--labels` creates GitHub labels when `gh` is authenticated.
 - `--install` on `setup-verify.sh` is opt-in and only installs a mutator for the detected primary stack ([Stryker](https://github.com/stryker-mutator/stryker-js), [mutmut](https://github.com/boxed/mutmut), or [cargo-mutants](https://github.com/sourcefrog/cargo-mutants)). Go gets `go test` and an honest `n/a`.
 - Never overwrites `LICENSE`. Never copies another project's UI, `.env`, or device tests.
 
-See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), and [docs/prior-art.md](docs/prior-art.md).
+See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), and [docs/factory.md](docs/factory.md).
 
 Proof for this kit: `bash tests/smoke.sh`.
 
@@ -84,7 +85,7 @@ A project needs only:
 - issue labels: `priority`, `claimable`, `claimed`, `needs-review`, `blocked`
 - claim comment with expiry
 - evidence section in the PR template
-- one independent reviewer
+- one independent reviewer (human or a review bot the project already runs — still not merge)
 - human merge gate
 
 See [SPEC.md](SPEC.md) for the complete contracts.
