@@ -72,6 +72,12 @@ grep -q 'KEEP-LICENSE' "$TMP/py/LICENSE" || fail "LICENSE was overwritten"
 grep -q 'https://github.com/kvnloo/PyKit' "$TMP/py/prompt.md" || fail "prompt.md must link to the onboarded repo"
 if grep -q '{{REPO_URL}}' "$TMP/py/prompt.md"; then fail "placeholder left in prompt.md"; fi
 if grep -q 'x-access-token:' "$TMP/py/prompt.md"; then fail "prompt.md leaked a token"; fi
+grep -q 'triage' "$TMP/py/prompt.md" || fail "onboarded prompt.md missing triage branch"
+grep -q 'needs-discussion' "$TMP/py/prompt.md" || fail "onboarded prompt.md missing needs-discussion"
+grep -q 'triage' "$TMP/py/skills/autodevelop/SKILL.md" || fail "onboarded autodevelop skill missing triage branch"
+grep -q 'needs-discussion' "$TMP/py/skills/autodevelop/SKILL.md" || fail "onboarded autodevelop skill missing needs-discussion"
+if grep -q 'If nothing is claimable: stop' "$TMP/py/prompt.md"; then fail "empty claimable queue must not be stop-only"; fi
+if grep -q 'If nothing is claimable: stop' "$TMP/py/skills/autodevelop/SKILL.md"; then fail "empty claimable queue must not be stop-only in autodevelop"; fi
 
 mkdir -p "$TMP/new"
 "$HERE/scripts/init-oss-repo.sh" --new "$TMP/new" --name Smoke --owner kvnloo >/dev/null

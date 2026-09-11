@@ -8,6 +8,7 @@ Create these in GitHub Settings → Labels, or copy and run `.github/scripts/cre
 |---|---|---|
 | claimable | 0E8A16 | Maintainers opened this for a bounded claim |
 | claimed | FBCA04 | A live lease exists |
+| needs-discussion | D876E3 | Maintainer or worker proposal; not a claim until promoted to claimable |
 | needs-review | 5319E7 | Evidence receipt is attached; independent review next |
 | blocked | D93F0B | External or policy block |
 | keep | 1D76DB | KEEP after merge |

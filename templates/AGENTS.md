@@ -20,7 +20,7 @@ gh pr list --state open
 
 Take **one** open issue labeled `claimable` and not `claimed`. Prefer `priority:P0`, then `P1`, then `good-first-issue`. Skip `needs-discussion` unless a human assigned it.
 
-If nothing is claimable: stop. Comment a one-paragraph proposal on the newest `needs-discussion` issue. Do not start coding.
+If nothing is `claimable`: do not code. **Triage** — if a `needs-discussion` issue exists: one-paragraph proposal on the newest; stop. If none: mint **exactly one** issue from the first untracked item in `ROADMAP.md`, else a failing unit command from `AGENTS.md`, else docs drift; label **`needs-discussion` only**; stop. Do not self-apply `claimable`. Do not rewrite `ROADMAP.md`. **Stop** if triage found nothing untracked, a live claim exists, a competing PR covers the scope, or secrets are required. Comment the blocker only if an issue thread exists. Do not open a consolation PR.
 
 Claim comment (24h lease unless the project says otherwise):
 
