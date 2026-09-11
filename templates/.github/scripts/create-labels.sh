@@ -19,6 +19,7 @@ create() {
 
 create claimable "0E8A16" "Maintainers opened this for a bounded claim"
 create claimed "FBCA04" "A live claim lease exists"
+create "needs-discussion" "D876E3" "Maintainer or worker proposal; not a claim until promoted to claimable"
 create needs-review "5319E7" "Evidence receipt attached; independent review next"
 create blocked "D93F0B" "External or policy block"
 create keep "1D76DB" "KEEP after merge"

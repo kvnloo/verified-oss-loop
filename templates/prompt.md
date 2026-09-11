@@ -21,7 +21,11 @@ gh issue list --repo {{OWNER}}/{{REPO}} --label claimable --state open
 gh pr list --repo {{OWNER}}/{{REPO}} --state open
 ```
 
-4. Claim **one** `claimable` issue that is not `claimed`. Prefer `priority:P0`, then `P1`, then `good-first-issue`. Skip `needs-discussion` unless a human assigned it. If nothing is claimable: stop. Comment a one-paragraph proposal on the newest `needs-discussion` issue. Do not start coding.
+4. Branch on the queue:
+
+- **Work** — open `claimable` and not `claimed`: claim **one** leaf. Prefer `priority:P0`, then `P1`, then `good-first-issue`. Skip `needs-discussion` unless a human assigned it.
+- **Triage** — nothing `claimable`: do not code. If a `needs-discussion` issue exists: one-paragraph proposal on the newest; stop. If none: mint **exactly one** issue from the first untracked item in `ROADMAP.md`, else a failing unit command from `AGENTS.md`, else docs drift; label **`needs-discussion` only**; stop. Do not self-apply `claimable`. Do not rewrite `ROADMAP.md`.
+- **Stop** — triage found nothing untracked, a live claim exists, a competing PR covers the scope, or secrets are required.
 
 Claim comment (24h lease unless the project says otherwise):
 
@@ -42,11 +46,11 @@ Then add `claimed` and remove `claimable`.
 
 ## Stop
 
-- Nothing is `claimable`, a live claim exists, or a competing PR covers the scope.
+- Triage found nothing untracked, a live claim exists, or a competing PR covers the scope.
 - You would need secrets, pairing tokens, or maintainer credentials.
 - You were about to merge, force-push `main`, overwrite `LICENSE`, or dump GitNexus/pstack into the tree.
 
-If you stop, leave a comment with the blocker. Do not open a consolation PR.
+If you stop, comment the blocker only if an issue thread exists. Do not open a consolation PR.
 
 ## Skills in this repo
 
