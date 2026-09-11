@@ -74,4 +74,4 @@ When recording a factory outcome, bind it to `head_revision` / merge SHA. Tests 
 
 ## Skills
 
-Factory workers donating a pass on a loop-adopting repo: `skills/autodevelop/SKILL.md` in the **target** (orient → TDD → anti-slop). Graph/LSP catalog: [agent-onboarding.md](agent-onboarding.md). This file is for the factory control plane.
+Factory workers donating a pass on a loop-adopting repo: `skills/autodevelop/SKILL.md` in the **target** (orient → TDD → anti-slop). Graph/LSP catalog: [agent-onboarding.md](agent-onboarding.md). Quality at volume (Linux/k8s TAKE/SKIP): [quality-at-scale.md](quality-at-scale.md). This file is for the factory control plane.

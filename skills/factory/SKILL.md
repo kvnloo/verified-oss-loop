@@ -22,6 +22,7 @@ Use the Verified OSS Loop to improve repos that opted into this standard. Do not
 
 - Loop: `SPEC.md`
 - Bot catalog: `docs/quality-bots.md`
+- Quality at volume: `docs/quality-at-scale.md`
 - Graph/LSP onboarding: `docs/agent-onboarding.md`
 - Inventory: `docs/kit-inventory.md`
 - Rollout: `docs/rollout.md`
