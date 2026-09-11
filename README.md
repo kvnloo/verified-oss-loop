@@ -46,7 +46,7 @@ Verified OSS Loop adds the missing contribution contract:
 4. **Every result binds to a revision.** Tests from another head are not evidence.
 5. **Tests are necessary, not sufficient.** Build/runtime/user-path proof follows project policy.
 6. **Generation and verification are separate.** The implementer does not self-approve.
-7. **Workers never merge.** Maintainers or explicitly authorized humans decide.
+7. **Workers never merge `main` or `dev`.** Channel automerge (preview, and nightly under `rolling`) is maintainer-configured by `.verified-oss-loop/rollout.yml`, not a worker merge key.
 8. **Failure is useful.** DISCARD receipts preserve why an approach failed.
 9. **No ceremonial automation.** Small projects can adopt this with labels and a Markdown receipt.
 10. **Project policy wins.** This protocol never overrides CONTRIBUTING, security, AI disclosure, CLA/DCO, or review rules.
@@ -57,7 +57,8 @@ This repo is the protocol (`SPEC.md`) plus an onboarding kit. It does not genera
 
 ```bash
 git clone https://github.com/kvnloo/verified-oss-loop
-./bin/oss-onboard /path/to/repo --with-automation
+./bin/oss-onboard /path/to/repo --with-automation --scheme rolling
+# slower: --scheme staged   classic: --scheme stable
 # or a new tree:
 ./scripts/init-oss-repo.sh --new ./my-lib --name my-lib --owner YOUR_LOGIN --git
 ```
@@ -67,14 +68,14 @@ What it does:
 - Detects stack from the tree (`pyproject.toml`, `package.json`/`bun.lock`, `Cargo.toml`, `go.mod`).
 - Writes `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, a paste-ready `prompt.md` that links to **that** repo, issue/PR templates, and kit skills (`autodevelop`, `orient`, `tdd`, `anti-slop`, `pstack`, `dr-eggbot`, `verify`) via [kit inventory](docs/kit-inventory.md). Re-runs update **kit** files; they never overwrite `source: local` skills (pstack plugin copies, hand-written tools).
 - Pins the unit and mutation commands it saw. If mutation is `n/a`, the receipt says `n/a` — it does not invent a score.
-- `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, and `create-labels.sh`. Still does not merge. AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
+- `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, `create-labels.sh`, and **preview/nightly automerge + promote-preview** gated by `.verified-oss-loop/rollout.yml`. Default `--scheme rolling` (Arch-style). `--scheme staged` or `--scheme stable` for slower repos. [docs/rollout.md](docs/rollout.md). AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
 - Does **not** run GitNexus, dump pstack, or rewrite `AGENTS.md` with a second H1. Graph/LSP/pstack/eggbot: [docs/agent-onboarding.md](docs/agent-onboarding.md).
 - Factory control plane: [docs/factory.md](docs/factory.md) maps Linear HITL onto this loop so other opted-in repos get the same contract.
 - `--labels` creates GitHub labels when `gh` is authenticated.
 - `--install` on `setup-verify.sh` is opt-in and only installs a mutator for the detected primary stack ([Stryker](https://github.com/stryker-mutator/stryker-js), [mutmut](https://github.com/boxed/mutmut), or [cargo-mutants](https://github.com/sourcefrog/cargo-mutants)). Go gets `go test` and an honest `n/a`.
 - Never overwrites `LICENSE`. Never copies another project's UI, `.env`, or device tests.
 
-See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), [docs/agent-onboarding.md](docs/agent-onboarding.md), [docs/kit-inventory.md](docs/kit-inventory.md), and [docs/factory.md](docs/factory.md).
+See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), [docs/agent-onboarding.md](docs/agent-onboarding.md), [docs/kit-inventory.md](docs/kit-inventory.md), [docs/rollout.md](docs/rollout.md), and [docs/factory.md](docs/factory.md).
 
 Proof for this kit: `bash tests/smoke.sh`.
 
@@ -87,7 +88,9 @@ A project needs only:
 - claim comment with expiry
 - evidence section in the PR template
 - one independent reviewer (human or a review bot the project already runs — still not merge)
-- human merge gate
+- human merge gate on `main` (and `dev` when those channels exist)
+
+Default is bleeding-edge rolling (`preview` → `nightly` → gated `dev`/`main`). See [docs/rollout.md](docs/rollout.md).
 
 See [SPEC.md](SPEC.md) for the complete contracts.
 

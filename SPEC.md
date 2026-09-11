@@ -87,7 +87,11 @@ Verdicts:
 
 ## 6. Merge authority
 
-Automation may prepare, test, review, label, and recommend. It must not merge without the repository's normal authorized human/maintainer path. A merged result records the exact merge revision and closes or updates the roadmap item.
+Automation may prepare, test, review, label, and recommend. It must not merge `main` or `dev` without the repository's normal authorized human/maintainer path.
+
+Channel automerge (into `preview`, and into `nightly` when `scheme: rolling`) is allowed only when `.verified-oss-loop/rollout.yml` authorizes that channel, and only for same-repo PRs. That is maintainer-configured channel policy, not worker merge of production. See [docs/rollout.md](docs/rollout.md). Default scheme is Arch-style `rolling`.
+
+A merged result records the exact merge revision and closes or updates the roadmap item.
 
 ## 7. Learning loop
 
@@ -123,9 +127,9 @@ Labels, claim comment, PR evidence template, human review. If this kit onboarded
 
 ### Level 1: Assisted
 
-Bots check expiry, duplicates, receipt completeness, and exact head. They do not merge.
+Bots check expiry, duplicates, receipt completeness, and exact head. They do not merge `main` or `dev`. Preview/nightly automerge is channel policy from `rollout.yml`, not a worker merge key.
 
-This kit's `--with-automation` copies that layer as stack-neutral workflows (claim expiry, receipt + exact-head check, stale/labeler, OpenSSF Scorecard, Actions Dependabot, CODEOWNERS). Catalog of review/coverage/perf apps that need accounts: [docs/quality-bots.md](docs/quality-bots.md). Project policy still wins; do not dump Greptile, Codecov, or a language lockfile updater into every target. Re-running onboard syncs kit-owned files recorded in `.verified-oss-loop/inventory.yml` and does not overwrite `source: local` skills.
+This kit's `--with-automation` copies that layer as stack-neutral workflows (claim expiry, receipt + exact-head check, stale/labeler, OpenSSF Scorecard, Actions Dependabot, CODEOWNERS, plus preview/nightly automerge and promote-preview gated by `rollout.yml`). Catalog of review/coverage/perf apps that need accounts: [docs/quality-bots.md](docs/quality-bots.md). Project policy still wins; do not dump Greptile, Codecov, or a language lockfile updater into every target. Re-running onboard syncs kit-owned files recorded in `.verified-oss-loop/inventory.yml` and does not overwrite `source: local` skills. Default `--scheme rolling`; pass `--scheme staged` or `--scheme stable` for slower repos.
 
 S-tier OSS (Kubernetes Prow/Tide, rust-lang triagebot, CPython bedevere, Home Assistant hassfest, LiteLLM Greptile+CodSpeed+Codecov) uses many specialized bots around a human or explicitly authorized merge path. Independent review bots are SPEC §5 reviewers. They are not SPEC §6 merge authority.
 

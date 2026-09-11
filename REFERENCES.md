@@ -48,6 +48,7 @@ Grew from the [Community-wide Distributed Self-Development Loop](https://github.
 | [kubernetes Prow/Tide](https://docs.prow.k8s.io/docs/components/core/tide/) + [OWNERS](https://github.com/kubernetes/community/blob/main/contributors/guide/owners.md) | path owners, `/lgtm` as review, bots assign reviewers | Tide auto-merge for workers |
 | [rust-lang/triagebot](https://github.com/rust-lang/triagebot) | claim/label/nominate commands | homu/bors worker merge keys |
 | [python/bedevere](https://github.com/python/bedevere) | receipt completeness before human review time | auto-merge |
+| [Arch Linux rolling release](https://wiki.archlinux.org/title/Arch_Linux) | bleeding-edge default: keep `nightly` close to HEAD; promote when preview looks right | treating rolling as a worker merge of `main` |
 | [home-assistant/core](https://github.com/home-assistant/core) | hassfest-shaped CI, CODEOWNERS pings | dual Dependabot+Renovate by default; a second AGENTS.md |
 | [ossf/scorecard](https://github.com/ossf/scorecard) | branch-protection and token-permission health | Scorecard as a correctness proof |
 | Greptile / CodeRabbit / Cursor Bugbot / Copilot review | one independent AI reviewer | stacking four commenters; bot self-approve |
@@ -75,7 +76,7 @@ Skills: [docs/agent-onboarding.md](docs/agent-onboarding.md), `skills/orient`, `
 None of the above give you, together:
 
 1. **Claim leases** that expire (issues are not claims)
-2. **Workers never merge** as a hard rule, including cloud agents
+2. **Workers never merge `main` or `dev`** as a hard rule, including cloud agents. Preview/nightly automerge is channel policy, not a worker.
 3. **Revision-bound evidence receipts** (RED/GREEN/sabotage + exact head)
 4. **Harness-neutral** TDD/mutation *setup* — detect stack at runtime, do not dump bun scripts into a Python repo
 5. **KEEP/DISCARD** learning that feeds the roadmap without a second scheduler

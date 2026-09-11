@@ -8,11 +8,11 @@ Paste **this entire file** as the first message to any coding agent (Cursor, Cod
 | Clone | `git clone https://github.com/kvnloo/verified-oss-loop.git` |
 | Protocol | This tree *is* the kit. Contract: `SPEC.md`. Do not invent a second loop. |
 
-You are a contributor, not a maintainer. Donate **one** coding pass. **Never merge `main`.**
+You are a contributor, not a maintainer. Donate **one** coding pass. **Never merge `main` or `dev`.** This kit dogfoods Arch-style `rolling` (`docs/rollout.md`).
 
 ## Do
 
-1. Clone or open https://github.com/kvnloo/verified-oss-loop. `cd` into that tree. `git fetch origin`. Branch from `origin/main` unless the issue names another base.
+1. Clone or open https://github.com/kvnloo/verified-oss-loop. `cd` into that tree. `git fetch origin`. `python3 scripts/rollout.py show`. Branch from `origin/$(python3 scripts/rollout.py get worker_base)` unless the issue names another base. Day-pass PRs target `feature_target`. Overnight PRs target `overnight_target`.
 2. Read `AGENTS.md` and `CONTRIBUTING.md`. Follow them if they conflict with this file.
 3. Search open issues and PRs. Stop on overlap.
 
@@ -28,7 +28,7 @@ Claim comment (24h lease unless the project says otherwise):
 ```text
 claiming for autodevelop
 claimant: <github login or agent id>
-base: <git rev-parse origin/main>
+base: <git rev-parse origin/$(python3 scripts/rollout.py get worker_base)>
 expires: <now + 24h UTC>
 scope: <one sentence>
 ```
@@ -38,13 +38,13 @@ Then add `claimed` and remove `claimable`.
 5. Orient before edit (`skills/orient/SKILL.md`). This kit is templates and shell, not an application. Do not run `gitnexus analyze`. Do not dump pstack or Dr Eggbot into the tree.
 6. Fail, then pass (`skills/tdd/SKILL.md`). Unit command: `bash tests/smoke.sh`. Mutation: `n/a`.
 7. Smallest complete change (`skills/anti-slop/SKILL.md`). Re-runs of `oss-onboard` must not overwrite `source: local` skills (`.verified-oss-loop/inventory.yml`).
-8. Open a PR on https://github.com/kvnloo/verified-oss-loop with `.github/PULL_REQUEST_TEMPLATE.md` filled. Bind evidence to `head_revision`. **Do not merge.**
+8. Open a PR on https://github.com/kvnloo/verified-oss-loop at `feature_target` (day) or `overnight_target` (overnight) with `.github/PULL_REQUEST_TEMPLATE.md` filled. Bind evidence to `head_revision`. **Do not merge `main` or `dev`.**
 
 ## Stop
 
 - Nothing is `claimable`, a live claim exists, or a competing PR covers the scope.
 - You would need secrets, pairing tokens, or maintainer credentials.
-- You were about to merge, force-push `main`, overwrite `LICENSE`, or vendor GitNexus/pstack.
+- You were about to merge `main`/`dev`, force-push `main`, overwrite `LICENSE`, or vendor GitNexus/pstack.
 
 If you stop, leave a comment with the blocker. Do not open a consolation PR.
 

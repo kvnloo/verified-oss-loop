@@ -8,7 +8,7 @@ Use the Verified OSS Loop to improve repos that opted into this standard. Do not
 2. If the target is `kvnloo/*` and opted in: `./bin/oss-onboard DIR --with-automation`.
 3. If the target is origin OSS: follow origin CONTRIBUTING. Do not copy labels or workflows there.
 4. Claim **one** item. Isolated branch. Orient, then fail-then-pass, then shrink (`skills/orient`, `skills/tdd`, `skills/anti-slop`). Fill the evidence receipt.
-5. Independent review (human or a review bot the project already runs). **Never merge.**
+5. Independent review (human or a review bot the project already runs). **Never merge `main` or `dev`.**
 
 ## Stop
 
@@ -24,4 +24,5 @@ Use the Verified OSS Loop to improve repos that opted into this standard. Do not
 - Bot catalog: `docs/quality-bots.md`
 - Graph/LSP onboarding: `docs/agent-onboarding.md`
 - Inventory: `docs/kit-inventory.md`
+- Rollout: `docs/rollout.md`
 - HITL map: `docs/factory.md`

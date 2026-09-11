@@ -15,11 +15,11 @@ If you were told to autodevelop, donate a coding pass, or pick the next issue: p
 Workers:
 
 1. Claim one `claimable` issue (24h lease).
-2. Work on a branch from `origin/main`.
+2. `python3 .verified-oss-loop/rollout.py show`. Work on a branch from `origin/$(python3 .verified-oss-loop/rollout.py get worker_base)`. Day-pass PRs target `feature_target`.
 3. Orient (`skills/orient/SKILL.md`), then fail, then pass.
 4. Keep the smallest complete change (`skills/anti-slop/SKILL.md`).
 5. Open a PR with an evidence receipt.
-6. **Never merge `main`.**
+6. **Never merge `main` or `dev`.**
 
 ### Humans
 

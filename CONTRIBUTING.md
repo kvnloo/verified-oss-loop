@@ -5,8 +5,8 @@ This repo is the Verified OSS Loop: a protocol (`SPEC.md`) plus an onboarding ki
 1. Search issues and PRs. Do not duplicate.
 2. Claim one `claimable` issue. Issues are not claims.
 3. Isolated branch. Fill the PR evidence block.
-4. Workers never merge `main`.
+4. Workers never merge `main` or `dev`. Default scheme is `rolling` (`docs/rollout.md`).
 
 Project policy here wins over a worker's house rules. See `REFERENCES.md` for credited sources.
 
-CI checks the evidence YAML and exact head (`scripts/check-receipt.py`). Paste `prompt.md` into any harness to autodevelop. Quality-bot catalog: `docs/quality-bots.md`. Agent graph/LSP/pstack tools: `docs/agent-onboarding.md`. Kit vs local skills: `docs/kit-inventory.md`. Factory mapping: `docs/factory.md`. Orient before edit (`skills/orient/SKILL.md`); smallest complete change (`skills/anti-slop/SKILL.md`).
+CI checks the evidence YAML and exact head (`scripts/check-receipt.py`). Paste `prompt.md` into any harness to autodevelop. Quality-bot catalog: `docs/quality-bots.md`. Agent graph/LSP/pstack tools: `docs/agent-onboarding.md`. Kit vs local skills: `docs/kit-inventory.md`. Rollout schemes: `docs/rollout.md`. Factory mapping: `docs/factory.md`. Orient before edit (`skills/orient/SKILL.md`); smallest complete change (`skills/anti-slop/SKILL.md`).

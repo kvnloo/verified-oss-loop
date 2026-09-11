@@ -90,6 +90,49 @@ grep -q 'Smoke' "$TMP/new/AGENTS.md" || fail "second init clobbered or lost name
 
 "$HERE/bin/oss-onboard" "$TMP/new" --name Smoke --owner kvnloo >/dev/null || fail "oss-onboard failed"
 
+[[ -f "$TMP/new/.verified-oss-loop/rollout.yml" ]] || fail "rollout.yml missing after onboard"
+grep -q 'scheme: rolling' "$TMP/new/.verified-oss-loop/rollout.yml" || fail "default scheme is not rolling"
+if grep -q '{{SCHEME}}' "$TMP/new/.verified-oss-loop/rollout.yml"; then fail "placeholder left in rollout.yml"; fi
+[[ -f "$TMP/new/.verified-oss-loop/rollout.py" ]] || fail "rollout.py not copied to .verified-oss-loop"
+[[ -f "$TMP/new/scripts/rollout.py" ]] || fail "rollout.py not copied to scripts/"
+[[ -x "$TMP/new/scripts/ensure-rollout-branches.sh" ]] || fail "ensure-rollout-branches.sh not executable"
+[[ "$(python3 "$TMP/new/.verified-oss-loop/rollout.py" --root "$TMP/new" get worker_base)" == nightly ]] \
+  || fail "rolling worker_base should be nightly"
+python3 "$TMP/new/.verified-oss-loop/rollout.py" --root "$TMP/new" allow-automerge preview \
+  || fail "rolling should allow preview automerge"
+python3 "$TMP/new/.verified-oss-loop/rollout.py" --root "$TMP/new" allow-automerge nightly \
+  || fail "rolling should allow nightly automerge"
+
+mkdir -p "$TMP/stable"
+"$HERE/scripts/init-oss-repo.sh" --new "$TMP/stable" --name Stable --owner kvnloo --scheme stable >/dev/null
+grep -q 'scheme: stable' "$TMP/stable/.verified-oss-loop/rollout.yml" || fail "stable scheme not written"
+[[ "$(python3 "$HERE/scripts/rollout.py" --root "$TMP/stable" get worker_base)" == main ]] \
+  || fail "stable worker_base should be main"
+if python3 "$HERE/scripts/rollout.py" --root "$TMP/stable" allow-automerge preview; then
+  fail "stable must not allow preview automerge"
+fi
+if python3 "$HERE/scripts/rollout.py" --root "$TMP/stable" allow-promote preview-to-nightly; then
+  fail "stable must not allow preview-to-nightly promote"
+fi
+
+mkdir -p "$TMP/staged"
+"$HERE/scripts/init-oss-repo.sh" --new "$TMP/staged" --name Staged --owner kvnloo --scheme staged >/dev/null
+python3 "$HERE/scripts/rollout.py" --root "$TMP/staged" allow-automerge preview \
+  || fail "staged should allow preview automerge"
+if python3 "$HERE/scripts/rollout.py" --root "$TMP/staged" allow-automerge nightly; then
+  fail "staged must not allow nightly automerge"
+fi
+python3 "$HERE/scripts/rollout.py" --root "$TMP/staged" allow-promote preview-to-nightly \
+  || fail "staged should allow operator promote"
+
+if "$HERE/scripts/init-oss-repo.sh" --target "$TMP/bad-scheme" --scheme nope >/dev/null 2>&1; then
+  fail "invalid --scheme must fail"
+fi
+
+grep -q 'rollout.py' "$TMP/new/AGENTS.md" || fail "onboarded AGENTS.md missing rollout.py"
+grep -q 'rollout.py' "$TMP/new/prompt.md" || fail "onboarded prompt.md missing rollout.py"
+grep -q 'Never merge `main` or `dev`' "$TMP/new/AGENTS.md" || fail "onboarded AGENTS.md missing main/dev merge guard"
+
 mkdir -p "$TMP/auto"
 "$HERE/scripts/init-oss-repo.sh" --new "$TMP/auto" --name Auto --owner kvnloo --with-automation >/dev/null
 [[ -f "$TMP/auto/.github/workflows/stale.yml" ]] || fail "automation did not copy stale.yml"
@@ -103,6 +146,13 @@ grep -q 'path: .github/workflows/stale.yml' "$TMP/auto/.verified-oss-loop/invent
 [[ -f "$TMP/auto/.github/scripts/check-receipt.py" ]] || fail "check-receipt.py missing"
 [[ -f "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh missing"
 [[ -x "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh not executable"
+[[ -f "$TMP/auto/.github/workflows/automerge-preview.yml" ]] || fail "automation did not copy automerge-preview.yml"
+[[ -f "$TMP/auto/.github/workflows/automerge-nightly.yml" ]] || fail "automation did not copy automerge-nightly.yml"
+[[ -f "$TMP/auto/.github/workflows/promote-preview.yml" ]] || fail "automation did not copy promote-preview.yml"
+grep -q 'scripts/rollout.py' "$TMP/auto/.github/workflows/automerge-preview.yml" \
+  || fail "automerge-preview must call scripts/rollout.py"
+grep -q 'github.event.pull_request.base.ref' "$TMP/auto/.github/workflows/automerge-preview.yml" \
+  || fail "automerge must read scheme from the base branch"
 if grep -q 'package-ecosystem: npm' "$TMP/auto/.github/dependabot.yml"; then
   fail "dependabot baked a language ecosystem"
 fi
@@ -139,6 +189,7 @@ done
 python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.json"
 python3 -m py_compile "$HERE/scripts/check-receipt.py" || fail "check-receipt.py"
 python3 -m py_compile "$HERE/scripts/kit-inventory.py" || fail "kit-inventory.py"
+python3 -m py_compile "$HERE/scripts/rollout.py" || fail "rollout.py"
 
 # Inventory: new kit skills appear; local skills survive; --force does not clobber local
 INV="$TMP/new/.verified-oss-loop/inventory.yml"
