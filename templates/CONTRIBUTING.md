@@ -10,15 +10,16 @@ See the README for install, run, and configuration. Do not commit secrets.
 
 ### Autodevelop (agents)
 
-If you were told to autodevelop, donate a coding pass, or pick the next issue: read `AGENTS.md` and `skills/autodevelop/SKILL.md`. Do not invent a parallel process.
+If you were told to autodevelop, donate a coding pass, or pick the next issue: paste `prompt.md` (it links to this repo) and follow `AGENTS.md` and `skills/autodevelop/SKILL.md`. Do not invent a parallel process.
 
 Workers:
 
 1. Claim one `claimable` issue (24h lease).
 2. Work on a branch from `origin/main`.
-3. Fail, then pass.
-4. Open a PR with an evidence receipt.
-5. **Never merge `main`.**
+3. Orient (`skills/orient/SKILL.md`), then fail, then pass.
+4. Keep the smallest complete change (`skills/anti-slop/SKILL.md`).
+5. Open a PR with an evidence receipt.
+6. **Never merge `main`.**
 
 ### Humans
 
@@ -34,7 +35,9 @@ Every PR fills `.github/PULL_REQUEST_TEMPLATE.md`:
 - mutation command and score, or `n/a`
 - contribution mode: unattended (cloud agent) or copilot (human-supervised)
 
-Tests from another head are not evidence.
+Tests from another head are not evidence. `--with-automation` adds a CI check that the YAML keys exist and `head_revision` matches the PR SHA.
+
+Independent review bots the project already installed (Greptile, CodeRabbit, Bugbot, Copilot, Codecov, CodSpeed) are reviewers and evidence, not merge authority.
 
 ## Prior art
 

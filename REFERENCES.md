@@ -40,6 +40,36 @@ Expanded table: [docs/prior-art.md](docs/prior-art.md).
 
 Grew from the [Community-wide Distributed Self-Development Loop](https://github.com/AndyMik90/Aperant/discussions/306), then Hermes autoresearch ([#5114](https://github.com/NousResearch/hermes-agent/issues/5114)) and reversible harness refinement ([#93306](https://github.com/NousResearch/hermes-agent/issues/93306)).
 
+## Quality bots (Level 1 assistants, not merge)
+
+| Source | What we take | What we do not take |
+|---|---|---|
+| [BerriAI/litellm](https://github.com/BerriAI/litellm) ([#40744](https://github.com/BerriAI/litellm/pull/40744)) | Greptile + CodSpeed + Codecov as independent evidence on one PR; Scorecard/CodeQL/Semgrep/mutation as required checks | copying their full workflow tree; Greptile score as merge |
+| [kubernetes Prow/Tide](https://docs.prow.k8s.io/docs/components/core/tide/) + [OWNERS](https://github.com/kubernetes/community/blob/main/contributors/guide/owners.md) | path owners, `/lgtm` as review, bots assign reviewers | Tide auto-merge for workers |
+| [rust-lang/triagebot](https://github.com/rust-lang/triagebot) | claim/label/nominate commands | homu/bors worker merge keys |
+| [python/bedevere](https://github.com/python/bedevere) | receipt completeness before human review time | auto-merge |
+| [home-assistant/core](https://github.com/home-assistant/core) | hassfest-shaped CI, CODEOWNERS pings | dual Dependabot+Renovate by default; a second AGENTS.md |
+| [ossf/scorecard](https://github.com/ossf/scorecard) | branch-protection and token-permission health | Scorecard as a correctness proof |
+| Greptile / CodeRabbit / Cursor Bugbot / Copilot review | one independent AI reviewer | stacking four commenters; bot self-approve |
+
+Catalog and factory mapping: [docs/quality-bots.md](docs/quality-bots.md), [docs/factory.md](docs/factory.md).
+
+## Agentic onboarding (catalog, do not vendor)
+
+| Source | What we take | What we do not take |
+|---|---|---|
+| [abhigyanpatwari/GitNexus](https://github.com/abhigyanpatwari/GitNexus) | If MCP is already present: `query` → `context` → `impact` before edit | Running `gitnexus analyze` from onboard; copying source/skills (PolyForm Noncommercial ≠ Apache-2.0); a second `AGENTS.md` H1 |
+| [oraios/serena](https://github.com/oraios/serena) (MIT) | LSP symbol retrieve as the OSS fallback | Dumping Serena into every target |
+| [upstash/context7](https://github.com/upstash/context7) (MIT) | Versioned library docs | Using it as a repo graph |
+| DeepWiki | Optional orientation wiki | Wiki text as evidence |
+| [yamadashy/repomix](https://github.com/yamadashy/repomix) / [cyclotruc/gitingest](https://github.com/cyclotruc/gitingest) | One-shot packed tree | Pasting a whole pack every turn |
+| [ast-grep/ast-grep](https://github.com/ast-grep/ast-grep) (MIT) | Structural search when the graph is missing | Replacing tests with search |
+| [agents.md](https://agents.md/) | One portable agent file | N copies (`CLAUDE.md` + `GEMINI.md` + copilot-instructions) |
+| [pstack](https://github.com/cursor/plugins/tree/main/pstack) (MIT, Lauren Tan) | `/poteto-mode` when the plugin is already in the workspace | Dumping the plugin tree; shipping playbooks that merge |
+| Dr Eggbot | One-job skill/bot design; fleet healthcheck | Copying the Grok marketplace bot; treating oss-factory as the source (it is not) |
+
+Skills: [docs/agent-onboarding.md](docs/agent-onboarding.md), `skills/orient`, `skills/anti-slop`, `skills/pstack`, `skills/dr-eggbot`. Inventory: [docs/kit-inventory.md](docs/kit-inventory.md).
+
 ## Gap those projects leave
 
 None of the above give you, together:

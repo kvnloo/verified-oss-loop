@@ -39,6 +39,8 @@ limitations: []
 ai_assistance:
 ```
 
+CI runs `scripts/check-receipt.py` against this block and the PR head SHA. Independent review bots are not merge.
+
 ## Related
 
 <!-- Fixes #123 -->
