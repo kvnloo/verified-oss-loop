@@ -16,9 +16,10 @@ Workers:
 
 1. Claim one `claimable` issue (24h lease).
 2. Work on a branch from `origin/main`.
-3. Fail, then pass.
-4. Open a PR with an evidence receipt.
-5. **Never merge `main`.**
+3. Orient (`skills/orient/SKILL.md`), then fail, then pass.
+4. Keep the smallest complete change (`skills/anti-slop/SKILL.md`).
+5. Open a PR with an evidence receipt.
+6. **Never merge `main`.**
 
 ### Humans
 

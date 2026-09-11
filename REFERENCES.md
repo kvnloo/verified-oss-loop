@@ -54,6 +54,22 @@ Grew from the [Community-wide Distributed Self-Development Loop](https://github.
 
 Catalog and factory mapping: [docs/quality-bots.md](docs/quality-bots.md), [docs/factory.md](docs/factory.md).
 
+## Agentic onboarding (catalog, do not vendor)
+
+| Source | What we take | What we do not take |
+|---|---|---|
+| [abhigyanpatwari/GitNexus](https://github.com/abhigyanpatwari/GitNexus) | If MCP is already present: `query` → `context` → `impact` before edit | Running `gitnexus analyze` from onboard; copying source/skills (PolyForm Noncommercial ≠ Apache-2.0); a second `AGENTS.md` H1 |
+| [oraios/serena](https://github.com/oraios/serena) (MIT) | LSP symbol retrieve as the OSS fallback | Dumping Serena into every target |
+| [upstash/context7](https://github.com/upstash/context7) (MIT) | Versioned library docs | Using it as a repo graph |
+| DeepWiki | Optional orientation wiki | Wiki text as evidence |
+| [yamadashy/repomix](https://github.com/yamadashy/repomix) / [cyclotruc/gitingest](https://github.com/cyclotruc/gitingest) | One-shot packed tree | Pasting a whole pack every turn |
+| [ast-grep/ast-grep](https://github.com/ast-grep/ast-grep) (MIT) | Structural search when the graph is missing | Replacing tests with search |
+| [agents.md](https://agents.md/) | One portable agent file | N copies (`CLAUDE.md` + `GEMINI.md` + copilot-instructions) |
+| [pstack](https://github.com/cursor/plugins/tree/main/pstack) (MIT, Lauren Tan) | `/poteto-mode` when the plugin is already in the workspace | Dumping the plugin tree; shipping playbooks that merge |
+| Dr Eggbot | One-job skill/bot design; fleet healthcheck | Copying the Grok marketplace bot; treating oss-factory as the source (it is not) |
+
+Skills: [docs/agent-onboarding.md](docs/agent-onboarding.md), `skills/orient`, `skills/anti-slop`, `skills/pstack`, `skills/dr-eggbot`. Inventory: [docs/kit-inventory.md](docs/kit-inventory.md).
+
 ## Gap those projects leave
 
 None of the above give you, together:

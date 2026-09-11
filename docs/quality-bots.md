@@ -83,4 +83,4 @@ Bots only help if GitHub settings match the contract:
 
 ## Factory
 
-Repos the OSS factory maintains that opt into this standard get the same kit via `./bin/oss-onboard DIR --with-automation`. Origin communities keep their own bots. See [factory.md](factory.md).
+Repos the OSS factory maintains that opt into this standard get the same kit via `./bin/oss-onboard DIR --with-automation`. Origin communities keep their own bots. See [factory.md](factory.md). Graph/LSP orientation tools are a separate catalog: [agent-onboarding.md](agent-onboarding.md).

@@ -44,7 +44,9 @@ Then, in that repo:
 1. Fill `AGENTS.md` ownership and pin the unit command `detect-stack.sh` already wrote.
 2. Protect `main` (PR required, receipt + unit checks, no worker merge).
 3. Optionally install **one** AI reviewer (Greptile / CodeRabbit / Bugbot) and coverage/perf apps. Catalog: [quality-bots.md](quality-bots.md).
-4. Open a PR with an evidence receipt. **Never merge.**
+4. Re-run `oss-onboard` after a kit release. Inventory (`.verified-oss-loop/inventory.yml`) updates kit skills and leaves local pstack/eggbot copies alone. See [kit-inventory.md](kit-inventory.md).
+5. Orient (`skills/orient/SKILL.md`) then TDD, then shrink (`skills/anti-slop/SKILL.md`). Do not run `gitnexus analyze` unless the maintainer already uses GitNexus.
+6. Open a PR with an evidence receipt. **Never merge.**
 
 Do not:
 
@@ -52,6 +54,7 @@ Do not:
 - Add npm/pip/cargo Dependabot ecosystems unless that lockfile exists.
 - Treat factory traction (`4*merged + …`) as roadmap priority. Score is an outcome view, not a claim lease.
 - Spray comments to farm `conversations` weight.
+- Run `gitnexus analyze` from `oss-onboard` or an unattended claim. Graph tools are catalog-only until a human installed them.
 
 ## Origin OSS (read their bots, do not replace them)
 
@@ -71,4 +74,4 @@ When recording a factory outcome, bind it to `head_revision` / merge SHA. Tests 
 
 ## Skills
 
-Factory workers donating a pass on a loop-adopting repo: `skills/autodevelop/SKILL.md` in the **target**. This file is for the factory control plane.
+Factory workers donating a pass on a loop-adopting repo: `skills/autodevelop/SKILL.md` in the **target** (orient → TDD → anti-slop). Graph/LSP catalog: [agent-onboarding.md](agent-onboarding.md). This file is for the factory control plane.

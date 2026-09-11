@@ -4,7 +4,7 @@
 # Usage:
 #   init-oss-repo.sh --target DIR [--name NAME] [--owner LOGIN] [--repo REPO]
 #   init-oss-repo.sh --new DIR [--name NAME] [--owner LOGIN] [--git]
-#   Flags: --with-automation  --labels  --force
+#   Flags: --with-automation  --labels  --force  --status
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
@@ -14,6 +14,7 @@ TARGET=""
 NEW=0
 GIT_INIT=0
 FORCE=0
+STATUS=0
 AUTOMATION=0
 LABELS=0
 NAME=""
@@ -39,12 +40,18 @@ while [[ $# -gt 0 ]]; do
     --with-automation) AUTOMATION=1; shift ;;
     --labels) LABELS=1; shift ;;
     --force) FORCE=1; shift ;;
+    --status) STATUS=1; shift ;;
     -h|--help) usage 0 ;;
     *) echo "unknown arg: $1" >&2; usage 2 ;;
   esac
 done
 
 [[ -n "$TARGET" ]] || usage 2
+if [[ "$STATUS" -eq 1 ]]; then
+  TARGET="$(cd "$TARGET" && pwd)"
+  python3 "$HERE/scripts/kit-inventory.py" show --root "$TARGET"
+  exit $?
+fi
 mkdir -p "$TARGET"
 TARGET="$(cd "$TARGET" && pwd)"
 
@@ -106,17 +113,51 @@ subst() {
       "$src" >"$dest"
 }
 
+INVPY="$HERE/scripts/kit-inventory.py"
+SESSION="$(mktemp)"
+KIT_PATHS="$(mktemp)"
+cleanup_session() { rm -f "$SESSION" "$KIT_PATHS"; }
+trap cleanup_session EXIT
+
+KIT_REV="unknown"
+if git -C "$HERE" rev-parse HEAD >/dev/null 2>&1; then
+  KIT_REV="$(git -C "$HERE" rev-parse HEAD)"
+fi
+KIT_URL="https://github.com/kvnloo/verified-oss-loop"
+
+APPLY_FORCE=()
+if [[ "$FORCE" -eq 1 ]]; then
+  APPLY_FORCE=(--force)
+fi
+
+note_kit_path() {
+  printf '%s\n' "$1" >>"$KIT_PATHS"
+}
+
+apply_incoming() {
+  local rel="$1" incoming="$2"
+  local chmod_args=()
+  if [[ "${3:-}" != "" ]]; then
+    chmod_args=(--chmod "$3")
+  fi
+  note_kit_path "$rel"
+  python3 "$INVPY" apply --root "$TARGET" --path "$rel" --incoming "$incoming" \
+    --session "$SESSION" "${APPLY_FORCE[@]}" "${chmod_args[@]}"
+}
+
 copy_file() {
   local rel="$1"
   local src="$TEMPLATES/$rel"
-  local dest="$TARGET/$rel"
-  mkdir -p "$(dirname "$dest")"
-  if [[ -e "$dest" && "$FORCE" -eq 0 ]]; then
-    echo "skip existing: $rel"
-    return 0
-  fi
-  subst "$src" "$dest"
-  echo "wrote $rel"
+  local tmp
+  tmp="$(mktemp)"
+  subst "$src" "$tmp"
+  apply_incoming "$rel" "$tmp"
+  rm -f "$tmp"
+}
+
+copy_raw() {
+  local rel="$1" src="$2"
+  apply_incoming "$rel" "$src" "${3:-}"
 }
 
 load_stack
@@ -127,7 +168,11 @@ HEALTH=(
   SECURITY.md
   roadmap.example.yml
   skills/autodevelop/SKILL.md
+  skills/orient/SKILL.md
   skills/tdd/SKILL.md
+  skills/anti-slop/SKILL.md
+  skills/pstack/SKILL.md
+  skills/dr-eggbot/SKILL.md
   skills/verify/SKILL.md
   .github/PULL_REQUEST_TEMPLATE.md
   .github/ISSUE_TEMPLATE/config.yml
@@ -135,29 +180,18 @@ HEALTH=(
   .github/ISSUE_TEMPLATE/feature.yml
   .github/ISSUE_TEMPLATE/claim.yml
   .github/labels.md
+  .verified-oss-loop/README.md
 )
 
 for f in "${HEALTH[@]}"; do
   copy_file "$f"
 done
 
+copy_raw .verified-oss-loop/kit-inventory.py "$HERE/scripts/kit-inventory.py"
+
 if [[ -e "$TARGET/LICENSE" ]]; then
   echo "keep existing: LICENSE"
 fi
-
-copy_script() {
-  local src="$1" dest="$2"
-  mkdir -p "$(dirname "$dest")"
-  if [[ -e "$dest" && "$FORCE" -eq 0 ]]; then
-    echo "skip existing: ${dest#"$TARGET"/}"
-    return 0
-  fi
-  cp "$src" "$dest"
-  if [[ "$dest" == *.sh ]]; then
-    chmod +x "$dest"
-  fi
-  echo "wrote ${dest#"$TARGET"/}"
-}
 
 if [[ "$AUTOMATION" -eq 1 ]]; then
   copy_file .github/labeler.yml
@@ -168,29 +202,25 @@ if [[ "$AUTOMATION" -eq 1 ]]; then
   copy_file .github/workflows/scorecard.yml
   copy_file .github/dependabot.yml
   copy_file .github/CODEOWNERS
-  mkdir -p "$TARGET/.github/scripts"
-  if [[ -e "$TARGET/.github/scripts/create-labels.sh" && "$FORCE" -eq 0 ]]; then
-    echo "skip existing: .github/scripts/create-labels.sh"
-  else
-    subst "$TEMPLATES/.github/scripts/create-labels.sh" "$TARGET/.github/scripts/create-labels.sh"
+  copy_file .github/scripts/create-labels.sh
+  if [[ -f "$TARGET/.github/scripts/create-labels.sh" ]]; then
     chmod +x "$TARGET/.github/scripts/create-labels.sh"
-    echo "wrote .github/scripts/create-labels.sh"
   fi
-  copy_script "$HERE/scripts/check-receipt.py" "$TARGET/.github/scripts/check-receipt.py"
-  copy_script "$HERE/scripts/expire-claims.sh" "$TARGET/.github/scripts/expire-claims.sh"
+  copy_raw .github/scripts/check-receipt.py "$HERE/scripts/check-receipt.py"
+  copy_raw .github/scripts/expire-claims.sh "$HERE/scripts/expire-claims.sh" 755
 fi
 
-if [[ "$LABELS" -eq 1 ]]; then
-  if [[ "$AUTOMATION" -eq 0 ]]; then
-    mkdir -p "$TARGET/.github/scripts"
-    if [[ -e "$TARGET/.github/scripts/create-labels.sh" && "$FORCE" -eq 0 ]]; then
-      echo "skip existing: .github/scripts/create-labels.sh"
-    else
-      subst "$TEMPLATES/.github/scripts/create-labels.sh" "$TARGET/.github/scripts/create-labels.sh"
-      chmod +x "$TARGET/.github/scripts/create-labels.sh"
-      echo "wrote .github/scripts/create-labels.sh"
-    fi
+if [[ "$LABELS" -eq 1 && "$AUTOMATION" -eq 0 ]]; then
+  copy_file .github/scripts/create-labels.sh
+  if [[ -f "$TARGET/.github/scripts/create-labels.sh" ]]; then
+    chmod +x "$TARGET/.github/scripts/create-labels.sh"
   fi
+fi
+
+python3 "$INVPY" finalize --root "$TARGET" --session "$SESSION" --kit-paths "$KIT_PATHS" \
+  --kit-revision "$KIT_REV" --kit-url "$KIT_URL"
+
+if [[ "$LABELS" -eq 1 ]]; then
   if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
     (cd "$TARGET" && bash .github/scripts/create-labels.sh)
   else
@@ -206,4 +236,5 @@ echo "  1. Edit AGENTS.md ownership if this repo has split surfaces"
 echo "  2. gh auth + .github/scripts/create-labels.sh  (or rerun with --labels)"
 echo "  3. Fill SECURITY.md with a real private contact"
 echo "  4. Protect main (PR + receipt/unit checks). Optional: one AI reviewer from docs/quality-bots.md"
-echo "  5. Workers never merge main"
+echo "  5. Commit .verified-oss-loop/inventory.yml (kit vs local provenance)"
+echo "  6. Workers never merge main"

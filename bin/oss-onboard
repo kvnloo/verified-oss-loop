@@ -3,6 +3,7 @@
 # Usage:
 #   oss-onboard DIR [init-oss-repo flags...]
 #   oss-onboard --init [--with-automation] [--labels] [--force]
+#   oss-onboard DIR --status
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
@@ -10,13 +11,17 @@ INIT="$HERE/scripts/init-oss-repo.sh"
 
 args=()
 TARGET=""
+STATUS=0
 for arg in "$@"; do
   case "$arg" in
     --init)
       TARGET="$(pwd)"
       ;;
+    --status)
+      STATUS=1
+      ;;
     -h|--help)
-      sed -n '2,6p' "$0" | sed 's/^# //'
+      sed -n '2,7p' "$0" | sed 's/^# //'
       echo
       "$INIT" --help
       exit 0
@@ -29,11 +34,15 @@ done
 
 if [[ -z "$TARGET" ]]; then
   if [[ ${#args[@]} -eq 0 ]]; then
-    echo "usage: oss-onboard DIR | oss-onboard --init" >&2
+    echo "usage: oss-onboard DIR | oss-onboard --init | oss-onboard DIR --status" >&2
     exit 2
   fi
   TARGET="${args[0]}"
   args=("${args[@]:1}")
+fi
+
+if [[ "$STATUS" -eq 1 ]]; then
+  args+=(--status)
 fi
 
 if [[ ${#args[@]} -gt 0 ]]; then

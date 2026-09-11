@@ -56,6 +56,17 @@ grep -q 'PyKit' "$TMP/py/AGENTS.md" || fail "name not substituted"
 grep -q 'python -m pytest' "$TMP/py/AGENTS.md" || fail "unit cmd not substituted"
 if grep -q '{{UNIT_CMD}}' "$TMP/py/AGENTS.md"; then fail "placeholder left in AGENTS.md"; fi
 [[ -f "$TMP/py/skills/tdd/SKILL.md" ]] || fail "skills not copied"
+[[ -f "$TMP/py/skills/orient/SKILL.md" ]] || fail "orient skill not copied"
+[[ -f "$TMP/py/skills/anti-slop/SKILL.md" ]] || fail "anti-slop skill not copied"
+[[ -f "$TMP/py/skills/pstack/SKILL.md" ]] || fail "pstack skill not copied"
+[[ -f "$TMP/py/skills/dr-eggbot/SKILL.md" ]] || fail "dr-eggbot skill not copied"
+grep -q 'smallest complete change' "$TMP/py/skills/anti-slop/SKILL.md" || fail "anti-slop patterns missing"
+grep -q 'gitnexus analyze' "$TMP/py/skills/orient/SKILL.md" || fail "orient missing gitnexus guard"
+grep -q 'skills/orient/SKILL.md' "$TMP/py/AGENTS.md" || fail "AGENTS.md missing orient pointer"
+grep -q 'skills/anti-slop/SKILL.md' "$TMP/py/AGENTS.md" || fail "AGENTS.md missing anti-slop pointer"
+if grep -q 'gitnexus/src' "$TMP/py/skills/orient/SKILL.md"; then
+  fail "orient skill looks like vendored GitNexus"
+fi
 grep -q 'KEEP-LICENSE' "$TMP/py/LICENSE" || fail "LICENSE was overwritten"
 
 mkdir -p "$TMP/new"
@@ -71,6 +82,8 @@ grep -q 'Smoke' "$TMP/new/AGENTS.md" || fail "second init clobbered or lost name
 mkdir -p "$TMP/auto"
 "$HERE/scripts/init-oss-repo.sh" --new "$TMP/auto" --name Auto --owner kvnloo --with-automation >/dev/null
 [[ -f "$TMP/auto/.github/workflows/stale.yml" ]] || fail "automation did not copy stale.yml"
+grep -q 'path: .github/workflows/stale.yml' "$TMP/auto/.verified-oss-loop/inventory.yml" \
+  || fail "inventory lost leading dot on .github paths"
 [[ -f "$TMP/auto/.github/workflows/receipt.yml" ]] || fail "automation did not copy receipt.yml"
 [[ -f "$TMP/auto/.github/workflows/claim-expiry.yml" ]] || fail "automation did not copy claim-expiry.yml"
 [[ -f "$TMP/auto/.github/workflows/scorecard.yml" ]] || fail "automation did not copy scorecard.yml"
@@ -84,6 +97,19 @@ if grep -q 'package-ecosystem: npm' "$TMP/auto/.github/dependabot.yml"; then
 fi
 grep -q 'Verified OSS Loop' "$HERE/docs/factory.md" || fail "factory adapter missing"
 grep -q 'workers never merge' "$HERE/docs/quality-bots.md" || fail "quality-bots catalog missing protocol rule"
+grep -q 'PolyForm Noncommercial' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing GitNexus license"
+grep -q 'oraios/serena' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing Serena"
+grep -q 'pstack' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing pstack"
+grep -q 'dr-eggbot' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing dr-eggbot"
+grep -q -- '--source local' "$HERE/docs/kit-inventory.md" || fail "kit-inventory doc missing local rule"
+if grep -q 'x-access-token:' "$HERE/scripts/init-oss-repo.sh"; then
+  fail "init must not write credentialed remotes into inventory"
+fi
+grep -q 'query' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing GitNexus query"
+if [[ -d "$HERE/gitnexus" ]] || [[ -d "$HERE/GitNexus" ]]; then
+  fail "GitNexus source must not be vendored into this kit"
+fi
+grep -q 'Orient on the existing tree' "$HERE/SPEC.md" || fail "SPEC missing orient sentence"
 
 python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-good.md" \
   --head 1234567890abcdef1234567890abcdef12345678 >/dev/null \
@@ -100,5 +126,38 @@ for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh"; do
 done
 python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.json"
 python3 -m py_compile "$HERE/scripts/check-receipt.py" || fail "check-receipt.py"
+python3 -m py_compile "$HERE/scripts/kit-inventory.py" || fail "kit-inventory.py"
+
+# Inventory: new kit skills appear; local skills survive; --force does not clobber local
+INV="$TMP/new/.verified-oss-loop/inventory.yml"
+[[ -f "$INV" ]] || fail "inventory.yml missing after onboard"
+[[ "$(python3 "$HERE/scripts/kit-inventory.py" source --root "$TMP/new" --path skills/tdd/SKILL.md)" == kit ]] \
+  || fail "tdd should be source=kit"
+[[ -f "$TMP/new/skills/pstack/SKILL.md" ]] || fail "pstack pointer skill not copied"
+[[ -f "$TMP/new/skills/dr-eggbot/SKILL.md" ]] || fail "dr-eggbot skill not copied"
+grep -q 'Workers never merge' "$TMP/new/skills/pstack/SKILL.md" || fail "pstack missing merge guard"
+grep -q 'One job' "$TMP/new/skills/dr-eggbot/SKILL.md" || fail "dr-eggbot missing one-job bar"
+if grep -q 'subagent_type: "poteto-agent"' "$TMP/new/skills/pstack/SKILL.md"; then
+  fail "pstack pointer must not vendor plugin internals"
+fi
+mkdir -p "$TMP/new/skills/local-bot"
+echo 'LOCAL-SKILL' >"$TMP/new/skills/local-bot/SKILL.md"
+echo 'KEEP-TDD' >>"$TMP/new/skills/tdd/SKILL.md"
+"$HERE/scripts/init-oss-repo.sh" --target "$TMP/new" --name Smoke --owner kvnloo >/dev/null
+grep -q 'LOCAL-SKILL' "$TMP/new/skills/local-bot/SKILL.md" || fail "local skill was overwritten"
+grep -q 'KEEP-TDD' "$TMP/new/skills/tdd/SKILL.md" || fail "modified kit skill was overwritten without --force"
+[[ "$(python3 "$HERE/scripts/kit-inventory.py" source --root "$TMP/new" --path skills/local-bot/SKILL.md)" == local ]] \
+  || fail "local-bot should be source=local"
+[[ "$(python3 "$HERE/scripts/kit-inventory.py" source --root "$TMP/new" --path skills/tdd/SKILL.md)" == modified ]] \
+  || fail "edited tdd should be source=modified"
+rm -f "$TMP/new/skills/anti-slop/SKILL.md"
+"$HERE/scripts/init-oss-repo.sh" --target "$TMP/new" --name Smoke --owner kvnloo >/dev/null
+[[ -f "$TMP/new/skills/anti-slop/SKILL.md" ]] || fail "missing kit skill was not restored"
+"$HERE/scripts/init-oss-repo.sh" --target "$TMP/new" --name Smoke --owner kvnloo --force >/dev/null
+if grep -q 'KEEP-TDD' "$TMP/new/skills/tdd/SKILL.md"; then
+  fail "--force should refresh modified kit tdd"
+fi
+grep -q 'LOCAL-SKILL' "$TMP/new/skills/local-bot/SKILL.md" || fail "--force overwrote a local skill"
+"$HERE/bin/oss-onboard" "$TMP/new" --status >/dev/null || fail "oss-onboard --status failed"
 
 echo "ok"

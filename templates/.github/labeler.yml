@@ -19,3 +19,7 @@ area:verify:
       - '**/*.test.*'
       - 'skills/tdd/**'
       - 'skills/verify/**'
+      - 'skills/orient/**'
+      - 'skills/anti-slop/**'
+      - 'skills/pstack/**'
+      - 'skills/dr-eggbot/**'

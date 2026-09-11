@@ -9,6 +9,7 @@ This project follows the [Verified OSS Loop](https://github.com/kvnloo/verified-
 1. Read this file, then `CONTRIBUTING.md`.
 2. `git fetch origin` and branch from `origin/main` unless the issue names another base.
 3. Search open issues and PRs. Do not duplicate in-flight work.
+4. Orient (`skills/orient/SKILL.md`). If GitNexus MCP is already there: `query` → `context` → `impact`. Do not run `gitnexus analyze` unless a human asked. Else Serena symbols, else `rg` + read.
 
 ```bash
 gh issue list --label claimable --state open
@@ -45,10 +46,11 @@ Commands were filled by `init-oss-repo.sh` / `oss-onboard` from the tree it saw.
 
 1. Name the intended vs current behavior.
 2. Fail, then pass (see `skills/tdd/SKILL.md`).
-3. Run unit tests on the touched surface.
-4. If mutation is not `n/a`, run it on the contract you changed. A surviving mutant is a missing assertion.
-5. Open a PR. Fill `.github/PULL_REQUEST_TEMPLATE.md`. Never merge.
-6. If the project runs an independent review bot (Greptile, CodeRabbit, Bugbot, Copilot, …), treat its comments as review, not merge. Fix real findings. Do not wait for a bot to approve itself.
+3. Keep the smallest complete change (`skills/anti-slop/SKILL.md`).
+4. Run unit tests on the touched surface.
+5. If mutation is not `n/a`, run it on the contract you changed. A surviving mutant is a missing assertion.
+6. Open a PR. Fill `.github/PULL_REQUEST_TEMPLATE.md`. Never merge.
+7. If the project runs an independent review bot (Greptile, CodeRabbit, Bugbot, Copilot, …), treat its comments as review, not merge. Fix real findings. Do not wait for a bot to approve itself.
 
 ## Do not
 
@@ -57,3 +59,6 @@ Commands were filled by `init-oss-repo.sh` / `oss-onboard` from the tree it saw.
 - Redefine the roadmap.
 - Claim mutation coverage that the stack cannot run.
 - Overwrite `LICENSE`.
+- Duplicate `AGENTS.md` into `CLAUDE.md` / `GEMINI.md` / copilot-instructions.
+- Run `gitnexus analyze` as a side effect of a claim.
+- Dump the pstack plugin or Dr Eggbot marketplace pack into this tree. Pointers: `skills/pstack/SKILL.md`, `skills/dr-eggbot/SKILL.md`.

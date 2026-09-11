@@ -35,7 +35,7 @@ Before granting a claim, check open/closed PRs, recent commits, roadmap/design d
 
 ## 3. Execution isolation
 
-Work happens on a contributor-owned branch, fork, container, or worktree. Concurrent workers do not share mutable source state. Secrets and maintainer credentials are never copied to workers.
+Work happens on a contributor-owned branch, fork, container, or worktree. Concurrent workers do not share mutable source state. Secrets and maintainer credentials are never copied to workers. Orient on the existing tree (graph MCP if already present, otherwise search and read) before editing. Do not treat a generated wiki as evidence.
 
 ## 4. Evidence receipt
 
@@ -119,13 +119,13 @@ Do not turn one successful contribution into a global rule. Durable lessons foll
 
 ### Level 0: Manual
 
-Labels, claim comment, PR evidence template, human review.
+Labels, claim comment, PR evidence template, human review. If this kit onboarded the repo, workers follow `skills/orient` then `skills/tdd` then `skills/anti-slop`.
 
 ### Level 1: Assisted
 
 Bots check expiry, duplicates, receipt completeness, and exact head. They do not merge.
 
-This kit's `--with-automation` copies that layer as stack-neutral workflows (claim expiry, receipt + exact-head check, stale/labeler, OpenSSF Scorecard, Actions Dependabot, CODEOWNERS). Catalog of review/coverage/perf apps that need accounts: [docs/quality-bots.md](docs/quality-bots.md). Project policy still wins; do not dump Greptile, Codecov, or a language lockfile updater into every target.
+This kit's `--with-automation` copies that layer as stack-neutral workflows (claim expiry, receipt + exact-head check, stale/labeler, OpenSSF Scorecard, Actions Dependabot, CODEOWNERS). Catalog of review/coverage/perf apps that need accounts: [docs/quality-bots.md](docs/quality-bots.md). Project policy still wins; do not dump Greptile, Codecov, or a language lockfile updater into every target. Re-running onboard syncs kit-owned files recorded in `.verified-oss-loop/inventory.yml` and does not overwrite `source: local` skills.
 
 S-tier OSS (Kubernetes Prow/Tide, rust-lang triagebot, CPython bedevere, Home Assistant hassfest, LiteLLM Greptile+CodSpeed+Codecov) uses many specialized bots around a human or explicitly authorized merge path. Independent review bots are SPEC §5 reviewers. They are not SPEC §6 merge authority.
 
