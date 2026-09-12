@@ -1,6 +1,6 @@
 # OSS factory adapter
 
-How Linear factory HITL uses **this** protocol. Canonical column contract: [HITL.md](../HITL.md). CoS keeps that file in this kit so workers cannot invent a third process. This is not a second scheduler. Linear remains the factory board. GitHub remains the contribution authority.
+How Linear factory HITL uses **this** Verified OSS Loop protocol. Canonical column contract: [HITL.md](../HITL.md). CoS keeps that file in this kit so workers cannot invent a third process. This is not a second scheduler. Linear remains the factory board. GitHub remains the contribution authority.
 
 ## Which repos
 
