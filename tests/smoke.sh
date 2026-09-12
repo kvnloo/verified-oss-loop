@@ -226,6 +226,19 @@ grep -q 'LINEAR_API_KEY' "$HERE/.github/workflows/hitl-publish-origin.yml" \
   || fail "workflow missing LINEAR_API_KEY"
 grep -q 'publish-origin-from-hitl.py' "$HERE/.github/workflows/hitl-publish-origin.yml" \
   || fail "workflow must call publish-origin-from-hitl.py"
+if ! grep -q 'scan-maintainer-review' "$HERE/.github/workflows/hitl-publish-origin.yml" && \
+   ! grep -q 'schedule:' "$HERE/.github/workflows/hitl-publish-origin.yml"; then
+  fail "workflow missing scan-maintainer-review or schedule"
+fi
+grep -q 'scan-maintainer-review' "$HERE/.github/workflows/hitl-publish-origin.yml" \
+  || fail "workflow missing scan-maintainer-review"
+grep -q 'schedule:' "$HERE/.github/workflows/hitl-publish-origin.yml" \
+  || fail "workflow missing schedule"
+if grep -q -- '--issue "${{ inputs.issue }}"' "$HERE/.github/workflows/hitl-publish-origin.yml"; then
+  fail "workflow must not interpolate inputs.issue into the run script"
+fi
+grep -q 'LINEAR_ISSUE_INPUT' "$HERE/.github/workflows/hitl-publish-origin.yml" \
+  || fail "workflow must pass issue via LINEAR_ISSUE_INPUT env"
 grep -q 'publish-origin-from-hitl.py' "$HERE/HITL.md" || fail "HITL.md missing origin-publish script"
 grep -q 'hitl-maintainer-review' "$HERE/HITL.md" || fail "HITL.md missing hitl-maintainer-review"
 grep -q 'HITL_GITHUB_TOKEN' "$HERE/HITL.md" || fail "HITL.md missing HITL_GITHUB_TOKEN"

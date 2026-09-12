@@ -12,9 +12,9 @@ Workers never merge `main` or `dev` (SPEC §6). Channel automerge is maintainer-
 
 ## Origin publish (Maintainer Review)
 
-Moving a leaf to **Maintainer Review** is the human authorization to open the GitHub **parent** PR from the attached **fork** PR. `scripts/publish-origin-from-hitl.py` does that and **never merges**.
+Moving a leaf to **Maintainer Review** **auto-opens** the GitHub **parent** PR from the attached **fork** PR. `scripts/publish-origin-from-hitl.py` does that and **never merges**. Origin PRs are ready (not draft).
 
-Wire Linear Automation to this kit repo: `repository_dispatch` with `event_type: hitl-maintainer-review`. Repo secrets: `HITL_GITHUB_TOKEN` and `LINEAR_API_KEY`. Workflow: `.github/workflows/hitl-publish-origin.yml`.
+Wire Linear Automation to this kit repo: `repository_dispatch` with `event_type: hitl-maintainer-review` and `client_payload.linear_issue` (UUID or `TEAM-N` like `PER-1358`). A 5-minute scheduled `--scan-maintainer-review` publishes even if the webhook is missed. Repo secrets: `HITL_GITHUB_TOKEN` and `LINEAR_API_KEY`. Workflow: `.github/workflows/hitl-publish-origin.yml`.
 
 Non-fork plugin repos fail closed. Do not origin-publish marketplace/plugin copies. `--merge` exits 2. `oss-onboard` does not copy this workflow onto children.
 
@@ -31,7 +31,7 @@ The traction formula (`4*merged + …`) is an outcome view. It does not set clai
 | Todo | §2 human authorized the bounded claim lease | claim comment; `claimed` |
 | In Progress | §3 isolated branch/worktree | contributor branch; no shared mutable `main` |
 | Ready to Review | §4 evidence receipt on a **fork** draft | draft PR on the fork; `needs-review` |
-| Maintainer Review | §5 origin PR live; independent review | origin PR; receipt + CI + review bots |
+| Maintainer Review | §5 origin PR live; independent review | **auto-opens** origin PR from attached fork PR; never merges; 5-minute scan + Linear Automation |
 | Done | §6 authorized human/maintainer merged; §7 KEEP | exact merge SHA; close roadmap item |
 | Canceled | §7 DISCARD with a lesson | `discard`; do not reopen as volume |
 

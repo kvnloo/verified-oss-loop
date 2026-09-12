@@ -1,12 +1,14 @@
 name: HITL origin publish
 
 on:
+  schedule:
+    - cron: "*/5 * * * *"
   repository_dispatch:
     types: [hitl-maintainer-review]
   workflow_dispatch:
     inputs:
       issue:
-        description: Linear issue id (PER-123)
+        description: Linear issue id (PER-123 or UUID)
         required: true
 
 permissions:
@@ -21,19 +23,29 @@ jobs:
         env:
           HITL_GITHUB_TOKEN: ${{ secrets.HITL_GITHUB_TOKEN }}
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.HITL_GITHUB_TOKEN }}
+          LINEAR_ISSUE_INPUT: ${{ inputs.issue }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ ! -n "${HITL_GITHUB_TOKEN}" ]; then
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            if [ -z "$HITL_GITHUB_TOKEN" ] || [ -z "$LINEAR_API_KEY" ]; then
+              echo "skip: HITL_GITHUB_TOKEN or LINEAR_API_KEY empty"
+              exit 0
+            fi
+            python3 -m py_compile scripts/publish-origin-from-hitl.py
+            python3 scripts/publish-origin-from-hitl.py --scan-maintainer-review
+            exit $?
+          fi
+          if [ -z "$HITL_GITHUB_TOKEN" ]; then
             echo "HITL_GITHUB_TOKEN secret is required" >&2
             exit 1
           fi
-          if [ ! -n "${LINEAR_API_KEY}" ]; then
+          if [ -z "$LINEAR_API_KEY" ]; then
             echo "LINEAR_API_KEY secret is required" >&2
             exit 1
           fi
           python3 -m py_compile scripts/publish-origin-from-hitl.py
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            python3 scripts/publish-origin-from-hitl.py --issue "${{ inputs.issue }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            python3 scripts/publish-origin-from-hitl.py --issue "$LINEAR_ISSUE_INPUT"
           else
             python3 scripts/publish-origin-from-hitl.py --dispatch
           fi
