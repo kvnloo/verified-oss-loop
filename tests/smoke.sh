@@ -157,6 +157,19 @@ if grep -q 'package-ecosystem: npm' "$TMP/auto/.github/dependabot.yml"; then
   fail "dependabot baked a language ecosystem"
 fi
 grep -q 'Verified OSS Loop' "$HERE/docs/factory.md" || fail "factory adapter missing"
+[[ -f "$HERE/HITL.md" ]] || fail "HITL.md missing from kit"
+grep -q 'docs/factory.md' "$HERE/HITL.md" || fail "HITL.md must point at docs/factory.md"
+grep -q 'github_writes=0' "$HERE/HITL.md" || fail "HITL.md missing github_writes=0 until Todo"
+grep -q 'Workers never merge' "$HERE/HITL.md" || fail "HITL.md missing workers-never-merge"
+grep -q 'does not set claim priority' "$HERE/HITL.md" || fail "HITL.md must say traction does not set claim priority"
+for col in Triage Backlog Todo 'In Progress' 'Ready to Review' 'Maintainer Review' Done Canceled; do
+  grep -q "$col" "$HERE/HITL.md" || fail "HITL.md missing Linear column $col"
+done
+grep -q 'HITL.md' "$HERE/README.md" || fail "README missing HITL.md pointer"
+grep -q 'HITL.md' "$HERE/docs/factory.md" || fail "factory adapter must point at kit HITL.md"
+if grep -q 'oss-factory/blob/main/factory/HITL.md' "$HERE/docs/factory.md"; then
+  fail "factory.md must not send workers to a third-process HITL path"
+fi
 grep -q 'workers never merge' "$HERE/docs/quality-bots.md" || fail "quality-bots catalog missing protocol rule"
 grep -q 'linux-next' "$HERE/docs/quality-at-scale.md" || fail "quality-at-scale missing linux-next mapping"
 grep -q 'compute replaces attempts' "$HERE/docs/quality-at-scale.md" || fail "quality-at-scale missing compute principle"

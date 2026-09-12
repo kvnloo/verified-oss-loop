@@ -50,4 +50,4 @@ If you stop, leave a comment with the blocker. Do not open a consolation PR.
 
 ## Skills in this repo
 
-`skills/autodevelop/SKILL.md` is the same loop. `skills/factory/SKILL.md` is kit-only (not copied to targets). Downstream repos get their own `prompt.md` that links to *themselves*.
+`skills/autodevelop/SKILL.md` is the same loop. `skills/factory/SKILL.md` is kit-only (not copied to targets). Factory HITL: `HITL.md` (adapter `docs/factory.md`). Downstream repos get their own `prompt.md` that links to *themselves*.
