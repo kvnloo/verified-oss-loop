@@ -10,6 +10,14 @@ Do not invent a third process. Do not mint a parallel factory protocol in anothe
 
 Workers never merge `main` or `dev` (SPEC §6). Channel automerge is maintainer-configured rollout, not a worker merge key.
 
+## Origin publish (Maintainer Review)
+
+Moving a leaf to **Maintainer Review** is the human authorization to open the GitHub **parent** PR from the attached **fork** PR. `scripts/publish-origin-from-hitl.py` does that and **never merges**.
+
+Wire Linear Automation to this kit repo: `repository_dispatch` with `event_type: hitl-maintainer-review`. Repo secrets: `HITL_GITHUB_TOKEN` and `LINEAR_API_KEY`. Workflow: `.github/workflows/hitl-publish-origin.yml`.
+
+Non-fork plugin repos fail closed. Do not origin-publish marketplace/plugin copies. `--merge` exits 2. `oss-onboard` does not copy this workflow onto children.
+
 ## Traction is not priority
 
 The traction formula (`4*merged + …`) is an outcome view. It does not set claim priority and does not authorize merge.

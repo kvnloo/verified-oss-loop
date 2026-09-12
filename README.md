@@ -75,7 +75,7 @@ What it does:
 - `--layout mature`: kit under `.verified-oss-loop/` + `docs/verified-oss-loop.md`. Does **not** replace a mature `AGENTS.md` or dump kit skills over `source: local`. See [docs/verified-oss-loop.md](docs/verified-oss-loop.md).
 - Similar-issue clustering: `scripts/cluster-similar-issues.py` + `tests/fixtures/issues-tiny.json` (8 issues, cap 64). No live tracker scrape.
 - Does **not** run GitNexus, dump pstack, or rewrite `AGENTS.md` with a second H1. Graph/LSP/pstack/eggbot: [docs/agent-onboarding.md](docs/agent-onboarding.md).
-- Factory HITL: [HITL.md](HITL.md) maps Linear Triage→…→Done onto this loop (`github_writes=0` until Todo; workers never merge; traction formula does not set claim priority). Adapter: [docs/factory.md](docs/factory.md).
+- Factory HITL: [HITL.md](HITL.md) maps Linear Triage→…→Done onto this loop (`github_writes=0` until Todo; workers never merge; traction formula does not set claim priority). Adapter: [docs/factory.md](docs/factory.md). Maintainer Review opens the GitHub parent PR from the attached fork PR via `scripts/publish-origin-from-hitl.py` (`repository_dispatch` `hitl-maintainer-review`; secrets `HITL_GITHUB_TOKEN` and `LINEAR_API_KEY`). Never merges. Non-fork plugin repos fail closed.
 - `--labels` creates GitHub labels when `gh` is authenticated.
 - `--install` on `setup-verify.sh` is opt-in and only installs a mutator for the detected primary stack ([Stryker](https://github.com/stryker-mutator/stryker-js), [mutmut](https://github.com/boxed/mutmut), or [cargo-mutants](https://github.com/sourcefrog/cargo-mutants)). Go gets `go test` and an honest `n/a`.
 - Never overwrites `LICENSE`. Never copies another project's UI, `.env`, or device tests.

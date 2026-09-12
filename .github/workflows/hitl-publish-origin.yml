@@ -1,0 +1,39 @@
+name: HITL origin publish
+
+on:
+  repository_dispatch:
+    types: [hitl-maintainer-review]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Linear issue id (PER-123)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open origin PR from attached fork PR (never merge)
+        env:
+          HITL_GITHUB_TOKEN: ${{ secrets.HITL_GITHUB_TOKEN }}
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.HITL_GITHUB_TOKEN }}
+        run: |
+          if [ ! -n "${HITL_GITHUB_TOKEN}" ]; then
+            echo "HITL_GITHUB_TOKEN secret is required" >&2
+            exit 1
+          fi
+          if [ ! -n "${LINEAR_API_KEY}" ]; then
+            echo "LINEAR_API_KEY secret is required" >&2
+            exit 1
+          fi
+          python3 -m py_compile scripts/publish-origin-from-hitl.py
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python3 scripts/publish-origin-from-hitl.py --issue "${{ inputs.issue }}"
+          else
+            python3 scripts/publish-origin-from-hitl.py --dispatch
+          fi

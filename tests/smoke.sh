@@ -151,6 +151,10 @@ grep -q 'path: .github/workflows/stale.yml' "$TMP/auto/.verified-oss-loop/invent
 [[ -f "$TMP/auto/.github/workflows/promote-preview.yml" ]] || fail "automation did not copy promote-preview.yml"
 grep -q 'scripts/rollout.py' "$TMP/auto/.github/workflows/automerge-preview.yml" \
   || fail "automerge-preview must call scripts/rollout.py"
+[[ ! -f "$TMP/auto/.github/workflows/hitl-publish-origin.yml" ]] \
+  || fail "origin-publish workflow must not be dumped onto onboarded repos"
+[[ ! -f "$TMP/auto/scripts/publish-origin-from-hitl.py" ]] \
+  || fail "origin-publish script must not be dumped onto onboarded repos"
 grep -q 'github.event.pull_request.base.ref' "$TMP/auto/.github/workflows/automerge-preview.yml" \
   || fail "automerge must read scheme from the base branch"
 if grep -q 'package-ecosystem: npm' "$TMP/auto/.github/dependabot.yml"; then
@@ -206,6 +210,30 @@ python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.js
 python3 -m py_compile "$HERE/scripts/check-receipt.py" || fail "check-receipt.py"
 python3 -m py_compile "$HERE/scripts/kit-inventory.py" || fail "kit-inventory.py"
 python3 -m py_compile "$HERE/scripts/rollout.py" || fail "rollout.py"
+python3 -m py_compile "$HERE/scripts/publish-origin-from-hitl.py" || fail "publish-origin-from-hitl.py"
+python3 "$HERE/scripts/publish-origin-from-hitl.py" --self-test || fail "publish-origin-from-hitl --self-test"
+set +e
+python3 "$HERE/scripts/publish-origin-from-hitl.py" --merge >/tmp/hitl-merge.out 2>/tmp/hitl-merge.err
+merge_rc=$?
+set -e
+[[ "$merge_rc" == 2 ]] || fail "--merge must exit 2 (never merge), got $merge_rc"
+[[ -f "$HERE/.github/workflows/hitl-publish-origin.yml" ]] || fail "hitl-publish-origin.yml missing"
+grep -q 'hitl-maintainer-review' "$HERE/.github/workflows/hitl-publish-origin.yml" \
+  || fail "workflow missing event_type hitl-maintainer-review"
+grep -q 'HITL_GITHUB_TOKEN' "$HERE/.github/workflows/hitl-publish-origin.yml" \
+  || fail "workflow missing HITL_GITHUB_TOKEN"
+grep -q 'LINEAR_API_KEY' "$HERE/.github/workflows/hitl-publish-origin.yml" \
+  || fail "workflow missing LINEAR_API_KEY"
+grep -q 'publish-origin-from-hitl.py' "$HERE/.github/workflows/hitl-publish-origin.yml" \
+  || fail "workflow must call publish-origin-from-hitl.py"
+grep -q 'publish-origin-from-hitl.py' "$HERE/HITL.md" || fail "HITL.md missing origin-publish script"
+grep -q 'hitl-maintainer-review' "$HERE/HITL.md" || fail "HITL.md missing hitl-maintainer-review"
+grep -q 'HITL_GITHUB_TOKEN' "$HERE/HITL.md" || fail "HITL.md missing HITL_GITHUB_TOKEN"
+grep -q 'fail closed' "$HERE/HITL.md" || fail "HITL.md missing fail closed"
+grep -q 'publish-origin-from-hitl.py' "$HERE/README.md" || fail "README missing origin-publish pointer"
+grep -q 'hitl-maintainer-review' "$HERE/docs/factory.md" || fail "factory.md missing hitl-maintainer-review"
+grep -q 'publish-origin-from-hitl.py' "$HERE/skills/factory/SKILL.md" \
+  || fail "factory skill missing origin-publish pointer"
 
 # Inventory: new kit skills appear; local skills survive; --force does not clobber local
 INV="$TMP/new/.verified-oss-loop/inventory.yml"
