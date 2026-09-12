@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Release expired Verified OSS Loop claim leases. Does not merge. Does not close issues.
 # Usage: expire-claims.sh [--dry-run] [--max-age-hours 24]
+# Comments JSON is piped into scripts/claim-lease.py (not a python heredoc).
 set -euo pipefail
 
 DRY=0
