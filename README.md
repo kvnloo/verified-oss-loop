@@ -70,12 +70,12 @@ What it does:
 - Pins the unit and mutation commands it saw. If mutation is `n/a`, the receipt says `n/a` — it does not invent a score.
 - `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, `create-labels.sh`, and **preview/nightly automerge + promote-preview** gated by `.verified-oss-loop/rollout.yml`. Default `--scheme rolling` (Arch-style). `--scheme staged` or `--scheme stable` for slower repos. [docs/rollout.md](docs/rollout.md). AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
 - Does **not** run GitNexus, dump pstack, or rewrite `AGENTS.md` with a second H1. Graph/LSP/pstack/eggbot: [docs/agent-onboarding.md](docs/agent-onboarding.md).
-- Factory control plane: [docs/factory.md](docs/factory.md) maps Linear HITL onto this loop so other opted-in repos get the same contract.
+- Factory HITL: [HITL.md](HITL.md) maps Linear Triage→…→Done onto this loop (`github_writes=0` until Todo; workers never merge; traction formula does not set claim priority). Adapter: [docs/factory.md](docs/factory.md).
 - `--labels` creates GitHub labels when `gh` is authenticated.
 - `--install` on `setup-verify.sh` is opt-in and only installs a mutator for the detected primary stack ([Stryker](https://github.com/stryker-mutator/stryker-js), [mutmut](https://github.com/boxed/mutmut), or [cargo-mutants](https://github.com/sourcefrog/cargo-mutants)). Go gets `go test` and an honest `n/a`.
 - Never overwrites `LICENSE`. Never copies another project's UI, `.env`, or device tests.
 
-See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), [docs/agent-onboarding.md](docs/agent-onboarding.md), [docs/kit-inventory.md](docs/kit-inventory.md), [docs/rollout.md](docs/rollout.md), and [docs/factory.md](docs/factory.md).
+See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), [docs/agent-onboarding.md](docs/agent-onboarding.md), [docs/kit-inventory.md](docs/kit-inventory.md), [docs/rollout.md](docs/rollout.md), [HITL.md](HITL.md), and [docs/factory.md](docs/factory.md).
 
 Proof for this kit: `bash tests/smoke.sh`.
 

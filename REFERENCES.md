@@ -53,7 +53,7 @@ Grew from the [Community-wide Distributed Self-Development Loop](https://github.
 | [ossf/scorecard](https://github.com/ossf/scorecard) | branch-protection and token-permission health | Scorecard as a correctness proof |
 | Greptile / CodeRabbit / Cursor Bugbot / Copilot review | one independent AI reviewer | stacking four commenters; bot self-approve |
 
-Catalog and factory mapping: [docs/quality-bots.md](docs/quality-bots.md), [docs/factory.md](docs/factory.md).
+Catalog and factory mapping: [docs/quality-bots.md](docs/quality-bots.md), [HITL.md](HITL.md), [docs/factory.md](docs/factory.md).
 
 ## Agentic onboarding (catalog, do not vendor)
 

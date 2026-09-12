@@ -4,7 +4,7 @@ Use the Verified OSS Loop to improve repos that opted into this standard. Do not
 
 ## Do
 
-1. Read this kit's `SPEC.md` and `docs/factory.md`.
+1. Read this kit's `HITL.md`, `SPEC.md`, and `docs/factory.md`. Do not invent a third process.
 2. If the target is `kvnloo/*` and opted in: `./bin/oss-onboard DIR --with-automation`.
 3. If the target is origin OSS: follow origin CONTRIBUTING. Do not copy labels or workflows there.
 4. Claim **one** item. Isolated branch. Orient, then fail-then-pass, then shrink (`skills/orient`, `skills/tdd`, `skills/anti-slop`). Fill the evidence receipt.
@@ -25,4 +25,4 @@ Use the Verified OSS Loop to improve repos that opted into this standard. Do not
 - Graph/LSP onboarding: `docs/agent-onboarding.md`
 - Inventory: `docs/kit-inventory.md`
 - Rollout: `docs/rollout.md`
-- HITL map: `docs/factory.md`
+- HITL map: `HITL.md` (adapter: `docs/factory.md`)

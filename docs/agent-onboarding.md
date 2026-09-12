@@ -60,4 +60,4 @@ Same order as `skills/orient/SKILL.md`:
 | `skills/tdd/SKILL.md` | Fail, then pass |
 | `skills/verify/SKILL.md` | Receipt; mutation `n/a` when the stack has none |
 
-Kit vs local provenance and re-sync: [kit-inventory.md](kit-inventory.md). Quality bots: [quality-bots.md](quality-bots.md). Factory HITL: [factory.md](factory.md).
+Kit vs local provenance and re-sync: [kit-inventory.md](kit-inventory.md). Quality bots: [quality-bots.md](quality-bots.md). Factory HITL: [HITL.md](../HITL.md) (adapter: [factory.md](factory.md)).
