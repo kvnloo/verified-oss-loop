@@ -75,7 +75,7 @@ What it does:
 - `--install` on `setup-verify.sh` is opt-in and only installs a mutator for the detected primary stack ([Stryker](https://github.com/stryker-mutator/stryker-js), [mutmut](https://github.com/boxed/mutmut), or [cargo-mutants](https://github.com/sourcefrog/cargo-mutants)). Go gets `go test` and an honest `n/a`.
 - Never overwrites `LICENSE`. Never copies another project's UI, `.env`, or device tests.
 
-See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), [docs/agent-onboarding.md](docs/agent-onboarding.md), [docs/kit-inventory.md](docs/kit-inventory.md), [docs/rollout.md](docs/rollout.md), and [docs/factory.md](docs/factory.md).
+See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), [docs/quality-at-scale.md](docs/quality-at-scale.md), [docs/agent-onboarding.md](docs/agent-onboarding.md), [docs/kit-inventory.md](docs/kit-inventory.md), [docs/rollout.md](docs/rollout.md), and [docs/factory.md](docs/factory.md).
 
 Proof for this kit: `bash tests/smoke.sh`.
 

@@ -8,7 +8,7 @@ This repository is the protocol and the onboarding kit. It is not an application
 - Workers never merge `main` or `dev`. Default rollout is Arch-style `rolling` (`docs/rollout.md`, `.verified-oss-loop/rollout.yml`). Branch from `origin/$(python3 scripts/rollout.py get worker_base)`. Day-pass PRs target `feature_target`; overnight PRs target `overnight_target`. Do not merge preview/nightly yourself.
 - Do not force-push `main`.
 - Credit sources in `REFERENCES.md` and `docs/prior-art.md`. Do not drop pre-AI OSS templates when adding AI-native files.
-- Quality bots are Level 1 assistants (`docs/quality-bots.md`). They review and check receipts. They do not merge `main` or `dev`.
+- Quality bots are Level 1 assistants (`docs/quality-bots.md`). They review and check receipts. They do not merge `main` or `dev`. Long-lived OSS TAKE/SKIP: `docs/quality-at-scale.md`.
 - Factory workers: `docs/factory.md` and `skills/factory/SKILL.md`. Onboard opted-in `kvnloo/*` repos; do not dump the loop onto origin OSS.
 - Orient before edit (`skills/orient/SKILL.md`). GitNexus/Serena if already present; never `gitnexus analyze` from onboard. Catalog: `docs/agent-onboarding.md`.
 - Smallest complete change (`skills/anti-slop/SKILL.md`). Do not duplicate `AGENTS.md` into `CLAUDE.md`.

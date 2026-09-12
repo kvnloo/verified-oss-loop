@@ -158,6 +158,9 @@ if grep -q 'package-ecosystem: npm' "$TMP/auto/.github/dependabot.yml"; then
 fi
 grep -q 'Verified OSS Loop' "$HERE/docs/factory.md" || fail "factory adapter missing"
 grep -q 'workers never merge' "$HERE/docs/quality-bots.md" || fail "quality-bots catalog missing protocol rule"
+grep -q 'linux-next' "$HERE/docs/quality-at-scale.md" || fail "quality-at-scale missing linux-next mapping"
+grep -q 'compute replaces attempts' "$HERE/docs/quality-at-scale.md" || fail "quality-at-scale missing compute principle"
+grep -q 'Agent Shin' "$HERE/docs/quality-at-scale.md" || fail "quality-at-scale missing LiteLLM Agent Shin skip"
 grep -q 'PolyForm Noncommercial' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing GitNexus license"
 grep -q 'oraios/serena' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing Serena"
 grep -q 'pstack' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catalog missing pstack"
