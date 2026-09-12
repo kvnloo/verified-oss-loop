@@ -1,0 +1,7 @@
+schema: verified-oss-loop.pages-url-map.v1
+feature_prefix: preview
+channels:
+  main: ""
+  nightly: preview/nightly
+  preview: preview
+  dev: null

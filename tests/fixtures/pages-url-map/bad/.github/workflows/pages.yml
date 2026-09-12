@@ -1,0 +1,14 @@
+name: pages
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          if [ "$BRANCH" = main ]; then
+            dest="/"
+          else
+            dest="/preview/${BRANCH}/"
+          fi
+          echo "$dest"

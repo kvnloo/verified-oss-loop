@@ -4,7 +4,7 @@
 # Usage:
 #   init-oss-repo.sh --target DIR [--name NAME] [--owner LOGIN] [--repo REPO]
 #   init-oss-repo.sh --new DIR [--name NAME] [--owner LOGIN] [--git]
-#   Flags: --with-automation  --labels  --force  --status
+#   Flags: --with-automation  --with-pages  --labels  --force  --status
 #          --scheme rolling|staged|stable  --layout greenfield|mature
 set -euo pipefail
 
@@ -18,6 +18,7 @@ FORCE=0
 STATUS=0
 AUTOMATION=0
 LABELS=0
+PAGES=0
 NAME=""
 OWNER=""
 REPO=""
@@ -42,6 +43,7 @@ while [[ $# -gt 0 ]]; do
     --repo) REPO="$2"; shift 2 ;;
     --git) GIT_INIT=1; shift ;;
     --with-automation) AUTOMATION=1; shift ;;
+    --with-pages) PAGES=1; shift ;;
     --labels) LABELS=1; shift ;;
     --force) FORCE=1; shift ;;
     --status) STATUS=1; shift ;;
@@ -281,6 +283,18 @@ if [[ "$LABELS" -eq 1 && "$AUTOMATION" -eq 0 ]]; then
   fi
 fi
 
+if [[ "$PAGES" -eq 1 ]]; then
+  copy_raw .verified-oss-loop/pages-url-map.py "$HERE/scripts/pages-url-map.py"
+  copy_file .verified-oss-loop/pages-url-map.yml
+  if [[ "$LAYOUT" == "mature" ]]; then
+    copy_raw .verified-oss-loop/scripts/pages-url-map.py "$HERE/scripts/pages-url-map.py"
+    copy_file_as .verified-oss-loop/pages-channels.md .github/workflows/pages-channels.md
+  else
+    copy_raw scripts/pages-url-map.py "$HERE/scripts/pages-url-map.py"
+    copy_file .github/workflows/pages-channels.md
+  fi
+fi
+
 python3 "$INVPY" finalize --root "$TARGET" --session "$SESSION" --kit-paths "$KIT_PATHS" \
   --kit-revision "$KIT_REV" --kit-url "$KIT_URL"
 
@@ -295,6 +309,55 @@ fi
 echo
 "$HERE/scripts/setup-verify.sh" --root "$TARGET"
 echo
+
+PAGES_DETECTED=0
+if [[ -f "$TARGET/.github/workflows/pages.yml" || -f "$TARGET/.github/workflows/pages.yaml" ]]; then
+  PAGES_DETECTED=1
+fi
+if [[ -f "$TARGET/scripts/build-pages.py" ]]; then
+  PAGES_DETECTED=1
+fi
+if [[ -f "$TARGET/CNAME" ]]; then
+  PAGES_DETECTED=1
+fi
+if [[ -d "$TARGET/.github/workflows" ]]; then
+  while IFS= read -r -d '' wf; do
+    bn="$(basename "$wf")"
+    case "$bn" in
+      automerge-preview.yml|automerge-nightly.yml|promote-preview.yml) continue ;;
+    esac
+    PAGES_DETECTED=1
+  done < <(find "$TARGET/.github/workflows" -maxdepth 1 \( -name '*pages*.yml' -o -name '*pages*.yaml' \) -print0 2>/dev/null || true)
+fi
+
+PAGES_CHECK_FAIL=0
+if [[ "$PAGES" -eq 1 || "$PAGES_DETECTED" -eq 1 ]]; then
+  echo "git channels: preview, nightly, dev, main"
+  echo "pages map:    main→{base}  nightly→{base}nightly/  preview→{base}next/  features→{base}wip/<slug>/"
+  echo "              {base} is / or /${REPO}/ for a project Pages site. preview git ≠ /preview/"
+  if [[ "$LAYOUT" == "mature" ]]; then
+    echo "check:        python3 .verified-oss-loop/pages-url-map.py check --root ."
+  else
+    echo "check:        python3 scripts/pages-url-map.py check --root ."
+  fi
+  echo "branches:     bash scripts/ensure-rollout-branches.sh --root . --push"
+fi
+if [[ "$PAGES_DETECTED" -eq 1 ]]; then
+  echo "warning: this repo looks like it publishes GitHub Pages."
+  echo "  Git channel names are not URL paths. Offer: ./bin/oss-onboard DIR --with-pages"
+  echo "  docs: https://github.com/kvnloo/verified-oss-loop/blob/main/docs/rollout.md"
+fi
+if [[ "$PAGES" -eq 1 || "$PAGES_DETECTED" -eq 1 ]]; then
+  if ! python3 "$HERE/scripts/pages-url-map.py" check --root "$TARGET"; then
+    echo "FAIL: Pages URL map nests a git channel under /preview/ or /nightly/"
+    echo "  forbidden: {base}preview/nightly/  {base}preview/preview/"
+    echo "  fix: hoist channels (main→{base}, nightly→{base}nightly/, preview→{base}next/, features→{base}wip/<slug>/)"
+    if [[ "$PAGES" -eq 1 ]]; then
+      PAGES_CHECK_FAIL=1
+    fi
+  fi
+fi
+
 echo "next:"
 echo "  1. Edit AGENTS.md ownership if this repo has split surfaces"
 echo "  2. gh auth + .github/scripts/create-labels.sh  (or rerun with --labels)"
@@ -303,3 +366,9 @@ echo "  4. Protect main and dev (PR + receipt/unit). preview/nightly stay loose.
 echo "  5. bash scripts/ensure-rollout-branches.sh --root . --push   (preview, nightly, dev)"
 echo "  6. Commit .verified-oss-loop/inventory.yml (kit vs local provenance)"
 echo "  7. Workers never merge main or dev"
+echo "  8. Pages: git channels are not URL paths. --with-pages copies pages-url-map.py (preview git ≠ /preview/)"
+echo "  9. automation yml is inert until a human lands it on origin/main; do not expect promote-preview to run from a feature branch"
+
+if [[ "$PAGES_CHECK_FAIL" -eq 1 ]]; then
+  exit 1
+fi
