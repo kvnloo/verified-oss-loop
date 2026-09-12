@@ -84,7 +84,7 @@ What it does:
 
 See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json](harnesses/stacks.json), [REFERENCES.md](REFERENCES.md), [docs/prior-art.md](docs/prior-art.md), [docs/quality-bots.md](docs/quality-bots.md), [docs/quality-at-scale.md](docs/quality-at-scale.md), [docs/agent-onboarding.md](docs/agent-onboarding.md), [docs/kit-inventory.md](docs/kit-inventory.md), [docs/rollout.md](docs/rollout.md), [HITL.md](HITL.md), and [docs/factory.md](docs/factory.md).
 
-Proof for this kit: `bash tests/smoke.sh`.
+Proof for this kit: `bash tests/smoke.sh`. Isolated onboard e2e (temp repos, no GitHub writes): `bash tests/e2e.sh`.
 
 ## Minimal adoption
 

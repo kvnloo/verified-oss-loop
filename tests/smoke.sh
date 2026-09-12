@@ -186,7 +186,8 @@ grep -q 'query' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catal
 if [[ -d "$HERE/gitnexus" ]] || [[ -d "$HERE/GitNexus" ]]; then
   fail "GitNexus source must not be vendored into this kit"
 fi
-grep -q 'https://github.com/kvnloo/verified-oss-loop' "$HERE/prompt.md" || fail "kit prompt.md must link to this repo"
+if grep -q 'If nothing is claimable: stop' "$HERE/prompt.md"; then fail "kit prompt.md must not be stop-only"; fi
+grep -q 'needs-discussion' "$HERE/prompt.md" || fail "kit prompt.md missing needs-discussion triage"
 grep -q '{{REPO_URL}}' "$HERE/templates/prompt.md" || fail "template prompt.md missing REPO_URL"
 
 python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-good.md" \
@@ -199,7 +200,7 @@ if python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt
   fail "bad receipt should fail"
 fi
 
-for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh"; do
+for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh" "$HERE/tests/e2e.sh"; do
   bash -n "$s" || fail "bash -n $s"
 done
 python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.json"
