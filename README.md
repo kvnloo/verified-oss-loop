@@ -59,6 +59,9 @@ This repo is the protocol (`SPEC.md`) plus an onboarding kit. It does not genera
 git clone https://github.com/kvnloo/verified-oss-loop
 ./bin/oss-onboard /path/to/repo --with-automation --scheme rolling
 # slower: --scheme staged   classic: --scheme stable
+# mature fork (keep AGENTS.md; kit under .verified-oss-loop/):
+./bin/oss-onboard /path/to/repo --layout mature
+python3 scripts/cluster-similar-issues.py tests/fixtures/issues-tiny.json
 # or a new tree:
 ./scripts/init-oss-repo.sh --new ./my-lib --name my-lib --owner YOUR_LOGIN --git
 ```
@@ -69,6 +72,8 @@ What it does:
 - Writes `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, a paste-ready `prompt.md` that links to **that** repo, issue/PR templates, and kit skills (`autodevelop`, `orient`, `tdd`, `anti-slop`, `pstack`, `dr-eggbot`, `verify`) via [kit inventory](docs/kit-inventory.md). Re-runs update **kit** files; they never overwrite `source: local` skills (pstack plugin copies, hand-written tools).
 - Pins the unit and mutation commands it saw. If mutation is `n/a`, the receipt says `n/a` — it does not invent a score.
 - `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, `create-labels.sh`, and **preview/nightly automerge + promote-preview** gated by `.verified-oss-loop/rollout.yml`. Default `--scheme rolling` (Arch-style). `--scheme staged` or `--scheme stable` for slower repos. [docs/rollout.md](docs/rollout.md). AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
+- `--layout mature`: kit under `.verified-oss-loop/` + `docs/verified-oss-loop.md`. Does **not** replace a mature `AGENTS.md` or dump kit skills over `source: local`. See [docs/verified-oss-loop.md](docs/verified-oss-loop.md).
+- Similar-issue clustering: `scripts/cluster-similar-issues.py` + `tests/fixtures/issues-tiny.json` (8 issues, cap 64). No live tracker scrape.
 - Does **not** run GitNexus, dump pstack, or rewrite `AGENTS.md` with a second H1. Graph/LSP/pstack/eggbot: [docs/agent-onboarding.md](docs/agent-onboarding.md).
 - Factory HITL: [HITL.md](HITL.md) maps Linear Triage→…→Done onto this loop (`github_writes=0` until Todo; workers never merge; traction formula does not set claim priority). Adapter: [docs/factory.md](docs/factory.md).
 - `--labels` creates GitHub labels when `gh` is authenticated.

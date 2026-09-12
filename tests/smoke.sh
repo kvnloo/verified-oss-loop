@@ -239,4 +239,45 @@ fi
 grep -q 'LOCAL-SKILL' "$TMP/new/skills/local-bot/SKILL.md" || fail "--force overwrote a local skill"
 "$HERE/bin/oss-onboard" "$TMP/new" --status >/dev/null || fail "oss-onboard --status failed"
 
+python3 -m py_compile "$HERE/scripts/cluster-similar-issues.py" || fail "cluster-similar-issues.py"
+CLUST_JSON="$(python3 "$HERE/scripts/cluster-similar-issues.py" --json "$HERE/tests/fixtures/issues-tiny.json")"
+echo "$CLUST_JSON" | python3 -c '
+import json,sys
+c=json.load(sys.stdin)["clusters"]
+sets=[set(x) for x in c]
+def has(want):
+    return any(want <= s for s in sets)
+if not has({101,102,107}):
+    raise SystemExit("expected 101/102/107 clustered")
+if not has({103,104}):
+    raise SystemExit("expected 103/104 clustered")
+if not any(s=={108} for s in sets):
+    raise SystemExit("108 must stay a singleton")
+n=sum(len(s) for s in sets)
+if n!=8:
+    raise SystemExit("fixture must stay at 8 issues")
+'
+[[ "$(python3 -c 'import json; print(len(json.load(open("'"$HERE"'/tests/fixtures/issues-tiny.json"))))')" == 8 ]] \
+  || fail "issues-tiny.json must have exactly 8 issues"
+if python3 "$HERE/scripts/cluster-similar-issues.py" --cap 65 "$HERE/tests/fixtures/issues-tiny.json" >/dev/null 2>&1; then
+  fail "cap above 64 must fail"
+fi
+
+mkdir -p "$TMP/mature/skills/local-bot" "$TMP/mature/docs"
+echo 'KEEP-AGENTS' >"$TMP/mature/AGENTS.md"
+echo 'LOCAL-SKILL' >"$TMP/mature/skills/local-bot/SKILL.md"
+"$HERE/bin/oss-onboard" "$TMP/mature" --layout mature --name Mature --owner kvnloo >/dev/null \
+  || fail "mature onboard failed"
+grep -q 'KEEP-AGENTS' "$TMP/mature/AGENTS.md" || fail "mature onboard replaced AGENTS.md"
+[[ -f "$TMP/mature/docs/verified-oss-loop.md" ]] || fail "mature onboard missing docs/verified-oss-loop.md"
+[[ -d "$TMP/mature/.verified-oss-loop" ]] || fail "mature kit dir missing"
+[[ -f "$TMP/mature/.verified-oss-loop/skills/tdd/SKILL.md" ]] || fail "mature kit skills not under .verified-oss-loop"
+[[ ! -f "$TMP/mature/skills/tdd/SKILL.md" ]] || fail "mature onboard dumped kit skills over skills/"
+grep -q 'LOCAL-SKILL' "$TMP/mature/skills/local-bot/SKILL.md" || fail "mature onboard clobbered source:local skill"
+[[ "$(python3 "$HERE/scripts/kit-inventory.py" source --root "$TMP/mature" --path skills/local-bot/SKILL.md)" == local ]] \
+  || fail "existing skill should remain source=local"
+grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs missing mature layout"
+grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
+grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
+
 echo "ok"

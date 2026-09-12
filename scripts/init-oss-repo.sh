@@ -4,7 +4,8 @@
 # Usage:
 #   init-oss-repo.sh --target DIR [--name NAME] [--owner LOGIN] [--repo REPO]
 #   init-oss-repo.sh --new DIR [--name NAME] [--owner LOGIN] [--git]
-#   Flags: --with-automation  --labels  --force  --status  --scheme rolling|staged|stable
+#   Flags: --with-automation  --labels  --force  --status
+#          --scheme rolling|staged|stable  --layout greenfield|mature
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,9 +26,10 @@ UNIT_CMD="unknown"
 MUTATOR_CMD="n/a"
 RUNTIME_CMD="n/a — project-specific"
 SCHEME="rolling"
+LAYOUT="greenfield"
 
 usage() {
-  sed -n '3,8p' "$0" | sed 's/^# //'
+  sed -n '3,9p' "$0" | sed 's/^# //'
   exit "${1:-0}"
 }
 
@@ -48,6 +50,14 @@ while [[ $# -gt 0 ]]; do
       case "$SCHEME" in
         rolling|staged|stable) ;;
         *) echo "scheme must be rolling, staged, or stable" >&2; exit 2 ;;
+      esac
+      shift 2
+      ;;
+    --layout)
+      LAYOUT="$2"
+      case "$LAYOUT" in
+        greenfield|mature) ;;
+        *) echo "layout must be greenfield or mature" >&2; exit 2 ;;
       esac
       shift 2
       ;;
@@ -171,6 +181,16 @@ copy_file() {
   rm -f "$tmp"
 }
 
+copy_file_as() {
+  local dest_rel="$1" src_rel="$2"
+  local src="$TEMPLATES/$src_rel"
+  local tmp
+  tmp="$(mktemp)"
+  subst "$src" "$tmp"
+  apply_incoming "$dest_rel" "$tmp"
+  rm -f "$tmp"
+}
+
 copy_raw() {
   local rel="$1" src="$2"
   apply_incoming "$rel" "$src" "${3:-}"
@@ -178,12 +198,7 @@ copy_raw() {
 
 load_stack
 
-HEALTH=(
-  AGENTS.md
-  CONTRIBUTING.md
-  SECURITY.md
-  prompt.md
-  roadmap.example.yml
+KIT_SKILLS=(
   skills/autodevelop/SKILL.md
   skills/orient/SKILL.md
   skills/tdd/SKILL.md
@@ -191,24 +206,49 @@ HEALTH=(
   skills/pstack/SKILL.md
   skills/dr-eggbot/SKILL.md
   skills/verify/SKILL.md
-  .github/PULL_REQUEST_TEMPLATE.md
-  .github/ISSUE_TEMPLATE/config.yml
-  .github/ISSUE_TEMPLATE/bug.yml
-  .github/ISSUE_TEMPLATE/feature.yml
-  .github/ISSUE_TEMPLATE/claim.yml
-  .github/labels.md
-  .verified-oss-loop/README.md
-  .verified-oss-loop/rollout.yml
 )
-
-for f in "${HEALTH[@]}"; do
-  copy_file "$f"
-done
 
 copy_raw .verified-oss-loop/kit-inventory.py "$HERE/scripts/kit-inventory.py"
 copy_raw .verified-oss-loop/rollout.py "$HERE/scripts/rollout.py"
-copy_raw scripts/rollout.py "$HERE/scripts/rollout.py"
-copy_raw scripts/ensure-rollout-branches.sh "$HERE/scripts/ensure-rollout-branches.sh" 755
+copy_file .verified-oss-loop/README.md
+copy_file .verified-oss-loop/rollout.yml
+
+if [[ "$LAYOUT" == "mature" ]]; then
+  # Kit stays under .verified-oss-loop/. Do not replace a mature AGENTS.md
+  # or dump kit skills over existing source:local skills/.
+  copy_file docs/verified-oss-loop.md
+  for f in "${KIT_SKILLS[@]}"; do
+    copy_file_as ".verified-oss-loop/$f" "$f"
+  done
+  copy_raw .verified-oss-loop/scripts/cluster-similar-issues.py "$HERE/scripts/cluster-similar-issues.py"
+else
+  HEALTH=(
+    AGENTS.md
+    CONTRIBUTING.md
+    SECURITY.md
+    prompt.md
+    roadmap.example.yml
+    skills/autodevelop/SKILL.md
+    skills/orient/SKILL.md
+    skills/tdd/SKILL.md
+    skills/anti-slop/SKILL.md
+    skills/pstack/SKILL.md
+    skills/dr-eggbot/SKILL.md
+    skills/verify/SKILL.md
+    .github/PULL_REQUEST_TEMPLATE.md
+    .github/ISSUE_TEMPLATE/config.yml
+    .github/ISSUE_TEMPLATE/bug.yml
+    .github/ISSUE_TEMPLATE/feature.yml
+    .github/ISSUE_TEMPLATE/claim.yml
+    .github/labels.md
+  )
+  for f in "${HEALTH[@]}"; do
+    copy_file "$f"
+  done
+  copy_raw scripts/rollout.py "$HERE/scripts/rollout.py"
+  copy_raw scripts/ensure-rollout-branches.sh "$HERE/scripts/ensure-rollout-branches.sh" 755
+  copy_raw scripts/cluster-similar-issues.py "$HERE/scripts/cluster-similar-issues.py"
+fi
 
 if [[ -e "$TARGET/LICENSE" ]]; then
   echo "keep existing: LICENSE"

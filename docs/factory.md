@@ -6,7 +6,7 @@ How Linear factory HITL uses **this** Verified OSS Loop protocol. Canonical colu
 
 | Kind | Apply this kit? | Rule |
 |---|---|---|
-| `kvnloo/*` that opted into the standard | **Yes** | `./bin/oss-onboard DIR --with-automation --labels` (default `--scheme rolling`) |
+| `kvnloo/*` that opted into the standard | **Yes** | `./bin/oss-onboard DIR --with-automation --labels` (default `--scheme rolling`). Mature trees: `--layout mature`. |
 | Origin OSS (LiteLLM, rust-lang, HA, …) | **No dump** | Follow *their* CONTRIBUTING, CODEOWNERS, and bots. Map factory HITL onto *their* process |
 | Factory control plane / IaC | Contract only | [HITL.md](../HITL.md); do not onboard terraform as an app. Do not mint a parallel factory protocol. |
 
