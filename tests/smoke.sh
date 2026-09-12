@@ -145,6 +145,7 @@ grep -q 'path: .github/workflows/stale.yml' "$TMP/auto/.verified-oss-loop/invent
 [[ -f "$TMP/auto/.github/scripts/create-labels.sh" ]] || fail "create-labels.sh missing"
 [[ -f "$TMP/auto/.github/scripts/check-receipt.py" ]] || fail "check-receipt.py missing"
 [[ -f "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh missing"
+[[ -f "$TMP/auto/.github/scripts/claim-lease.py" ]] || fail "claim-lease.py missing next to expire-claims"
 [[ -x "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh not executable"
 [[ -f "$TMP/auto/.github/workflows/automerge-preview.yml" ]] || fail "automation did not copy automerge-preview.yml"
 [[ -f "$TMP/auto/.github/workflows/automerge-nightly.yml" ]] || fail "automation did not copy automerge-nightly.yml"
@@ -207,6 +208,7 @@ python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.js
 python3 -m py_compile "$HERE/scripts/check-receipt.py" || fail "check-receipt.py"
 python3 -m py_compile "$HERE/scripts/kit-inventory.py" || fail "kit-inventory.py"
 python3 -m py_compile "$HERE/scripts/rollout.py" || fail "rollout.py"
+python3 -m py_compile "$HERE/scripts/claim-lease.py" || fail "claim-lease.py"
 python3 -m py_compile "$HERE/scripts/pages-url-map.py" || fail "pages-url-map.py"
 
 # Inventory: new kit skills appear; local skills survive; --force does not clobber local

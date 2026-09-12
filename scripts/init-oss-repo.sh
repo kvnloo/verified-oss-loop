@@ -274,6 +274,7 @@ if [[ "$AUTOMATION" -eq 1 ]]; then
   fi
   copy_raw .github/scripts/check-receipt.py "$HERE/scripts/check-receipt.py"
   copy_raw .github/scripts/expire-claims.sh "$HERE/scripts/expire-claims.sh" 755
+  copy_raw .github/scripts/claim-lease.py "$HERE/scripts/claim-lease.py"
 fi
 
 if [[ "$LABELS" -eq 1 && "$AUTOMATION" -eq 0 ]]; then

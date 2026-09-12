@@ -167,4 +167,39 @@ if grep -q 'If nothing is claimable: stop' "$HERE/prompt.md"; then
   fail "kit prompt.md still stop-only; templates/prompt.md already triages"
 fi
 
+# --- extra stacks (parallel tester gap vs smoke) ---
+mkdir -p "$TMP/rs2" "$TMP/npm2" "$TMP/mixed"
+printf '[package]\nname="x"\nversion="0.0.0"\n' >"$TMP/rs2/Cargo.toml"
+echo '{}' >"$TMP/npm2/package.json"
+touch "$TMP/npm2/package-lock.json"
+echo '{}' >"$TMP/mixed/package.json"
+touch "$TMP/mixed/bun.lock"
+printf '[project]\nname="m"\n' >"$TMP/mixed/pyproject.toml"
+onboard "$TMP/rs2" --name RsE2E --owner kvnloo >/dev/null
+grep -q 'cargo test' "$TMP/rs2/AGENTS.md" || fail "rust unit not pinned"
+onboard "$TMP/npm2" --name NpmE2E --owner kvnloo >/dev/null
+grep -q '| `unknown` |' "$TMP/npm2/AGENTS.md" || fail "npm without test script should pin unknown unit"
+onboard "$TMP/mixed" --name MixE2E --owner kvnloo >/dev/null
+grep -q 'bun test' "$TMP/mixed/AGENTS.md" || fail "mixed bun+py primary should be js/bun"
+if "$HERE/bin/oss-onboard" "$TMP/bad-scheme" --scheme nope >/dev/null 2>&1; then
+  fail "oss-onboard invalid --scheme must fail"
+fi
+
+# --- claim lease: piped JSON must reach python (heredoc would steal stdin) ---
+if grep -q 'python3 - <<' "$HERE/scripts/expire-claims.sh"; then
+  fail "expire-claims heredoc would steal stdin from piped comments"
+fi
+[[ -f "$TMP/py/.github/scripts/claim-lease.py" ]] || fail "automation must copy claim-lease.py next to expire-claims.sh"
+export VOL_NOW_EPOCH=1700000000
+export VOL_MAX_AGE_SECS=86400
+expired='[{"body":"claiming for autodevelop\nexpires: 2020-01-01T00:00:00Z","createdAt":"2020-01-01T00:00:00Z"}]'
+fresh='[{"body":"claiming for autodevelop\nexpires: 2099-01-01T00:00:00Z","createdAt":"2023-11-14T22:13:20Z"}]'
+[[ "$(printf '%s' "$expired" | python3 "$HERE/scripts/claim-lease.py" | sed -n '1p')" == yes ]] \
+  || fail "past expires must be expired"
+[[ "$(printf '%s' "$fresh" | python3 "$HERE/scripts/claim-lease.py" | sed -n '1p')" == no ]] \
+  || fail "future expires must not be expired"
+[[ "$(printf '%s' "$expired" | python3 "$TMP/py/.github/scripts/claim-lease.py" | sed -n '1p')" == yes ]] \
+  || fail "copied claim-lease.py diverged"
+unset VOL_NOW_EPOCH VOL_MAX_AGE_SECS
+
 echo "ok: e2e"

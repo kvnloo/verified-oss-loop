@@ -9,7 +9,7 @@ This project follows the [Verified OSS Loop](https://github.com/kvnloo/verified-
 1. Read this file, then `CONTRIBUTING.md`.
 2. `git fetch origin`. `python3 .verified-oss-loop/rollout.py show`. Branch from `origin/$(python3 .verified-oss-loop/rollout.py get worker_base)` unless the issue names another base. Day-pass PRs target `feature_target`. Overnight unattended PRs target `overnight_target`. See `docs/rollout.md` in the kit (or `.verified-oss-loop/rollout.yml` here).
 3. Search open issues and PRs. Do not duplicate in-flight work.
-4. Orient (`skills/orient/SKILL.md`). If GitNexus MCP is already there: `query` → `context` → `impact`. Do not run `gitnexus analyze` unless a human asked. Else Serena symbols, else `rg` + read.
+4. Orient (`skills/orient/SKILL.md`). If GitNexus MCP is already there: `query` → `context` → `impact`. Do not run `gitnexus analyze` unless a human asked. Else Serena symbols, else `rg` + read. Loop: `skills/autodevelop/SKILL.md`. Receipt: `skills/verify/SKILL.md`. TDD: `skills/tdd/SKILL.md`.
 
 ```bash
 gh issue list --label claimable --state open
