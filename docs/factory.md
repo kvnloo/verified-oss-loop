@@ -53,6 +53,17 @@ When the factory contributes to a community that already has S-tier bots (exampl
 4. Do not install verified-oss-loop labels onto origin.
 5. Do not merge origin. Maintainer Review waits on *their* authorized path.
 
+## Origin publish from Maintainer Review
+
+This kit repo (not origin, not plugin copies) owns the publisher:
+
+```bash
+python3 scripts/publish-origin-from-hitl.py --self-test
+python3 scripts/publish-origin-from-hitl.py --merge   # exit 2 — never merges
+```
+
+Moving Linear to **Maintainer Review** opens the GitHub **parent** PR from the attached **fork** PR. Workflow: `.github/workflows/hitl-publish-origin.yml` on `repository_dispatch` `event_type: hitl-maintainer-review`. Secrets: `HITL_GITHUB_TOKEN`, `LINEAR_API_KEY`. Non-fork plugin repos fail closed. `oss-onboard --with-automation` must not dump this workflow into children.
+
 ## Evidence the factory already measures
 
 Factory traction rewards maintainer-validated outcomes (merged, salvage, heat) and punishes spray. That is the same idea as SPEC §7 KEEP/DISCARD and issue #1's impact ladder, without shipping a game in this pass. The traction formula does not set claim priority.
