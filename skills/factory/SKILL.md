@@ -5,7 +5,7 @@ Use the Verified OSS Loop to improve repos that opted into this standard. Do not
 ## Do
 
 1. Read this kit's `SPEC.md` and `docs/factory.md`.
-2. If the target is `kvnloo/*` and opted in: `./bin/oss-onboard DIR --with-automation`.
+2. If the target is `kvnloo/*` and opted in: `./bin/oss-onboard DIR --with-automation`. Mature forks that already have `AGENTS.md`: `./bin/oss-onboard DIR --layout mature` (kit under `.verified-oss-loop/`; never replace `AGENTS.md` or dump kit skills over `source: local`). Cluster similar issues from a **local** fixture (`scripts/cluster-similar-issues.py`, cap 64) — do not scrape trackers.
 3. If the target is origin OSS: follow origin CONTRIBUTING. Do not copy labels or workflows there.
 4. Claim **one** item. Isolated branch. Orient, then fail-then-pass, then shrink (`skills/orient`, `skills/tdd`, `skills/anti-slop`). Fill the evidence receipt.
 5. Independent review (human or a review bot the project already runs). **Never merge `main` or `dev`.**
