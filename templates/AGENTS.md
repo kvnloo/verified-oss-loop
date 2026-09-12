@@ -52,6 +52,8 @@ Commands were filled by `init-oss-repo.sh` / `oss-onboard` from the tree it saw.
 6. Open a PR at `feature_target` (or `overnight_target` if unattended overnight). Fill `.github/PULL_REQUEST_TEMPLATE.md`. Never merge `main` or `dev`. Do not merge preview/nightly yourself; automerge may, when `rollout.yml` allows.
 7. If the project runs an independent review bot (Greptile, CodeRabbit, Bugbot, Copilot, …), treat its comments as review, not merge. Fix real findings. Do not wait for a bot to approve itself.
 
+Live site is `main`; nightly is `{base}nightly/` not `{base}preview/nightly/`. Git `preview` ≠ `/preview/`. See `docs/rollout.md` in the kit (`pages-url-map.py`).
+
 ## Do not
 
 - Commit secrets, tokens, `.env`, or pairing files.

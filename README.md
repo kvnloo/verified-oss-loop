@@ -58,6 +58,7 @@ This repo is the protocol (`SPEC.md`) plus an onboarding kit. It does not genera
 ```bash
 git clone https://github.com/kvnloo/verified-oss-loop
 ./bin/oss-onboard /path/to/repo --with-automation --scheme rolling
+# Pages URL map (git preview ≠ /preview/): --with-pages
 # slower: --scheme staged   classic: --scheme stable
 # mature fork (keep AGENTS.md; kit under .verified-oss-loop/):
 ./bin/oss-onboard /path/to/repo --layout mature
@@ -71,7 +72,8 @@ What it does:
 - Detects stack from the tree (`pyproject.toml`, `package.json`/`bun.lock`, `Cargo.toml`, `go.mod`).
 - Writes `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, a paste-ready `prompt.md` that links to **that** repo, issue/PR templates, and kit skills (`autodevelop`, `orient`, `tdd`, `anti-slop`, `pstack`, `dr-eggbot`, `verify`) via [kit inventory](docs/kit-inventory.md). Re-runs update **kit** files; they never overwrite `source: local` skills (pstack plugin copies, hand-written tools).
 - Pins the unit and mutation commands it saw. If mutation is `n/a`, the receipt says `n/a` — it does not invent a score.
-- `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, `create-labels.sh`, and **preview/nightly automerge + promote-preview** gated by `.verified-oss-loop/rollout.yml`. Default `--scheme rolling` (Arch-style). `--scheme staged` or `--scheme stable` for slower repos. [docs/rollout.md](docs/rollout.md). AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
+- `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, `create-labels.sh`, and **preview/nightly automerge + promote-preview** gated by `.verified-oss-loop/rollout.yml`. Default `--scheme rolling` (Arch-style). `--scheme staged` or `--scheme stable` for slower repos. [docs/rollout.md](docs/rollout.md). AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied. Automation still does not merge `main`.
+- `--with-pages` copies `scripts/pages-url-map.py`, `.verified-oss-loop/pages-url-map.yml`, and a paste snippet for the maintainer’s own Pages workflow. Git channels (`preview`, `nightly`) are not URL folders. Default map: `main` → `{base}`, `nightly` → `{base}nightly/`, `preview` → `{base}next/`, features → `{base}wip/<slug>/`. If the target already has `pages.yml` or `build-pages.py`, onboard prints the collision warning and runs `check` even without the flag. Does not invent a site generator. [docs/rollout.md](docs/rollout.md).
 - `--layout mature`: kit under `.verified-oss-loop/` + `docs/verified-oss-loop.md`. Does **not** replace a mature `AGENTS.md` or dump kit skills over `source: local`. See [docs/verified-oss-loop.md](docs/verified-oss-loop.md).
 - Similar-issue clustering: `scripts/cluster-similar-issues.py` + `tests/fixtures/issues-tiny.json` (8 issues, cap 64). No live tracker scrape.
 - Does **not** run GitNexus, dump pstack, or rewrite `AGENTS.md` with a second H1. Graph/LSP/pstack/eggbot: [docs/agent-onboarding.md](docs/agent-onboarding.md).
