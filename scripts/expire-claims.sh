@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Release expired Verified OSS Loop claim leases. Does not merge. Does not close issues.
 # Usage: expire-claims.sh [--dry-run] [--max-age-hours 24]
+# Comments JSON is piped into scripts/claim-lease.py (not a python heredoc).
 set -euo pipefail
 
 DRY=0
@@ -28,45 +29,8 @@ export VOL_MAX_AGE_SECS=$((MAX_HOURS * 3600))
 
 lease_state() {
   # JSON comments array on stdin → two lines: yes|no and reason
-  python3 - <<'PY'
-import datetime, json, os, re, sys
-now = int(os.environ["VOL_NOW_EPOCH"])
-max_age = int(os.environ["VOL_MAX_AGE_SECS"])
-comments = json.load(sys.stdin)
-iso = re.compile(
-    r"(?:expires_at|expires)\s*:\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:Z|[+-][0-9]{2}:[0-9]{2})?)",
-    re.I,
-)
-claim_at = None
-expiry = None
-for c in comments:
-    body = c.get("body") or ""
-    created = c.get("createdAt") or c.get("created_at") or ""
-    if re.search(r"(?i)claiming for|claimant:|claimed_at:", body):
-        try:
-            claim_at = int(datetime.datetime.fromisoformat(created.replace("Z", "+00:00")).timestamp())
-        except Exception:
-            pass
-    for m in iso.finditer(body):
-        raw = m.group(1)
-        if raw.endswith("Z"):
-            raw = raw[:-1] + "+00:00"
-        try:
-            expiry = int(datetime.datetime.fromisoformat(raw).timestamp())
-        except Exception:
-            pass
-if expiry is not None:
-    expired = expiry <= now
-    reason = f"expires_at {expiry} <= now {now}"
-elif claim_at is not None:
-    expired = (now - claim_at) >= max_age
-    reason = f"claim comment age {now - claim_at}s >= {max_age}s"
-else:
-    expired = False
-    reason = "no claim timestamp"
-print("yes" if expired else "no")
-print(reason)
-PY
+  # Must not use a python heredoc: that steals stdin from the pipe.
+  python3 "$(cd "$(dirname "$0")" && pwd)/claim-lease.py"
 }
 
 issues="$(gh issue list --label claimed --state open --limit 100 --json number --jq '.[].number')"

@@ -145,6 +145,7 @@ grep -q 'path: .github/workflows/stale.yml' "$TMP/auto/.verified-oss-loop/invent
 [[ -f "$TMP/auto/.github/scripts/create-labels.sh" ]] || fail "create-labels.sh missing"
 [[ -f "$TMP/auto/.github/scripts/check-receipt.py" ]] || fail "check-receipt.py missing"
 [[ -f "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh missing"
+[[ -f "$TMP/auto/.github/scripts/claim-lease.py" ]] || fail "claim-lease.py missing next to expire-claims"
 [[ -x "$TMP/auto/.github/scripts/expire-claims.sh" ]] || fail "expire-claims.sh not executable"
 [[ -f "$TMP/auto/.github/workflows/automerge-preview.yml" ]] || fail "automation did not copy automerge-preview.yml"
 [[ -f "$TMP/auto/.github/workflows/automerge-nightly.yml" ]] || fail "automation did not copy automerge-nightly.yml"
@@ -186,7 +187,8 @@ grep -q 'query' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding catal
 if [[ -d "$HERE/gitnexus" ]] || [[ -d "$HERE/GitNexus" ]]; then
   fail "GitNexus source must not be vendored into this kit"
 fi
-grep -q 'https://github.com/kvnloo/verified-oss-loop' "$HERE/prompt.md" || fail "kit prompt.md must link to this repo"
+if grep -q 'If nothing is claimable: stop' "$HERE/prompt.md"; then fail "kit prompt.md must not be stop-only"; fi
+grep -q 'needs-discussion' "$HERE/prompt.md" || fail "kit prompt.md missing needs-discussion triage"
 grep -q '{{REPO_URL}}' "$HERE/templates/prompt.md" || fail "template prompt.md missing REPO_URL"
 
 python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-good.md" \
@@ -199,13 +201,15 @@ if python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt
   fail "bad receipt should fail"
 fi
 
-for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh"; do
+for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh" "$HERE/tests/e2e.sh"; do
   bash -n "$s" || fail "bash -n $s"
 done
 python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.json"
 python3 -m py_compile "$HERE/scripts/check-receipt.py" || fail "check-receipt.py"
 python3 -m py_compile "$HERE/scripts/kit-inventory.py" || fail "kit-inventory.py"
 python3 -m py_compile "$HERE/scripts/rollout.py" || fail "rollout.py"
+python3 -m py_compile "$HERE/scripts/claim-lease.py" || fail "claim-lease.py"
+python3 -m py_compile "$HERE/scripts/pages-url-map.py" || fail "pages-url-map.py"
 
 # Inventory: new kit skills appear; local skills survive; --force does not clobber local
 INV="$TMP/new/.verified-oss-loop/inventory.yml"
@@ -279,5 +283,85 @@ grep -q 'LOCAL-SKILL' "$TMP/mature/skills/local-bot/SKILL.md" || fail "mature on
 grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs missing mature layout"
 grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
 grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
+
+# Pages URL map: git channels are not publish folders
+grep -q 'Git channels are not publish URLs' "$HERE/docs/rollout.md" || fail "rollout.md missing Pages URL namespace section"
+grep -q '{base}next/' "$HERE/docs/rollout.md" || fail "rollout.md missing preview→next map"
+grep -q 'preview/nightly' "$HERE/docs/rollout.md" || fail "rollout.md missing forbidden preview/nightly"
+grep -q 'pages-url-map.py check' "$HERE/docs/agent-onboarding.md" || fail "agent-onboarding missing Pages check"
+grep -q -- '--with-pages' "$HERE/README.md" || fail "README missing --with-pages"
+grep -q '{base}nightly/' "$HERE/templates/AGENTS.md" || fail "template AGENTS.md missing Pages one-liner"
+grep -q '{base}preview/nightly' "$HERE/templates/docs/verified-oss-loop.md" || fail "mature docs missing Pages one-liner"
+if [[ -d "$HERE/language" ]] || [[ -f "$HERE/scripts/build-pages.py" ]]; then
+  fail "must not port aodl language/ or build-pages.py into this kit"
+fi
+cmp -s "$HERE/scripts/pages-url-map.py" "$HERE/templates/scripts/pages-url-map.py" \
+  || fail "templates/scripts/pages-url-map.py must match scripts/pages-url-map.py"
+
+[[ ! -f "$TMP/new/scripts/pages-url-map.py" ]] || fail "pages-url-map.py copied without --with-pages"
+[[ "$(python3 "$HERE/scripts/pages-url-map.py" path --branch nightly --base /aodl/)" == /aodl/nightly/ ]] \
+  || fail "nightly must map to {base}nightly/"
+[[ "$(python3 "$HERE/scripts/pages-url-map.py" path --branch preview --base /aodl/)" == /aodl/next/ ]] \
+  || fail "preview must map to {base}next/"
+[[ "$(python3 "$HERE/scripts/pages-url-map.py" path --branch cursor/catalog-xyflow-e30f --base /aodl/)" == /aodl/wip/cursor--catalog-xyflow-e30f/ ]] \
+  || fail "feature refs must map to {base}wip/<slug>/"
+[[ "$(python3 "$HERE/scripts/pages-url-map.py" path --branch main --base /aodl/)" == /aodl/ ]] \
+  || fail "main must map to {base}"
+devpath="$(python3 "$HERE/scripts/pages-url-map.py" path --branch dev --base /aodl/)"
+[[ -z "$devpath" ]] || fail "dev must be unpublished by default"
+
+python3 "$HERE/scripts/pages-url-map.py" check --root "$HERE/tests/fixtures/pages-url-map/good" \
+  || fail "good Pages fixture must pass check"
+if python3 "$HERE/scripts/pages-url-map.py" check --root "$HERE/tests/fixtures/pages-url-map/bad" >/dev/null 2>&1; then
+  fail "catch-all /preview/<branch>/ must fail check"
+fi
+if python3 "$HERE/scripts/pages-url-map.py" check --root "$HERE/tests/fixtures/pages-url-map/bad-py" >/dev/null 2>&1; then
+  fail "build-pages.py /preview/{slug}/ must fail check"
+fi
+if python3 "$HERE/scripts/pages-url-map.py" check --root "$HERE/tests/fixtures/pages-url-map/bad-yml" >/dev/null 2>&1; then
+  fail "pages-url-map.yml that nests channels under preview must fail check"
+fi
+
+mkdir -p "$TMP/pageskit"
+PAGES_OUT="$TMP/pageskit.out"
+"$HERE/bin/oss-onboard" "$TMP/pageskit" --name PagesKit --owner kvnloo --with-pages >"$PAGES_OUT" 2>&1 \
+  || fail "onboard --with-pages failed on a tree with no Pages builder"
+[[ -f "$TMP/pageskit/scripts/pages-url-map.py" ]] || fail "--with-pages did not copy scripts/pages-url-map.py"
+[[ -f "$TMP/pageskit/.verified-oss-loop/pages-url-map.py" ]] || fail "--with-pages did not copy .verified-oss-loop/pages-url-map.py"
+[[ -f "$TMP/pageskit/.verified-oss-loop/pages-url-map.yml" ]] || fail "--with-pages did not copy pages-url-map.yml"
+[[ -f "$TMP/pageskit/.github/workflows/pages-channels.md" ]] || fail "--with-pages did not copy pages-channels.md snippet"
+grep -q 'path: scripts/pages-url-map.py' "$TMP/pageskit/.verified-oss-loop/inventory.yml" \
+  || fail "inventory missing pages-url-map.py"
+grep -q 'git channels:' "$PAGES_OUT" || fail "onboard --with-pages must print git channels"
+grep -q 'pages map:' "$PAGES_OUT" || fail "onboard --with-pages must print pages map"
+grep -q 'inert until a human lands it on origin/main' "$PAGES_OUT" || fail "onboard must say promote-preview is inert off default branch"
+grep -q '{base}nightly/' "$TMP/pageskit/AGENTS.md" || fail "onboarded AGENTS.md missing Pages URL one-liner"
+
+mkdir -p "$TMP/mature-pages/docs"
+echo 'KEEP-AGENTS' >"$TMP/mature-pages/AGENTS.md"
+"$HERE/bin/oss-onboard" "$TMP/mature-pages" --layout mature --name MaturePages --owner kvnloo --with-pages >/dev/null \
+  || fail "mature onboard --with-pages failed"
+[[ -f "$TMP/mature-pages/.verified-oss-loop/pages-url-map.py" ]] || fail "mature --with-pages missing kit pages-url-map.py"
+[[ -f "$TMP/mature-pages/.verified-oss-loop/scripts/pages-url-map.py" ]] || fail "mature --with-pages missing nested script copy"
+[[ ! -f "$TMP/mature-pages/scripts/pages-url-map.py" ]] || fail "mature --with-pages dumped script at repo root scripts/"
+grep -q 'KEEP-AGENTS' "$TMP/mature-pages/AGENTS.md" || fail "mature --with-pages replaced AGENTS.md"
+grep -q '{base}nightly/' "$TMP/mature-pages/docs/verified-oss-loop.md" || fail "mature docs missing Pages one-liner"
+
+mkdir -p "$TMP/collide/.github/workflows"
+cp "$HERE/tests/fixtures/pages-url-map/bad/.github/workflows/pages.yml" "$TMP/collide/.github/workflows/pages.yml"
+COLLIDE_OUT="$TMP/collide.out"
+if "$HERE/bin/oss-onboard" "$TMP/collide" --name Collide --owner kvnloo --with-pages >"$COLLIDE_OUT" 2>&1; then
+  fail "onboard --with-pages must fail when Pages catch-all uses /preview/"
+fi
+grep -q 'preview/nightly' "$COLLIDE_OUT" || fail "onboard FAIL must name forbidden preview/nightly"
+[[ -f "$TMP/collide/scripts/pages-url-map.py" ]] || fail "--with-pages must still copy the script when check fails"
+
+mkdir -p "$TMP/warn-pages/.github/workflows"
+cp "$HERE/tests/fixtures/pages-url-map/bad/.github/workflows/pages.yml" "$TMP/warn-pages/.github/workflows/pages.yml"
+WARN_OUT="$TMP/warn-pages.out"
+"$HERE/bin/oss-onboard" "$TMP/warn-pages" --name WarnPages --owner kvnloo >"$WARN_OUT" 2>&1 \
+  || fail "onboard without --with-pages must still succeed on a Pages repo"
+grep -q 'publishes GitHub Pages' "$WARN_OUT" || fail "Pages repo without --with-pages must print collision warning"
+[[ ! -f "$TMP/warn-pages/scripts/pages-url-map.py" ]] || fail "must not copy pages-url-map.py without --with-pages"
 
 echo "ok"

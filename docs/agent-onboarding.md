@@ -60,4 +60,6 @@ Same order as `skills/orient/SKILL.md`:
 | `skills/tdd/SKILL.md` | Fail, then pass |
 | `skills/verify/SKILL.md` | Receipt; mutation `n/a` when the stack has none |
 
+If this repo has GitHub Pages (or `scripts/build-pages.py`): git channels are not URL paths. `preview` the branch ≠ `/preview/` the folder. Map + check: [rollout.md](rollout.md) (“Git channels are not publish URLs”), `python3 scripts/pages-url-map.py check --root .`. `--with-pages` copies the map; it does not rewrite a local Pages builder.
+
 Kit vs local provenance and re-sync: [kit-inventory.md](kit-inventory.md). Quality bots: [quality-bots.md](quality-bots.md). Factory HITL: [HITL.md](../HITL.md) (adapter: [factory.md](factory.md)).

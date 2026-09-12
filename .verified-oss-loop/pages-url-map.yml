@@ -1,0 +1,8 @@
+# Git channels are not publish URLs. preview the branch ≠ /preview/ the folder.
+schema: verified-oss-loop.pages-url-map.v1
+feature_prefix: wip
+channels:
+  main: ""
+  nightly: nightly
+  preview: next
+  dev: null

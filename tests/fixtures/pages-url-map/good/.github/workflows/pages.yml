@@ -1,0 +1,11 @@
+name: pages
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pages dest from git ref
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          dest=$(python3 scripts/pages-url-map.py path --branch "$BRANCH" --base /repo/)
+          echo "$dest"

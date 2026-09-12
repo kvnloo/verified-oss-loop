@@ -65,3 +65,43 @@ Arch-style: keep `rolling`. Feature PRs land on preview so you can try them; ove
 - `.github/workflows/promote-preview.yml` (manual preview → nightly)
 
 They no-op when `rollout.yml` forbids that channel. Fork PRs are never auto-merged.
+
+`workflow_dispatch` workflows (this file’s `promote-preview.yml`) only appear in the Actions tab once they exist on the **default branch**. Automation yml is inert until a human lands it on `origin/main`. Do not expect promote-preview to run from a feature branch.
+
+## Git channels are not publish URLs
+
+VOL owns **git branch names**. It does not own the site generator (no Vite catalog, no `build-pages.py` dump).
+
+Two namespaces:
+
+1. **Git channels** (this kit): `preview`, `nightly`, `dev`, `main`.
+2. **Publish URLs** (GitHub Pages or any static host): must reserve channel names at the site root. A generic “all non-main builds” prefix must **not** be named `preview` or `nightly`.
+
+Default map when a repo publishes Pages (project base e.g. `/` or `/aodl/`):
+
+| Git ref | Role | URL |
+|---|---|---|
+| `main` | production | `{base}` |
+| `nightly` | cutting-edge channel | `{base}nightly/` |
+| `preview` | integration channel | `{base}next/` |
+| `dev` | gated; usually unpublished | omit (or `{base}dev/` if yes) |
+| any other ref | feature scratch | `{base}wip/<slug>/` |
+
+`preview` the git branch ≠ `/preview/` the folder. Feature scratch is `/wip/<slug>/`, never `/preview/<slug>/`. Slug rule: `/` in the ref → `--` (`cursor/foo` → `cursor--foo`).
+
+Forbidden ( `python3 scripts/pages-url-map.py check --root DIR` must fail):
+
+- `{base}preview/nightly/`
+- `{base}preview/preview/`
+- any map where a channel in `{preview, nightly, dev, main}` is nested under another channel’s folder name
+
+Caution (not a kit dependency): [kvnloo/aodl](https://github.com/kvnloo/aodl) Pages from `6f0c618` did `main → /` and every other origin branch → `/preview/<slug>/`. Then `oss-onboard --scheme rolling` created git branches named `preview` and `nightly`, so the live tree grew `/preview/nightly/` and `/preview/preview/` while `/` stayed `main`. Rolling VOL never defined those URLs — AODL Pages did — but onboard had no map, check, or template.
+
+```bash
+./bin/oss-onboard DIR --with-pages
+python3 scripts/pages-url-map.py path --branch nightly --base /aodl/   # /aodl/nightly/
+python3 scripts/pages-url-map.py path --branch preview --base /aodl/   # /aodl/next/
+python3 scripts/pages-url-map.py check --root DIR
+```
+
+`--with-pages` copies the script, `.verified-oss-loop/pages-url-map.yml`, and a paste snippet (`.github/workflows/pages-channels.md`). It does not rewrite a child’s `pages.yml` when that file is `source: modified` / `local`. If Pages files already exist, onboard runs `check` and prints the forbidden URLs plus the fix (hoist channels, feature prefix `wip`). Re-onboard on AODL is: `./bin/oss-onboard /path/to/aodl --with-pages`, then point *their* builder at `pages-url-map.py`. That second step is AODL, not this kit.
