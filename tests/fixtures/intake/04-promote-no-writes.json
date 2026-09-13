@@ -1,0 +1,14 @@
+{
+  "report": {
+    "action": "promote_issue",
+    "reproduced": true,
+    "in_scope": true,
+    "human_or_policy_allow": true,
+    "origin_policy": "allowed",
+    "github_writes": false
+  },
+  "want": {
+    "disposition": "origin_write_blocked",
+    "origin_write_permitted": false
+  }
+}

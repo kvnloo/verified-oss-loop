@@ -1,0 +1,16 @@
+{
+  "report": {
+    "action": "ingest",
+    "reproduced": true,
+    "in_scope": true,
+    "human_or_policy_allow": true,
+    "origin_policy": "allowed",
+    "github_writes": true,
+    "claimed": true,
+    "has_receipt": true
+  },
+  "want": {
+    "disposition": "local_draft",
+    "origin_write_permitted": false
+  }
+}

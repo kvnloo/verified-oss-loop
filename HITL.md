@@ -8,6 +8,8 @@ Do not invent a third process. Do not mint a parallel factory protocol in anothe
 
 `github_writes=0` until **Todo**. Triage and Backlog may clone, read, and draft locally. They must not open origin issues, comments, or PRs.
 
+A user complaint is not Todo and not an origin issue. Capture it locally (SPEC §10 intake ladder). Promote only when that gate says origin publication is permitted.
+
 Workers never merge `main` or `dev` (SPEC §6). Channel automerge is maintainer-configured rollout, not a worker merge key.
 
 ## Traction is not priority
@@ -18,7 +20,7 @@ The traction formula (`4*merged + …`) is an outcome view. It does not set clai
 
 | Linear | SPEC loop | GitHub |
 |---|---|---|
-| Triage | §1 research; issues are not claims | no origin write |
+| Triage | §1 / §10 research; complaint ≠ issue ≠ claim | no origin write |
 | Backlog | §1 claimable item; human-owned priority | `claimable` issue or origin issue URL |
 | Todo | §2 human authorized the bounded claim lease | claim comment; `claimed` |
 | In Progress | §3 isolated branch/worktree | contributor branch; no shared mutable `main` |

@@ -1,0 +1,11 @@
+{
+  "report": {
+    "action": "ingest",
+    "title": "fix already in flight",
+    "competing_pr": true
+  },
+  "want": {
+    "disposition": "stop_covered",
+    "origin_write_permitted": false
+  }
+}

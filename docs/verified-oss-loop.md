@@ -9,6 +9,7 @@ Greenfield onboard writes `AGENTS.md` and kit skills at the repo root. That is w
 - Does **not** replace `AGENTS.md`, `CONTRIBUTING.md`, or `SECURITY.md`.
 - Does **not** copy kit skills into `skills/` (those stay `source: local`).
 - Does **not** scrape issue trackers. Clustering uses a local JSON fixture, max 8 in the smoke fixture, cap 64.
+- Intake classification is local-only (`scripts/intake-gate.py`). A complaint is not an origin issue.
 
 ```bash
 ./bin/oss-onboard /path/to/mature-fork --layout mature

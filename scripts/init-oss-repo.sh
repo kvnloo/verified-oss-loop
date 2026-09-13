@@ -221,6 +221,7 @@ if [[ "$LAYOUT" == "mature" ]]; then
     copy_file_as ".verified-oss-loop/$f" "$f"
   done
   copy_raw .verified-oss-loop/scripts/cluster-similar-issues.py "$HERE/scripts/cluster-similar-issues.py"
+  copy_raw .verified-oss-loop/scripts/intake-gate.py "$HERE/scripts/intake-gate.py"
 else
   HEALTH=(
     AGENTS.md
@@ -248,6 +249,7 @@ else
   copy_raw scripts/rollout.py "$HERE/scripts/rollout.py"
   copy_raw scripts/ensure-rollout-branches.sh "$HERE/scripts/ensure-rollout-branches.sh" 755
   copy_raw scripts/cluster-similar-issues.py "$HERE/scripts/cluster-similar-issues.py"
+  copy_raw scripts/intake-gate.py "$HERE/scripts/intake-gate.py"
 fi
 
 if [[ -e "$TARGET/LICENSE" ]]; then

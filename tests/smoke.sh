@@ -280,4 +280,25 @@ grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs
 grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
 grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
 
+python3 -m py_compile "$HERE/scripts/intake-gate.py" || fail "intake-gate.py"
+python3 "$HERE/scripts/intake-gate.py" --self-test "$HERE/tests/fixtures/intake" \
+  || fail "intake-gate self-test"
+INGEST_FULL="$(python3 "$HERE/scripts/intake-gate.py" --json "$HERE/tests/fixtures/intake/11-ingest-full-gates-still-local.json")"
+echo "$INGEST_FULL" | python3 -c '
+import json,sys
+g=json.load(sys.stdin)
+if g["disposition"]!="local_draft":
+    raise SystemExit("ingest must stay local_draft even when later gates are true")
+if g["origin_write_permitted"]:
+    raise SystemExit("ingest must not permit origin writes")
+'
+[[ "$(python3 -c 'from pathlib import Path; print(len(list(Path("'"$HERE"'/tests/fixtures/intake").glob("*.json"))))')" == 12 ]] \
+  || fail "intake fixtures must stay at 12"
+grep -q 'complaint ≠ issue ≠ claim' "$HERE/SPEC.md" || fail "SPEC missing intake ladder"
+grep -q 'intake-gate.py' "$HERE/README.md" || fail "README missing intake-gate pointer"
+grep -q 'SPEC §10' "$HERE/HITL.md" || fail "HITL.md missing SPEC §10 intake pointer"
+[[ -f "$TMP/mature/.verified-oss-loop/scripts/intake-gate.py" ]] \
+  || fail "mature onboard missing intake-gate.py"
+[[ -f "$TMP/new/scripts/intake-gate.py" ]] || fail "greenfield onboard missing intake-gate.py"
+
 echo "ok"

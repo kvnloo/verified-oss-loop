@@ -1,0 +1,10 @@
+{
+  "report": {
+    "action": "ingest",
+    "title": "app crashed when I opened chat"
+  },
+  "want": {
+    "disposition": "local_draft",
+    "origin_write_permitted": false
+  }
+}

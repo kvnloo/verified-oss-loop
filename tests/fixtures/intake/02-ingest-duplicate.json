@@ -1,0 +1,11 @@
+{
+  "report": {
+    "action": "ingest",
+    "title": "same crash again",
+    "duplicate_of": "https://github.com/example/repo/issues/12"
+  },
+  "want": {
+    "disposition": "local_duplicate",
+    "origin_write_permitted": false
+  }
+}

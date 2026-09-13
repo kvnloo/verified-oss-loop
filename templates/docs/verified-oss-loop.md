@@ -9,6 +9,7 @@ Workers never merge `main` or `dev`. `github_writes=0` on origin until a human a
 - Inventory / rollout: `.verified-oss-loop/`
 - Kit skills (not copied into `skills/`): `.verified-oss-loop/skills/`
 - Similar-issue clustering (local fixture only, cap 64): `.verified-oss-loop/scripts/cluster-similar-issues.py`
+- Intake ladder (complaint ≠ issue ≠ claim; never writes GitHub): `.verified-oss-loop/scripts/intake-gate.py`
 
 ## Commands
 
@@ -21,6 +22,7 @@ Workers never merge `main` or `dev`. `github_writes=0` on origin until a human a
 ```bash
 python3 .verified-oss-loop/rollout.py show
 python3 .verified-oss-loop/scripts/cluster-similar-issues.py tests/fixtures/issues-tiny.json
+python3 .verified-oss-loop/scripts/intake-gate.py --self-test tests/fixtures/intake
 ```
 
 Repo: {{REPO_URL}}

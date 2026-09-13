@@ -1,0 +1,15 @@
+{
+  "report": {
+    "action": "promote_issue",
+    "reproduced": true,
+    "in_scope": true,
+    "human_or_policy_allow": true,
+    "origin_policy": "allowed",
+    "github_writes": true,
+    "duplicate_of": "12"
+  },
+  "want": {
+    "disposition": "local_duplicate",
+    "origin_write_permitted": false
+  }
+}
