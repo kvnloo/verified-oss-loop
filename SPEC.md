@@ -140,3 +140,36 @@ Multiple isolated workers claim independent items; a coordinator projects status
 ### Level 3: Evaluated self-development
 
 Frozen evaluators produce KEEP/DISCARD receipts and propose roadmap updates. Maintainers retain approval and merge authority.
+
+## 10. Intake ladder (complaint ≠ issue ≠ claim)
+
+A user complaint is not a GitHub issue. A GitHub issue is not a claim. A claim is not permission to merge.
+
+Do not mint a public GitHub issue from every complaint. Capture is **local-first**: a draft in the repo inbox, Linear Triage, or a `needs-discussion` note. Rate-limits and “one canonical issue per problem” in §8 apply before any origin write.
+
+```text
+complaint  →  local draft (default)
+           →  needs-discussion   (repro/scope/policy missing)
+           →  GitHub issue       (only when promote gates pass)
+           →  claimed lease      (§2)
+           →  PR + receipt       (§4)
+           →  human merge        (§6)
+```
+
+Promote to a **public GitHub issue** only when all of the following hold:
+
+- reproduced on a pinned tree
+- not a duplicate (and no competing PR/maintainer branch covers the scope)
+- in-scope for the project
+- origin policy allows agent origin writes — `forbidden` and `unknown` fail closed
+- a human or published policy authorizes origin publication (`github_writes`; HITL Todo)
+
+Open a **PR** only from a claimed issue with an exact-head evidence receipt. Never auto-merge `main` or `dev`.
+
+Executable check (local fixtures only; never scrapes or writes a tracker):
+
+```bash
+python3 scripts/intake-gate.py --self-test tests/fixtures/intake
+```
+
+`origin_write_permitted` on that classifier is a protocol verdict. The script does not create issues or PRs. Ingest with every later gate already true still classifies as `local_draft`.

@@ -62,6 +62,7 @@ git clone https://github.com/kvnloo/verified-oss-loop
 # mature fork (keep AGENTS.md; kit under .verified-oss-loop/):
 ./bin/oss-onboard /path/to/repo --layout mature
 python3 scripts/cluster-similar-issues.py tests/fixtures/issues-tiny.json
+python3 scripts/intake-gate.py --self-test tests/fixtures/intake
 # or a new tree:
 ./scripts/init-oss-repo.sh --new ./my-lib --name my-lib --owner YOUR_LOGIN --git
 ```
@@ -74,6 +75,7 @@ What it does:
 - `--with-automation` adds stale/labeler, **receipt + exact-head**, claim-expiry, OpenSSF Scorecard, Actions-only Dependabot, CODEOWNERS, `create-labels.sh`, and **preview/nightly automerge + promote-preview** gated by `.verified-oss-loop/rollout.yml`. Default `--scheme rolling` (Arch-style). `--scheme staged` or `--scheme stable` for slower repos. [docs/rollout.md](docs/rollout.md). AI review / coverage / perf apps are catalogued in [docs/quality-bots.md](docs/quality-bots.md), not copied.
 - `--layout mature`: kit under `.verified-oss-loop/` + `docs/verified-oss-loop.md`. Does **not** replace a mature `AGENTS.md` or dump kit skills over `source: local`. See [docs/verified-oss-loop.md](docs/verified-oss-loop.md).
 - Similar-issue clustering: `scripts/cluster-similar-issues.py` + `tests/fixtures/issues-tiny.json` (8 issues, cap 64). No live tracker scrape.
+- Intake ladder (complaint ≠ issue ≠ claim, local-first, promote-only-when-gated): `SPEC.md` §10 + `scripts/intake-gate.py` (local fixtures; never writes GitHub).
 - Does **not** run GitNexus, dump pstack, or rewrite `AGENTS.md` with a second H1. Graph/LSP/pstack/eggbot: [docs/agent-onboarding.md](docs/agent-onboarding.md).
 - Factory HITL: [HITL.md](HITL.md) maps Linear Triage→…→Done onto this loop (`github_writes=0` until Todo; workers never merge; traction formula does not set claim priority). Adapter: [docs/factory.md](docs/factory.md).
 - `--labels` creates GitHub labels when `gh` is authenticated.

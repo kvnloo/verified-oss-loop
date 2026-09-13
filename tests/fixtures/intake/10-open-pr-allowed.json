@@ -1,0 +1,16 @@
+{
+  "report": {
+    "action": "open_pr",
+    "reproduced": true,
+    "in_scope": true,
+    "human_or_policy_allow": true,
+    "origin_policy": "allowed",
+    "github_writes": true,
+    "claimed": true,
+    "has_receipt": true
+  },
+  "want": {
+    "disposition": "origin_pr_allowed",
+    "origin_write_permitted": true
+  }
+}
