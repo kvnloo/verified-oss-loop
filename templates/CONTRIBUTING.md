@@ -21,9 +21,9 @@ Workers:
 5. Open a PR with an evidence receipt.
 6. **Never merge `main` or `dev`.**
 
-### Humans
+### Humans and community
 
-Same loop, without the claim bot if you are a maintainer. You still do not need a second process.
+Same loop. File issues with the Proposal / Bug / Feature forms (`needs-discussion`). Maintainers add `claimable` when a leaf is ready. Do not open a consolation PR from a discussion issue. Maintainers may skip the claim bot; they still do not need a second process.
 
 ## Evidence
 
@@ -35,7 +35,7 @@ Every PR fills `.github/PULL_REQUEST_TEMPLATE.md`:
 - mutation command and score, or `n/a`
 - contribution mode: unattended (cloud agent) or copilot (human-supervised)
 
-Tests from another head are not evidence. `--with-automation` adds a CI check that the YAML keys exist and `head_revision` matches the PR SHA.
+Tests from another head are not evidence. Put `head_revision` in the PR body before you push that SHA when you can. `--with-automation` checks the **live** PR body against the head SHA (event payloads can lag).
 
 Independent review bots the project already installed (Greptile, CodeRabbit, Bugbot, Copilot, Codecov, CodSpeed) are reviewers and evidence, not merge authority.
 

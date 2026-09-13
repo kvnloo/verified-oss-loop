@@ -78,3 +78,7 @@ Bottlenecks that do not go away with more GPUs: attention, burnout, revert cost,
 | [dash](https://github.com/kvnloo/dash) / [company-os](https://github.com/kvnloo/company-os) | HUD / phone bridge | Issue tracker, merge bot |
 
 If every repo mints claims, the factory `spray` term is the metric. One `head_revision` per receipt. Re-run `oss-onboard` on opted-in children when this kit moves (kerdoios `prompt.md` still pointed at `origin/main` after rollout landed here).
+
+## Harness hygiene (Hermes / one-shot CLIs)
+
+[Hermes](https://github.com/NousResearch/hermes-agent) taught isolated, hermetic proof: local runner matches CI, credential env blanked, no leak into `~/.config`, cancel work that a newer SHA superseded. [oh-my-pi (`omp`)](https://omp.sh/) is a one-shot coding CLI — doctor, do one job, return — not a merge key and not a second loop. Kit translation: [docs/ci-cd.md](ci-cd.md). Community intake: issue forms apply `needs-discussion`; maintainers promote `claimable`; [CONTRIBUTING.md](../CONTRIBUTING.md) is the ladder.

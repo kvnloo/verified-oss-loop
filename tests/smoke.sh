@@ -321,4 +321,40 @@ grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs
 grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
 grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
 
+grep -q 'cancel-in-progress: true' "$HERE/.github/workflows/receipt.yml" \
+  || fail "kit receipt.yml missing concurrency cancel"
+grep -q 'gh api' "$HERE/.github/workflows/receipt.yml" \
+  || fail "kit receipt.yml must fetch live PR body"
+grep -q 'cancel-in-progress: true' "$HERE/.github/workflows/ci.yml" \
+  || fail "ci.yml missing concurrency cancel"
+grep -q 'cancel-in-progress: true' "$HERE/templates/.github/workflows/receipt.yml" \
+  || fail "template receipt.yml missing concurrency cancel"
+grep -q 'gh api' "$HERE/templates/.github/workflows/receipt.yml" \
+  || fail "template receipt.yml must fetch live PR body"
+if grep -q 'github.event.pull_request.body' "$HERE/.github/workflows/receipt.yml"; then
+  fail "kit receipt.yml must not trust event payload body"
+fi
+[[ -f "$HERE/.github/ISSUE_TEMPLATE/discussion.yml" ]] || fail "kit missing discussion issue form"
+[[ -f "$HERE/templates/.github/ISSUE_TEMPLATE/discussion.yml" ]] || fail "templates missing discussion issue form"
+grep -q 'needs-discussion' "$HERE/.github/ISSUE_TEMPLATE/discussion.yml" \
+  || fail "discussion form must apply needs-discussion"
+grep -q 'needs-discussion' "$HERE/.github/ISSUE_TEMPLATE/bug.yml" \
+  || fail "kit bug form must apply needs-discussion"
+grep -q 'needs-discussion' "$HERE/.github/ISSUE_TEMPLATE/feature.yml" \
+  || fail "kit feature form must apply needs-discussion"
+grep -q 'How an issue becomes a PR' "$HERE/CONTRIBUTING.md" \
+  || fail "CONTRIBUTING missing community ladder"
+grep -q 'docs/ci-cd.md' "$HERE/README.md" || fail "README missing ci-cd.md"
+grep -q 'live PR body' "$HERE/docs/ci-cd.md" || fail "ci-cd.md missing live-body lesson"
+grep -q 'oh-my-pi' "$HERE/docs/ci-cd.md" || fail "ci-cd.md missing omp/oh-my-pi"
+grep -q 'Harness hygiene' "$HERE/docs/quality-at-scale.md" \
+  || fail "quality-at-scale missing harness hygiene"
+grep -q '/SPEC.md' "$HERE/.github/CODEOWNERS" || fail "CODEOWNERS missing SPEC.md path"
+[[ -f "$TMP/new/.github/ISSUE_TEMPLATE/discussion.yml" ]] \
+  || fail "onboard did not copy discussion.yml"
+grep -q 'needs-discussion' "$TMP/new/.github/ISSUE_TEMPLATE/bug.yml" \
+  || fail "onboarded bug form missing needs-discussion"
+grep -q 'gh api' "$TMP/auto/.github/workflows/receipt.yml" \
+  || fail "onboarded receipt.yml must fetch live PR body"
+
 echo "ok"

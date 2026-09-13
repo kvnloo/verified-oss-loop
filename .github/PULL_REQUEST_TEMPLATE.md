@@ -5,7 +5,9 @@
 ## Checklist
 
 - [ ] **Searched issues/PRs**: no duplicate of an open claim or existing PR
+- [ ] **One leaf**: linked `claimable` issue (not an unlabeled or `needs-discussion` ticket unless a human assigned it)
 - [ ] **Claimed issue**: work started after a bounded claim, not from the issue title alone
+- [ ] **Receipt SHA**: `head_revision` is this PR's SHA (set it in the body before push when you can)
 - [ ] **Fail-then-pass**: bug fixes include red then green (command + expected result)
 - [ ] **No secrets**: no tokens, pairing codes, `.env`, or API keys
 - [ ] **Mode** (select one):
@@ -39,7 +41,7 @@ limitations: []
 ai_assistance:
 ```
 
-CI runs `scripts/check-receipt.py` against this block and the PR head SHA. Independent review bots are not merge.
+CI fetches the live PR body and runs `scripts/check-receipt.py` against this block and the PR head SHA. Independent review bots are not merge.
 
 ## Related
 

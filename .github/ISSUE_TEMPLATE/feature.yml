@@ -1,11 +1,11 @@
 name: Feature
 description: A proposed change to the protocol or the onboarding kit.
-labels: ["enhancement"]
+labels: ["enhancement", "needs-discussion"]
 body:
   - type: markdown
     attributes:
       value: |
-        Do not start work until this issue is `claimable` and you hold a claim lease.
+        This form applies `needs-discussion`. Do not start work until maintainers add `claimable` and you hold a claim lease.
         Do not invent a second spec. Extend SPEC.md or the kit, not both unless the claim says so.
   - type: textarea
     id: problem
