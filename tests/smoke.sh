@@ -321,4 +321,41 @@ grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs
 grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
 grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
 
+# ---- mature layout WITH automation -------------------------------------------
+# These two paths were only ever tested apart. `--layout mature` installs the kit
+# under .verified-oss-loop/ and never creates a root scripts/; --with-automation
+# installs the channel workflows. Together, the templates used to call
+# `scripts/rollout.py`, which the mature layout does not have, so every preview /
+# nightly automerge and every preview->nightly promote failed with rc=2 while the
+# install reported success. The invariant below is the general form: a workflow
+# this kit installs may only invoke scripts this kit also installs.
+mkdir -p "$TMP/mature-auto"
+"$HERE/bin/oss-onboard" "$TMP/mature-auto" --layout mature --name MatureAuto --owner kvnloo --with-automation >/dev/null \
+  || fail "mature onboard with --with-automation failed"
+[[ -f "$TMP/mature-auto/.verified-oss-loop/rollout.py" ]] || fail "mature+automation missing kit rollout.py"
+[[ -f "$TMP/mature-auto/.github/workflows/promote-preview.yml" ]] || fail "mature+automation missing promote workflow"
+[[ ! -f "$TMP/mature-auto/scripts/rollout.py" ]] || fail "mature layout must not gain a root scripts/rollout.py"
+
+missing=""
+while read -r invoked; do
+  [[ -z "$invoked" ]] && continue
+  [[ -f "$TMP/mature-auto/$invoked" ]] || missing="$missing $invoked"
+done < <(grep -ho 'python3 [^ ]*\.py' "$TMP/mature-auto/.github/workflows/"*.yml \
+           | sed 's/^python3 //' | sort -u)
+[[ -z "$missing" ]] || fail "installed workflows invoke missing scripts:$missing"
+
+# ...and the greenfield layout must keep working, since it is the one that has a
+# root scripts/. Both layouts have to satisfy the same invariant.
+mkdir -p "$TMP/green-auto"
+"$HERE/bin/oss-onboard" "$TMP/green-auto" --layout greenfield --name GreenAuto --owner kvnloo --with-automation >/dev/null \
+  || fail "greenfield onboard with --with-automation failed"
+missing=""
+while read -r invoked; do
+  [[ -z "$invoked" ]] && continue
+  [[ -f "$TMP/green-auto/$invoked" ]] || missing="$missing $invoked"
+done < <(grep -ho 'python3 [^ ]*\.py' "$TMP/green-auto/.github/workflows/"*.yml \
+           | sed 's/^python3 //' | sort -u)
+[[ -z "$missing" ]] || fail "greenfield workflows invoke missing scripts:$missing"
+
+
 echo "ok"
