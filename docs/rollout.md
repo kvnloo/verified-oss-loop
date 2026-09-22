@@ -65,3 +65,29 @@ Arch-style: keep `rolling`. Feature PRs land on preview so you can try them; ove
 - `.github/workflows/promote-preview.yml` (manual preview → nightly)
 
 They no-op when `rollout.yml` forbids that channel. Fork PRs are never auto-merged.
+
+## Promoting from a terminal
+
+`scripts/promote.sh` is the manual counterpart to the workflow, for when a
+promote has to be run locally. Its job is the one thing the rollout scheme cannot
+see:
+
+```bash
+scripts/promote.sh --check preview nightly   # report, change nothing
+scripts/promote.sh preview nightly           # promote
+scripts/promote.sh dev nightly main          # several targets, in order
+```
+
+It **refuses to run if any participating branch has unpushed commits**, prints
+them, and exits non-zero. That guard exists because it was violated: a hand-run
+loop did `git checkout main && git reset --hard origin/main && git merge …` while
+`main` held an unpushed commit. The reset discarded it and the merge promoted the
+*old* main. The commits survived only in the reflog.
+
+Two related rules fall out of the same incident: each target is pushed
+immediately, so a later iteration cannot reset over it, and a branch that already
+contains the source is reported as done rather than merged again as an empty
+commit.
+
+The workflow and the script divide the work: `rollout.yml` decides *whether* a
+promotion is allowed; `promote.sh` decides whether it is *safe to run here*.
