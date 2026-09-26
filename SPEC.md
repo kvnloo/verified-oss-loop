@@ -77,6 +77,15 @@ An independent reviewer checks the exact head:
 - security/compatibility/migration risk
 - final head stability
 
+### Existing-PR mirror gate
+
+When an origin PR already covers the implementation scope, review and test that exact origin head in place.
+
+- A diff-equivalent downstream patch is evidence, not a new contribution claim. Do not open it as a normal/ready PR.
+- Preserve the origin commit's authorship/provenance when reproducing it locally; do not re-commit an identical patch under a worker identity solely to obtain test evidence.
+- If a PR is technically required to run CI, it must be reference-only and draft, link the origin PR/head, remain draft while equivalent, and close after the evidence is transferred.
+- A mirror may leave draft only after an independent reviewer records a concrete novel delta relative to the refreshed origin head. Additional test evidence alone is not a novel diff.
+
 Verdicts:
 
 - `APPROVE_EXACT_HEAD`
