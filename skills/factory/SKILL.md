@@ -8,8 +8,8 @@ Use the Verified OSS Loop to improve repos that opted into this standard. Do not
 2. If the target is `kvnloo/*` and opted in: `./bin/oss-onboard DIR --with-automation`. Mature forks that already have `AGENTS.md`: `./bin/oss-onboard DIR --layout mature` (kit under `.verified-oss-loop/`; never replace `AGENTS.md` or dump kit skills over `source: local`). Cluster similar issues from a **local** fixture (`scripts/cluster-similar-issues.py`, cap 64) — do not scrape trackers.
 3. If the target is origin OSS: follow origin CONTRIBUTING. Do not copy labels or workflows there.
 4. If an origin PR already covers the scope, do not recreate it as a normal fork PR. Validate the exact origin head and return evidence to the downstream QA issue. Preserve origin authorship/provenance. A PR used only because CI requires one must stay reference-only draft and must close after evidence transfer; promotion requires a concrete novel diff.
-4. Claim **one** item. Isolated branch. Orient, then fail-then-pass, then shrink (`skills/orient`, `skills/tdd`, `skills/anti-slop`). Fill the evidence receipt.
-5. Independent review (human or a review bot the project already runs). **Never merge `main` or `dev`.** Fork PRs stay on the fork until a human moves Linear to **Maintainer Review**. Then `scripts/publish-origin-from-hitl.py` opens the GitHub parent PR (`hitl-maintainer-review`). Non-fork plugin repos fail closed. The publisher never merges.
+5. Claim **one** item. Isolated branch. Orient, then fail-then-pass, then shrink (`skills/orient`, `skills/tdd`, `skills/anti-slop`). Fill the evidence receipt.
+6. Independent review (human or a review bot the project already runs). **Never merge `main` or `dev`.** Fork PRs stay on the fork until a human moves Linear to **Maintainer Review**. Then `scripts/publish-origin-from-hitl.py` opens the GitHub parent PR (`hitl-maintainer-review`). Non-fork plugin repos fail closed. The publisher never merges.
 
 ## Stop
 
