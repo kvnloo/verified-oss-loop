@@ -265,7 +265,8 @@ fi
 
 
 python3 -m py_compile "$HERE/scripts/contribution-preflight.py" || fail "contribution-preflight.py"
-PREFLIGHT_JSON="$(python3 "$HERE/scripts/contribution-preflight.py" "$HERE" \
+PREFLIGHT_ROOT="$HERE/tests/fixtures/preflight-repo"
+PREFLIGHT_JSON="$(python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
   --candidate "$HERE/tests/fixtures/preflight-candidate.json" \
   --tracker "$HERE/tests/fixtures/preflight-tracker.json" --json)"
 echo "$PREFLIGHT_JSON" | python3 -c '
@@ -273,17 +274,18 @@ import json,sys
 r=json.load(sys.stdin)
 names={x["name"] for x in r["archetypes"]}
 assert "agent-native" in names, names
+assert r["policy"]["ai_contribution"]=="explicit_allowed", r["policy"]
 assert r["collision"]["type"]=="hard", r["collision"]
 assert r["mode"]=="collision_memo", r
 assert r["collision_memo"]["should_comment"] is True, r["collision_memo"]
 '
 
 PREFLIGHT_STATE="$TMP/preflight-state.json"
-python3 "$HERE/scripts/contribution-preflight.py" "$HERE" \
+python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
   --candidate "$HERE/tests/fixtures/preflight-candidate.json" \
   --tracker "$HERE/tests/fixtures/preflight-tracker.json" \
   --state "$PREFLIGHT_STATE" --record --json >/dev/null
-PREFLIGHT_REPEAT="$(python3 "$HERE/scripts/contribution-preflight.py" "$HERE" \
+PREFLIGHT_REPEAT="$(python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
   --candidate "$HERE/tests/fixtures/preflight-candidate.json" \
   --tracker "$HERE/tests/fixtures/preflight-tracker.json" \
   --state "$PREFLIGHT_STATE" --json)"
@@ -294,7 +296,7 @@ assert m["status"]=="already_recorded", m
 assert m["should_comment"] is False, m
 '
 
-PREFLIGHT_PERF="$(python3 "$HERE/scripts/contribution-preflight.py" "$HERE" \
+PREFLIGHT_PERF="$(python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
   --candidate "$HERE/tests/fixtures/preflight-performance-candidate.json" \
   --tracker "$HERE/tests/fixtures/preflight-tracker.json" --json)"
 echo "$PREFLIGHT_PERF" | python3 -c '
