@@ -136,9 +136,10 @@ def classify_policy(root: Path, docs: list[tuple[str, str]]) -> dict[str, Any]:
         # not prove AI-generated public contributions are allowed.
         ai = "unclear"
 
-    disclosure_required = any(
+    disclosure_signal = any(
         token in joined for token in ("assisted-by", "generated-by", "ai disclosure", "disclose ai")
     )
+    disclosure_required = True if disclosure_signal else "unknown"
     trailer = (
         "Assisted-by"
         if "assisted-by" in joined
@@ -149,7 +150,7 @@ def classify_policy(root: Path, docs: list[tuple[str, str]]) -> dict[str, Any]:
 
     return {
         "ai_contribution": ai,
-        "disclosure_required": disclosure_required if ai != "unclear" else "unknown",
+        "disclosure_required": disclosure_required,
         "required_trailer": trailer,
         "cla_dco_gpg": [],
         "contribution_surface": "github",
