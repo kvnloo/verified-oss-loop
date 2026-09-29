@@ -263,6 +263,60 @@ if python3 "$HERE/scripts/cluster-similar-issues.py" --cap 65 "$HERE/tests/fixtu
   fail "cap above 64 must fail"
 fi
 
+
+python3 -m py_compile "$HERE/scripts/contribution-preflight.py" || fail "contribution-preflight.py"
+PREFLIGHT_ROOT="$HERE/tests/fixtures/preflight-repo"
+PREFLIGHT_JSON="$(python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
+  --candidate "$HERE/tests/fixtures/preflight-candidate.json" \
+  --tracker "$HERE/tests/fixtures/preflight-tracker.json" --json)"
+echo "$PREFLIGHT_JSON" | python3 -c '
+import json,sys
+r=json.load(sys.stdin)
+names={x["name"] for x in r["archetypes"]}
+assert "agent-native" in names, names
+assert r["policy"]["ai_contribution"]=="explicit_allowed", r["policy"]
+assert r["collision"]["type"]=="hard", r["collision"]
+assert r["mode"]=="collision_memo", r
+assert r["collision_memo"]["should_comment"] is True, r["collision_memo"]
+'
+
+PREFLIGHT_STATE="$TMP/preflight-state.json"
+python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
+  --candidate "$HERE/tests/fixtures/preflight-candidate.json" \
+  --tracker "$HERE/tests/fixtures/preflight-tracker.json" \
+  --state "$PREFLIGHT_STATE" --record --json >/dev/null
+PREFLIGHT_REPEAT="$(python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
+  --candidate "$HERE/tests/fixtures/preflight-candidate.json" \
+  --tracker "$HERE/tests/fixtures/preflight-tracker.json" \
+  --state "$PREFLIGHT_STATE" --json)"
+echo "$PREFLIGHT_REPEAT" | python3 -c '
+import json,sys
+m=json.load(sys.stdin)["collision_memo"]
+assert m["status"]=="already_recorded", m
+assert m["should_comment"] is False, m
+'
+
+PREFLIGHT_PERF="$(python3 "$HERE/scripts/contribution-preflight.py" "$PREFLIGHT_ROOT" \
+  --candidate "$HERE/tests/fixtures/preflight-performance-candidate.json" \
+  --tracker "$HERE/tests/fixtures/preflight-tracker.json" --json)"
+echo "$PREFLIGHT_PERF" | python3 -c '
+import json,sys
+r=json.load(sys.stdin)
+assert r["mode"]=="drop", r
+assert "performance_evidence_missing" in r["reasons"], r
+'
+
+PREFLIGHT_UNCLEAR="$(python3 "$HERE/scripts/contribution-preflight.py" "$TMP/empty" \
+  --candidate "$HERE/tests/fixtures/preflight-candidate.json" \
+  --tracker "$HERE/tests/fixtures/preflight-tracker.json" --json)"
+echo "$PREFLIGHT_UNCLEAR" | python3 -c '
+import json,sys
+r=json.load(sys.stdin)
+assert r["policy"]["ai_contribution"]=="unclear", r["policy"]
+assert r["mode"]=="watch", r
+assert r["public_action_allowed"] is False, r
+'
+
 mkdir -p "$TMP/mature/skills/local-bot" "$TMP/mature/docs"
 echo 'KEEP-AGENTS' >"$TMP/mature/AGENTS.md"
 echo 'LOCAL-SKILL' >"$TMP/mature/skills/local-bot/SKILL.md"
