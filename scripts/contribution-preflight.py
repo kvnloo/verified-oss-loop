@@ -60,13 +60,21 @@ PROHIBITED_PATTERNS = (
     "ai contributions are prohibited",
     "llm-generated contributions are not accepted",
 )
+ALLOWED_PATTERNS = (
+    "ai-assisted contributions are allowed",
+    "ai assisted contributions are allowed",
+    "ai-generated contributions are allowed",
+    "ai generated contributions are allowed",
+    "ai contributions are allowed",
+    "ai assistance is allowed",
+)
 RESTRICTED_PATTERNS = (
-    "ai-assisted",
-    "ai assisted",
     "generated-by",
     "assisted-by",
     "disclose ai",
     "ai disclosure",
+    "ai-assisted contributions must",
+    "ai assisted contributions must",
 )
 
 
@@ -121,9 +129,11 @@ def classify_policy(root: Path, docs: list[tuple[str, str]]) -> dict[str, Any]:
         ai = "prohibited"
     elif any(pattern in joined for pattern in RESTRICTED_PATTERNS):
         ai = "explicit_restricted"
-    elif (root / "AGENTS.md").is_file():
+    elif any(pattern in joined for pattern in ALLOWED_PATTERNS):
         ai = "explicit_allowed"
     else:
+        # AGENTS.md makes the repo agent-native, but its mere existence does
+        # not prove AI-generated public contributions are allowed.
         ai = "unclear"
 
     disclosure_required = any(
@@ -141,6 +151,7 @@ def classify_policy(root: Path, docs: list[tuple[str, str]]) -> dict[str, Any]:
         "ai_contribution": ai,
         "disclosure_required": disclosure_required if ai != "unclear" else "unknown",
         "required_trailer": trailer,
+        "cla_dco_gpg": [],
         "contribution_surface": "github",
         "special_rules": [path for path, _ in docs],
     }
