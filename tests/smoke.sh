@@ -190,7 +190,7 @@ grep -q 'https://github.com/kvnloo/verified-oss-loop' "$HERE/prompt.md" || fail 
 grep -q '{{REPO_URL}}' "$HERE/templates/prompt.md" || fail "template prompt.md missing REPO_URL"
 
 python3 "$HERE/tests/test_receipt.py" || fail "receipt contract"
-python3 "$HERE/tests/test_receipt.py" "$TMP/auto/.github/scripts/check-receipt.py" \
+VOL_RECEIPT_SCRIPT="$TMP/auto/.github/scripts/check-receipt.py" python3 "$HERE/tests/test_receipt.py" \
   || fail "onboarded receipt contract"
 python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt-good.md" \
   --head 1234567890abcdef1234567890abcdef12345678 >/dev/null \

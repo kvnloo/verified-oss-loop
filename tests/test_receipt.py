@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Revision-bound receipt contract, including the onboarded CLI copy."""
 import importlib.util
+import os
 from pathlib import Path
 import subprocess
 import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = Path(sys.argv.pop(1)) if len(sys.argv) > 1 else ROOT / 'scripts/check-receipt.py'
+SCRIPT = Path(os.environ.get('VOL_RECEIPT_SCRIPT', ROOT / 'scripts/check-receipt.py'))
 spec = importlib.util.spec_from_file_location('receipt', SCRIPT)
 receipt = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(receipt)
