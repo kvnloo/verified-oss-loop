@@ -1,0 +1,14 @@
+# kvnloo/z0evals  (default: main)
+# NIGHTLY_TEST_CMD: pip install -r requirements.txt && python scripts/validate.py && python scripts/audit_web_source.py && python scripts/build_site.py
+# feat/z0intelligence-story-route (the function-routing story on preview) needs a
+# rebase onto main before it can be listed.
+#
+# branch                                mode      owner
+feat/z0archy-core-manifest-20260930     required  kevin
+study/claude-code-savings-v0            required  claude-code
+docs/jev-literature-deep-dive           required  kevin        # PR #66
+fix/blog-page-smoke-markers             required  kevin
+study/unified-memory-cohort-v0          required  kevin
+study/unified-memory-56-dsh-runner      required  kevin
+docs/z0intelligence-function-routing    required  kevin
+fix/blog-ui-voice-unification           required  kevin        # dry-run: drops on web/app/page.tsx until rebased

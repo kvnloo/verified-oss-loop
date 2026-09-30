@@ -149,6 +149,26 @@ grep -q 'path: .github/workflows/stale.yml' "$TMP/auto/.verified-oss-loop/invent
 [[ -f "$TMP/auto/.github/workflows/automerge-preview.yml" ]] || fail "automation did not copy automerge-preview.yml"
 [[ -f "$TMP/auto/.github/workflows/automerge-nightly.yml" ]] || fail "automation did not copy automerge-nightly.yml"
 [[ -f "$TMP/auto/.github/workflows/promote-preview.yml" ]] || fail "automation did not copy promote-preview.yml"
+[[ -f "$TMP/auto/.github/workflows/nightly-rebuild.yml" ]] || fail "automation did not copy nightly-rebuild.yml"
+[[ -f "$TMP/auto/.nightly/branches" ]] || fail "automation did not copy .nightly/branches"
+[[ -x "$TMP/auto/.verified-oss-loop/nightly-rebuild.sh" ]] || fail "nightly-rebuild.sh not installed executable"
+grep -q 'bash .verified-oss-loop/nightly-rebuild.sh' "$TMP/auto/.github/workflows/nightly-rebuild.yml" \
+  || fail "nightly-rebuild.yml must call the .verified-oss-loop script (exists in both layouts)"
+grep -q 'github-actions\[bot\]' "$TMP/auto/.github/workflows/nightly-rebuild.yml" \
+  || fail "nightly-rebuild.yml needs the bot git identity"
+grep -q 'contents: write' "$TMP/auto/.github/workflows/nightly-rebuild.yml" \
+  || fail "nightly-rebuild.yml needs contents: write"
+grep -q 'workflow_dispatch' "$TMP/auto/.github/workflows/nightly-rebuild.yml" \
+  || fail "nightly-rebuild.yml needs workflow_dispatch"
+grep -q 'schedule:' "$TMP/auto/.github/workflows/nightly-rebuild.yml" \
+  || fail "nightly-rebuild.yml needs a schedule"
+grep -q 'force-with-lease' "$HERE/scripts/nightly-rebuild.sh" || fail "nightly push must use --force-with-lease"
+grep -q 'nightly-rebuild.sh' "$HERE/README.md" || fail "README missing nightly pointer"
+for m in "$HERE"/docs/nightly-manifests/*.branches; do
+  if grep -vE '^[[:space:]]*(#|$)' "$m" | awk '$2!="required" && $2!="advisory" {bad=1} END{exit !bad}'; then
+    fail "bad mode in $m"
+  fi
+done
 grep -q 'scripts/rollout.py' "$TMP/auto/.github/workflows/automerge-preview.yml" \
   || fail "automerge-preview must call scripts/rollout.py"
 [[ ! -f "$TMP/auto/.github/workflows/hitl-publish-origin.yml" ]] \
@@ -203,7 +223,7 @@ if python3 "$HERE/scripts/check-receipt.py" --file "$HERE/tests/fixtures/receipt
   fail "bad receipt should fail"
 fi
 
-for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh"; do
+for s in "$HERE/scripts/"*.sh "$HERE/bin/oss-onboard" "$HERE/tests/smoke.sh" "$HERE/tests/nightly-rebuild.sh"; do
   bash -n "$s" || fail "bash -n $s"
 done
 python3 -m json.tool "$HERE/harnesses/stacks.json" >/dev/null || fail "stacks.json"
@@ -320,5 +340,7 @@ grep -q 'LOCAL-SKILL' "$TMP/mature/skills/local-bot/SKILL.md" || fail "mature on
 grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs missing mature layout"
 grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
 grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
+
+bash "$HERE/tests/nightly-rebuild.sh" || fail "nightly-rebuild fixture test"
 
 echo "ok"

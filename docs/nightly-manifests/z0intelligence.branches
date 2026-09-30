@@ -1,0 +1,25 @@
+# kvnloo/z0intelligence  (default: master)
+# Starting manifest from the ladder plan (research/factory/ladder-plan.md §3).
+# Copy to .nightly/branches on master (PR; the ruleset requires one).
+# NIGHTLY_TEST_CMD (from core-unit.yml; `z0int doctor --json` is environment-
+# dependent and exits 1 on a workstation without z0 state, so it is not a gate):
+#   PYTHONPATH=src Z0INT_PYTHON=python3 python3 -m unittest tests.test_receipt.ReceiptBuild tests.test_receipt.ReceiptClose tests.test_bridge_worker.BridgeRuntimeTests
+#
+# branch                                mode      owner        note
+feat/memory-optmem-tree-v0              advisory  kevin        # PR #69 targets memory-event-ledger-v0; list the whole memory stack first
+feat/memory-event-ledger-v0             required  kevin
+feat/memory-contract-v1-66              required  kevin
+feat/resource-posture-v0                required  claude-code  # stack tip: carries integrate/claude-code-z0-stack, decision-opportunity, slm-portfolio
+feat/claude-code-harness                required  claude-code
+feat/state-packet-v0                    required  claude-code
+feat/portable-lab                       required  claude-code
+exp/bend-aodl-gate                      advisory  claude-code
+fix/remove-nanojev-defaults             required  kevin
+feat/z0archy-core-manifest-20260930     required  kevin
+chore/trim-wave-2-dead-artifacts        required  kevin        # PR #36
+feat/promote-local-cognition-extension  required  kevin        # PR #35
+fix/omp-complete-turn-usage             required  kevin
+feat/rlcdalignbench-minimal             required  kevin
+trim/wave1-clean                        required  kevin
+feat/agent-orchestrator-bridge          required  kevin        # expected to drop: core-unit.yml collides with the memory stack
+feat/z0-live                            required  kevin        # expected to drop: src/z0int/cli.py

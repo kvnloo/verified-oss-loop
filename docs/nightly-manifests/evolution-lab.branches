@@ -1,0 +1,10 @@
+# kvnloo/evolution-lab  (default: trunk)
+# NIGHTLY_TEST_CMD: pip install -e . && python -m unittest discover -s tests -p "test_*.py" && python -m evolution_lab gym-smoke --n 8
+# Legacy-root branches (cursor/*-9425, docs/jev-dogfood-first-branch-truth-20260920,
+# feat/openjev-track-b) need a real rebase onto trunk before they are listed.
+#
+# branch                                mode      owner
+feat/z0archy-core-manifest-20260930     required  kevin
+exp/t3-cpu-population                   required  claude-code
+exp/z0-factorized-stack-v0              required  kevin        # PR #28
+exp/t3b-real-recovery                   required  claude-code
