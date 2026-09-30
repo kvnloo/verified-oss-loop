@@ -59,6 +59,24 @@ exp/bend-aodl-gate                    advisory  claude-code
 
 Test results are cached by tree, so a tree is never tested twice. Merge commits use the `github-actions[bot]` identity and a fixed timestamp per run, so rebuilding the same list yields the same commits.
 
+## Dry run: z0intelligence, 2026-09-30
+
+Manifest `docs/nightly-manifests/z0intelligence.branches` (12 entries: the 5 squash-merged branches removed, `agent-orchestrator-bridge` and `z0-live` pointed at their `nightly-fix/feat/*` branches). Test command: the full pytest suite as `full-suite.yml` on `promote/claude-code-core` runs it (`.[test,quota]`, live tests off). Both runs `--no-push` in a scratch clone under `~/.cache/z0-nightly`.
+
+**Against `master@0563ed7`: `base-red`, nothing merged, exit 1.** The full suite on master is 555 passed, 13 failed, 8 skipped (e.g. `tests/test_quota_budget.py` KeyErrors). This is the gate working: nightly must not mask a red core. The widened command therefore blocks nightly until `promote/claude-code-core` lands (it makes the suite hermetic and green).
+
+**Against `promote/claude-code-core@8092807` (`--default`, to preview master after that PR): `rebuilt`, final gate green, candidate `f66bb2b`, 45 min.**
+
+| status | entries |
+|---|---|
+| MERGED (7) | `feat/memory-optmem-tree-v0` (advisory), `feat/memory-contract-v1-66`, `feat/portable-lab`, `exp/bend-aodl-gate` (advisory), `chore/trim-wave-2-dead-artifacts`, `feat/promote-local-cognition-extension`, `nightly-fix/feat/agent-orchestrator-bridge` |
+| CONTAINED (1) | `feat/memory-event-ledger-v0`: patch-equivalent, carried by the memory entries above |
+| DROPPED conflict (4) | `feat/resource-posture-v0`, `feat/claude-code-harness`, `feat/state-packet-v0`, `nightly-fix/feat/z0-live`, all conflicting with the promote branch itself (`claude_code*.py`, `state_packet.py`, `worker_routing.py`, `AGENTS.md`, the harness-adapter hooks) |
+
+Suite: 616 passed / 13 skipped on the base, 665 / 18 on the final tree. No entry failed tests. The memory stack adds ~5 min to every run (one run ≈ 6 min), hence the 120-minute job timeout in the template.
+
+Reading: once `promote/claude-code-core` merges, the four dropped branches carry pre-squash copies of what it promoted and must be rebased onto master (or re-cut from the stack minus the promoted files) before they ride nightly again. None of them is `GRADUATED` yet: each still has content master lacks.
+
 ## Safety
 
 - **Dry run is the default outside CI.** Locally, `scripts/nightly-rebuild.sh` builds, tests and reports, and leaves the result at the local ref `refs/nightly/candidate`. Pushing needs `CI=true` or an explicit `--push`. `--dry-run` / `--no-push` / `DRY_RUN=true` always win.

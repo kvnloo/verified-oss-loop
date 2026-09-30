@@ -1,9 +1,14 @@
 # kvnloo/evolution-lab  (default: trunk)
-# NIGHTLY_TEST_CMD: pip install -e . && python -m unittest discover -s tests -p "test_*.py" && python -m evolution_lab gym-smoke --n 8
+# NIGHTLY_TEST_CMD: uv venv -q -p 3.12 .venv && . .venv/bin/activate && uv pip install -q -e ".[jax]" && python -m unittest discover -s tests -p "test_*.py" && python -m evolution_lab gym-smoke --n 8
+# The full suite needs the jax extra: without it trunk@1c9b523 is RED (8 errors, all
+# ModuleNotFoundError: jax); with it 238 OK, 2 skipped, gym-smoke OK (~30s). fix/ci-jax
+# makes CI install .[jax] and stops test_data_recipe writing data/next_action/champion.json
+# into the tree; it is listed first until it merges.
 # Legacy-root branches (cursor/*-9425, docs/jev-dogfood-first-branch-truth-20260920,
 # feat/openjev-track-b) need a real rebase onto trunk before they are listed.
 #
 # branch                                mode      owner
+fix/ci-jax                              required  kevin        # not merged into trunk yet; graduates when it does
 feat/z0archy-core-manifest-20260930     required  kevin
 exp/t3-cpu-population                   required  claude-code
 exp/z0-factorized-stack-v0              required  kevin        # PR #28

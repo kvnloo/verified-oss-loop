@@ -1,5 +1,9 @@
 # kvnloo/aodl  (default: main)
-# NIGHTLY_TEST_CMD: python3 tests/validate.py && python3 tests/compile.py && python3 tests/mesh_registry.py
+# NIGHTLY_TEST_CMD: python3 tests/validate.py && python3 tests/compile.py && python3 tests/mesh_registry.py && python3 -m unittest discover -s tests -p "test_*.py"
+# (validate.yml + tests/test_aodl_contract_api.py, which no CI job runs; green on main@416736c.
+# catalog.yml's bun + Playwright e2e (18/18 green) is left out: it needs bun, a Chromium
+# download and fixed port 4178. Append `&& cd language && bun install && bunx playwright
+# install chromium && bun run test:e2e` on a runner that has bun.)
 #
 # branch                                mode      owner
 fix/validate-non-scalar-fields          required  claude-code
