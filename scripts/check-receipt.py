@@ -7,7 +7,7 @@ import re
 import sys
 from typing import Any
 
-SHA_RE = re.compile(r"^[0-9a-f]{7,40}$", re.I)
+SHA_RE = re.compile(r"[0-9a-f]{40}", re.I)
 REQUIRED_TOP = ("issue", "base_revision", "head_revision")
 
 
@@ -31,12 +31,16 @@ def parse_simple_yaml(block: str) -> dict[str, Any]:
             continue
         nested = re.match(r"^  ([A-Za-z0-9_]+)\s*:\s*(.*)$", raw)
         if nested and current_map is not None:
+            if nested.group(1) in current_map:
+                raise ValueError(f"duplicate receipt field: {current_key}.{nested.group(1)}")
             current_map[nested.group(1)] = nested.group(2).strip()
             continue
         top = re.match(r"^([A-Za-z0-9_]+)\s*:\s*(.*)$", raw)
         if not top:
             continue
         key, val = top.group(1), top.group(2).strip()
+        if key in data:
+            raise ValueError(f"duplicate receipt field: {key}")
         if val == "" or val == "|":
             current_map = {}
             data[key] = current_map
@@ -45,19 +49,15 @@ def parse_simple_yaml(block: str) -> dict[str, Any]:
         data[key] = val
         current_map = None
         current_key = key
-    _ = current_key
     return data
 
 
 def pick_receipt(text: str) -> dict[str, Any]:
-    best: dict[str, Any] = {}
-    score = -1
-    for block in extract_yaml_blocks(text):
-        parsed = parse_simple_yaml(block)
-        hits = sum(1 for k in REQUIRED_TOP if k in parsed)
-        if hits > score:
-            best, score = parsed, hits
-    return best
+    candidates = [block for block in extract_yaml_blocks(text)
+                  if re.search(r"^(issue|base_revision|head_revision)\s*:", block, re.M)]
+    if len(candidates) > 1:
+        raise ValueError("multiple evidence receipts found; keep exactly one current receipt")
+    return parse_simple_yaml(candidates[0]) if candidates else {}
 
 
 def nonempty(val: Any) -> bool:
@@ -70,17 +70,21 @@ def nonempty(val: Any) -> bool:
 
 def sha_ok(val: Any) -> bool:
     s = str(val).strip().lower()
-    return bool(SHA_RE.match(s))
+    return bool(SHA_RE.fullmatch(s))
 
 
 def heads_match(receipt_head: str, expected: str) -> bool:
     a, b = receipt_head.strip().lower(), expected.strip().lower()
-    return a == b or a.startswith(b) or b.startswith(a)
+    # Without the repository object database, a prefix cannot identify an exact revision.
+    return sha_ok(a) and sha_ok(b) and a == b
 
 
 def check(text: str, expected_head: str | None = None) -> list[str]:
     errors: list[str] = []
-    data = pick_receipt(text)
+    try:
+        data = pick_receipt(text)
+    except ValueError as exc:
+        return [str(exc)]
     if not data:
         return ["no evidence YAML found (need a ```yaml receipt with issue/base_revision/head_revision)"]
 
@@ -91,9 +95,9 @@ def check(text: str, expected_head: str | None = None) -> list[str]:
             errors.append(f"{key} is empty")
 
     if "base_revision" in data and nonempty(data["base_revision"]) and not sha_ok(data["base_revision"]):
-        errors.append("base_revision is not a git SHA")
+        errors.append("base_revision must be a full 40-character git SHA")
     if "head_revision" in data and nonempty(data["head_revision"]) and not sha_ok(data["head_revision"]):
-        errors.append("head_revision is not a git SHA")
+        errors.append("head_revision must be a full 40-character git SHA")
 
     tests = data.get("tests")
     if not isinstance(tests, dict):
@@ -104,9 +108,11 @@ def check(text: str, expected_head: str | None = None) -> list[str]:
         if not nonempty(tests.get("green")):
             errors.append("tests.green is empty")
 
-    if expected_head:
+    if expected_head is not None:
         head = str(data.get("head_revision") or "").strip()
-        if not head:
+        if not sha_ok(expected_head):
+            errors.append("expected head must be a full 40-character git SHA")
+        elif not head:
             errors.append("head_revision missing; cannot bind to exact head")
         elif not heads_match(head, expected_head):
             errors.append(
@@ -119,7 +125,7 @@ def check(text: str, expected_head: str | None = None) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Validate a Verified OSS Loop evidence receipt")
     p.add_argument("--file", help="PR body or receipt markdown/YAML (default: stdin)")
-    p.add_argument("--head", help="Expected PR head SHA (exact-head check)")
+    p.add_argument("--head", help="Full 40-character PR head SHA (exact-head check)")
     args = p.parse_args(argv)
     if args.file:
         with open(args.file, encoding="utf-8") as f:

@@ -64,6 +64,17 @@ ai_assistance: project-required-disclosure
 
 Receipts must distinguish local evidence, CI, simulation, and real-device/runtime evidence.
 
+The kit's receipt checker requires full 40-character Git revisions for both
+`base_revision` and `head_revision`. With `--head`, the receipt must equal that
+full PR head; abbreviated prefixes are not revision-bound evidence. Keep one
+current receipt block with unique fields, including `tests.red` and `tests.green`.
+Other YAML examples may remain if they do not declare receipt revision/issue keys.
+Replace historical receipts with links rather than additional receipt blocks.
+
+This is a structural and revision-binding check, not proof that commands ran or
+that an independent reviewer approved the change. Without `--head`, only receipt
+completeness is checked. The reviewer still reproduces evidence under §5.
+
 ## 5. Review contract
 
 An independent reviewer checks the exact head:
