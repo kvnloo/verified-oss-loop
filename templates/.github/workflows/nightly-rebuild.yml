@@ -24,6 +24,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read   # `gh pr list --state merged` marks squash-merged entries GRADUATED
 
 concurrency:
   group: nightly-rebuild
@@ -55,6 +56,7 @@ jobs:
           NIGHTLY_TEST_CMD: ${{ vars.NIGHTLY_TEST_CMD }}
           NIGHTLY_SMOKE_CMD: ${{ vars.NIGHTLY_SMOKE_CMD }}
           NIGHTLY_RERERE: ${{ vars.NIGHTLY_RERERE }}
+          GH_TOKEN: ${{ github.token }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail

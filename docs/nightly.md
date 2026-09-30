@@ -44,12 +44,14 @@ exp/bend-aodl-gate                    advisory  claude-code
    | outcome | meaning |
    |---|---|
    | `GONE` | the branch no longer exists; remove it from the manifest |
-   | `GRADUATED` | already in the default branch; remove it from the manifest |
-   | `CONTAINED` | an earlier entry (a stack tip) already carries it |
+   | `GRADUATED` | already in the default branch; remove it from the manifest (the report lists these under **Manifest hygiene**) |
+   | `CONTAINED` | an earlier entry (a stack tip, or a patch-equivalent copy) already carries it; keep it listed |
    | `DROPPED` conflict | merge conflict; the report lists the files and which earlier entries (or the default branch itself) touch them |
    | `DROPPED` tests | a `required` branch whose smoke failed after merging; it is backed out |
    | `WARN` | an `advisory` branch whose smoke failed; kept |
    | `MERGED` | merged (`--no-ff`, message `nightly: merge <branch> @ <sha>`) and green |
+
+   `GRADUATED` means any of: the tip is an ancestor of the default (merge commit, fast-forward); merging it into the default yields the default's own tree (squash- or rebase-merged, patch-equivalent); or, with `gh`, a PR from that branch was merged with exactly this tip as its head (squash-merged, and the default has since moved on the same files). The `gh` check runs when `gh` is installed and the remote is on github.com; `NIGHTLY_GH=0` turns it off. A branch that gained commits after its PR merged is not graduated. `CONTAINED` is only ever about earlier manifest entries, never the default branch.
 
 5. Run the full test on the final tree. A red final tree means branches that pass alone fail together. The job drops entries, last first, until the required-only tree is green, spending at most `--max-rebuilds` (5) extra test runs; the culprit is reported. Advisory entries may leave the final tree red (`final_gate: red-advisory`) only if the same tree without them is green.
 6. Write `.nightly-out/report.json` (machine-readable, schema `verified-oss-loop.nightly-report.v1`) and `.nightly-out/REPORT.md` (step summary), plus per-run logs.

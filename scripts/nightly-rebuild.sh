@@ -31,6 +31,9 @@
 #
 # Environment: DRY_RUN=true forces --dry-run. CI=true switches the default to push.
 # NIGHTLY_TEST_TIMEOUT (seconds, default 1800), NIGHTLY_TAG_KEEP_DAYS (default 30).
+# NIGHTLY_GH=0 disables the `gh pr list --state merged` graduation check. It
+# runs when gh is installed and the remote is on github.com (or NIGHTLY_GH_REPO
+# names owner/repo); any gh failure just skips it.
 #
 # Exit: 0 rebuilt (branches may have been dropped; see the report),
 #       1 base red, push rejected, or any other failure (fail closed: nothing pushed),
@@ -42,7 +45,7 @@ set -euo pipefail
 log() { printf '[nightly] %s\n' "$*" >&2; }
 die() { log "FATAL: $*"; exit "${2:-1}"; }
 truthy() { case "${1:-}" in 1|true|TRUE|True|yes|on) return 0 ;; *) return 1 ;; esac; }
-usage() { sed -n '2,39p' "$0" | sed -E 's/^# ?//'; exit "${1:-0}"; }
+usage() { awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"; exit "${1:-0}"; }
 
 REMOTE="${NIGHTLY_REMOTE:-origin}"
 DEF="${NIGHTLY_DEFAULT:-}"
@@ -211,6 +214,11 @@ for st in order:
             L.append("  <details><summary>last log lines</summary>\n\n  ```")
             L.extend("  " + t for t in e["log_tail"])
             L.append("  ```\n  </details>")
+    L.append("")
+stale = [e["branch"] for e in entries if e["status"] in ("GRADUATED", "GONE")]
+if stale:
+    L.append("**Manifest hygiene:** remove " + ", ".join(f"`{b}`" for b in stale)
+             + " from the manifest (already in the default branch, or gone).")
     L.append("")
 with open(os.path.join(out, "REPORT.md"), "w", encoding="utf-8") as fh:
     fh.write("\n".join(L) + "\n")
@@ -387,6 +395,49 @@ conflicts_with() {
   printf '%s' "${out[*]:-}"
 }
 
+# graduated BRANCH SHA: true when the entry is already in the default branch,
+# as opposed to CONTAINED (carried by an earlier manifest entry). Sets GRAD_HOW.
+#   1. its tip is an ancestor of the default (merge commit / fast-forward);
+#   2. merging it into the default yields the default's own tree (squash- or
+#      rebase-merged, or patch-equivalent);
+#   3. with gh: a merged PR from BRANCH whose head is exactly SHA (squash-merged,
+#      and the default has since moved on the same files, so 2 no longer holds).
+BASE_TREE=""
+GH_OK=0
+GH_REPO="${NIGHTLY_GH_REPO:-}"
+if [[ -z "$GH_REPO" ]]; then
+  GH_REPO="$(git remote get-url "$REMOTE" 2>/dev/null \
+    | sed -nE 's#^(https://([^@/]*@)?github\.com/|git@github\.com:|ssh://git@github\.com/)([^/]+/[^/]+)$#\3#p' \
+    | sed -E 's#\.git$##' || true)"
+fi
+if [[ "${NIGHTLY_GH:-auto}" != 0 && -n "$GH_REPO" ]] && command -v gh >/dev/null 2>&1; then GH_OK=1; fi
+GRAD_HOW=""
+graduated() {
+  local b="$1" sha="$2" mt pr
+  GRAD_HOW=""
+  if git merge-base --is-ancestor "$sha" "$BASE_SHA"; then GRAD_HOW="ancestor of $DEF"; return 0; fi
+  [[ -n "$BASE_TREE" ]] || BASE_TREE="$(git rev-parse "$BASE_SHA^{tree}")"
+  if mt="$(git merge-tree --write-tree "$BASE_SHA" "$sha" 2>/dev/null | head -n1)" && [[ "$mt" == "$BASE_TREE" ]]; then
+    GRAD_HOW="merging it into $DEF changes nothing: squash-merged or patch-equivalent"; return 0
+  fi
+  [[ "$GH_OK" -eq 1 ]] || return 1
+  pr="$(gh pr list -R "$GH_REPO" --state merged --head "$b" --limit 20 --json number,headRefOid \
+          --jq ".[] | select(.headRefOid == \"$sha\") | .number" 2>/dev/null | head -n1 || true)"
+  [[ "$pr" =~ ^[0-9]+$ ]] || return 1
+  GRAD_HOW="PR #$pr merged at this tip"; return 0
+}
+
+# carries J_SHA SHA: every file SHA changes (vs. the default) has the same
+# content in J_SHA, i.e. the earlier entry J already carries SHA's change.
+carries() {
+  local f
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    [[ "$(git rev-parse -q --verify "$1:$f" 2>/dev/null || echo -)" \
+       == "$(git rev-parse -q --verify "$2:$f" 2>/dev/null || echo -)" ]] || return 1
+  done < <(git diff --name-only "$BASE_SHA...$2")
+}
+
 # ---------------------------------------------------------------- 2. base must be green
 if run_cmd test "base-$DEF"; then
   [[ -n "$TEST_CMD" ]] && BASE_TESTS="green"
@@ -404,8 +455,8 @@ for i in "${!B[@]}"; do
     STATUS[$i]="GONE"; REASON[$i]="not on $REMOTE; remove it from the manifest"; continue
   fi
   SHA[$i]="$sha"
-  if git merge-base --is-ancestor "$sha" "$BASE_SHA"; then
-    STATUS[$i]="GRADUATED"; REASON[$i]="already in $DEF; remove it from the manifest"; continue
+  if graduated "$b" "$sha"; then
+    STATUS[$i]="GRADUATED"; REASON[$i]="already in $DEF ($GRAD_HOW); remove it from the manifest"; continue
   fi
   if git -C "$WT" merge-base --is-ancestor "$sha" HEAD; then
     by=""
@@ -426,8 +477,17 @@ for i in "${!B[@]}"; do
     continue
   fi
   [[ "$RR_USED" -eq 1 ]] && REASON[$i]="conflict resolved by rerere"
-  [[ "$(git -C "$WT" rev-parse 'HEAD^{tree}')" == "$pre_tree" ]] \
-    && REASON[$i]="no tree change: its content is already present (patch-equivalent)"
+  if [[ "$(git -C "$WT" rev-parse 'HEAD^{tree}')" == "$pre_tree" ]]; then
+    # Not in the default (checked above), so earlier entries carry its content.
+    git -C "$WT" reset -q --hard HEAD^1
+    by=""
+    for j in ${INCLUDED[@]+"${INCLUDED[@]}"}; do
+      carries "${SHA[$j]}" "$sha" && { by="${B[$j]}"; break; }
+    done
+    STATUS[$i]="CONTAINED"
+    REASON[$i]="patch-equivalent: already carried by ${by:-earlier entries} (merging it changes nothing)"
+    continue
+  fi
   if run_cmd smoke "$b"; then
     STATUS[$i]="MERGED"
   elif [[ "${MODE[$i]}" == required ]]; then

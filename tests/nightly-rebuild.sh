@@ -12,7 +12,7 @@ fail() { echo "FAIL (nightly-rebuild): $*" >&2; exit 1; }
 export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid
 export GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
-unset CI DRY_RUN NIGHTLY_TEST_CMD NIGHTLY_SMOKE_CMD NIGHTLY_MANIFEST || true
+unset CI DRY_RUN NIGHTLY_TEST_CMD NIGHTLY_SMOKE_CMD NIGHTLY_MANIFEST NIGHTLY_GH NIGHTLY_GH_REPO || true
 
 g() { git -C "$TMP/seed" "$@"; }
 commit() { g add -A && g commit -qm "$1"; }
@@ -48,6 +48,19 @@ branch feat/y main INTERACT_Y y
 branch feat/adv main FAIL advisory-red
 branch feat/grad main grad.txt grad
 g merge -q --no-ff feat/grad -m "graduate feat/grad"; g push -q origin main
+# Squash-merged: main gets the same change as a new commit (not an ancestor).
+branch feat/squashed main sq.txt squashed
+printf 'squashed\n' >"$TMP/seed/sq.txt"; commit "feat/squashed (#41)"
+# Squash-merged, then main moved on the same file: only the merged PR (gh) knows.
+branch feat/squash-moved main sm.txt v1
+printf 'v1\n' >"$TMP/seed/sm.txt"; commit "feat/squash-moved (#42)"
+printf 'v2\n' >"$TMP/seed/sm.txt"; commit "follow-up on sm.txt"; g push -q origin main
+# Same content as feat/a in a different commit: carried by feat/a, not by main.
+branch feat/dup-of-a main a.txt a
+# Fake gh: PR #42 from feat/squash-moved is merged at its current tip.
+mkdir -p "$TMP/bin"
+printf '#!/bin/sh\ncase "$*" in *"--head feat/squash-moved "*) echo 42 ;; esac\n' >"$TMP/bin/gh"
+chmod +x "$TMP/bin/gh"
 
 MAN="$TMP/branches"
 cat >"$MAN" <<'EOF'
@@ -60,6 +73,9 @@ feat/c              required  cursor
 feat/bad            required  grok
 feat/gone           required  omp
 feat/grad           required  kevin
+feat/squashed       required  kevin
+feat/squash-moved   required  kevin
+feat/dup-of-a       required  kevin
 feat/x              required  codex
 feat/y              required  codex
 feat/adv            advisory  muse
@@ -70,7 +86,8 @@ W="$TMP/work"
 before_nightly="$(git -C "$TMP/origin.git" rev-parse -q --verify refs/heads/nightly || echo none)"
 
 # ---- 1. full scenario, dry-run by default (CI unset)
-( cd "$W" && bash "$NR" --manifest "$MAN" --test-cmd 'bash check.sh' --smoke-cmd 'test ! -e FAIL' ) \
+( cd "$W" && PATH="$TMP/bin:$PATH" NIGHTLY_GH_REPO=fixture/repo \
+    bash "$NR" --manifest "$MAN" --test-cmd 'bash check.sh' --smoke-cmd 'test ! -e FAIL' ) \
   >"$TMP/run1.log" 2>&1 || { cat "$TMP/run1.log"; fail "scenario 1 exited non-zero"; }
 R="$W/.nightly-out/report.json"
 [[ -f "$R" && -f "$W/.nightly-out/REPORT.md" ]] || fail "report files missing"
@@ -92,7 +109,12 @@ assert st["feat/c"]["conflicts_with"] == ["feat/b"], st["feat/c"]["conflicts_wit
 want("feat/bad", "DROPPED", "tests failed")
 assert st["feat/bad"]["log_tail"], "dropped-for-tests entry needs a log tail"
 want("feat/gone", "GONE")
-want("feat/grad", "GRADUATED")
+want("feat/grad", "GRADUATED", "ancestor")
+want("feat/squashed", "GRADUATED", "squash-merged")
+want("feat/squash-moved", "GRADUATED", "PR #42")
+want("feat/dup-of-a", "CONTAINED", "feat/a")
+assert "remove it from the manifest" in st["feat/squashed"]["reason"]
+assert "remove it" not in st["feat/dup-of-a"]["reason"], st["feat/dup-of-a"]["reason"]
 want("feat/x", "MERGED")
 want("feat/adv", "WARN", "advisory")
 want("feat/y", "DROPPED", "interaction")
@@ -116,6 +138,15 @@ done
 [[ "$(git -C "$W" show "$CAND:shared.txt" | sed -n 2p)" == "shared: from-b" ]] || fail "candidate shared.txt wrong"
 [[ -z "$(git -C "$W" worktree list | grep nightly-build || true)" ]] || fail "build worktree left behind"
 grep -q '## DROPPED (3)' "$W/.nightly-out/REPORT.md" || fail "REPORT.md missing DROPPED section"
+grep -q '## GRADUATED (3)' "$W/.nightly-out/REPORT.md" || fail "REPORT.md missing GRADUATED section"
+grep -q 'Manifest hygiene.*feat/squash-moved' "$W/.nightly-out/REPORT.md" || fail "REPORT.md missing hygiene hint"
+
+# ---- 1b. without gh, a squash-merge that main has since edited is not provable: it conflicts
+printf 'feat/squash-moved required kevin\n' >"$TMP/m1b"
+( cd "$W" && PATH="$TMP/bin:$PATH" NIGHTLY_GH=0 NIGHTLY_GH_REPO=fixture/repo \
+    bash "$NR" --manifest "$TMP/m1b" --test-cmd 'bash check.sh' --no-fetch ) >"$TMP/run1b.log" 2>&1 \
+  || { cat "$TMP/run1b.log"; fail "scenario 1b exited non-zero"; }
+grep -q '"status": "DROPPED"' "$W/.nightly-out/report.json" || fail "NIGHTLY_GH=0 must skip the gh check"
 git -C "$W" log --format=%an -1 "$CAND" | grep -q 'github-actions\[bot\]' || fail "merge commits must use the bot identity"
 
 # ---- 2. push mode: green gate, lease replaces an old nightly, tag, then unchanged skip
