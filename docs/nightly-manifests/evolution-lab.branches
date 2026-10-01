@@ -1,5 +1,5 @@
 # kvnloo/evolution-lab  (default: trunk)
-# NIGHTLY_TEST_CMD: uv venv -q -p 3.12 .venv && . .venv/bin/activate && uv pip install -q -e ".[jax]" && python -m unittest discover -s tests -p "test_*.py" && python -m evolution_lab gym-smoke --n 8
+# NIGHTLY_TEST_CMD: uv venv -q -p 3.12 --allow-existing .venv && . .venv/bin/activate && uv pip install -q -e ".[jax]" && python -m unittest discover -s tests -p "test_*.py" && python -m evolution_lab gym-smoke --n 8
 # The full suite needs the jax extra: without it trunk@1c9b523 is RED (8 errors, all
 # ModuleNotFoundError: jax); with it 238 OK, 2 skipped, gym-smoke OK (~30s). fix/ci-jax
 # makes CI install .[jax] and stops test_data_recipe writing data/next_action/champion.json

@@ -120,3 +120,7 @@ Per repo, in this order:
 5. **Let the first rebuild replace `nightly`.** The first push-mode run force-pushes it with a lease on its current SHA.
 6. **Delete `dev` and `preview`** once no open PR targets them: `git push origin --delete dev preview`.
 7. **Switch `.verified-oss-loop/rollout.yml` to `scheme: stable`.** Under this model workers branch from the default branch and open PRs against it, and no channel automerges, which is exactly `stable` (it names the default `main`; read it as `master`/`trunk` where that applies). Nightly integration is the rebuild's job, not a scheme's.
+
+## Where it builds
+
+The rebuild worktree goes under `$NIGHTLY_WORKDIR`, else `$RUNNER_TEMP` (GitHub Actions), else `~/.cache/nightly-rebuild` — never `/tmp`, which is often a small tmpfs that full installs overflow. Test commands that create a venv should use `uv venv --allow-existing` so a second test in the same worktree does not fail.

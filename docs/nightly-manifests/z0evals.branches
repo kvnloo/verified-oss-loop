@@ -1,5 +1,5 @@
 # kvnloo/z0evals  (default: main)
-# NIGHTLY_TEST_CMD: uv venv -q -p 3.12 .venv && . .venv/bin/activate && uv pip install -q -r requirements.txt && python scripts/validate.py && python scripts/audit_web_source.py && python scripts/build_site.py && test -f site/index.html && python scripts/build_site_data.py && cd web && npm ci --no-audit --no-fund && npm run typecheck && Z0_BASE_PATH=/z0evals npx next build && test -f out/index.html && cd .. && python scripts/audit_web_export.py --root web/out
+# NIGHTLY_TEST_CMD: uv venv -q -p 3.12 --allow-existing .venv && . .venv/bin/activate && uv pip install -q -r requirements.txt && python scripts/validate.py && python scripts/audit_web_source.py && python scripts/build_site.py && test -f site/index.html && python scripts/build_site_data.py && cd web && npm ci --no-audit --no-fund && npm run typecheck && Z0_BASE_PATH=/z0evals npx next build && test -f out/index.html && cd .. && python scripts/audit_web_export.py --root web/out
 # (the whole CI job incl. the Next.js typecheck/build/export audit; green on main@fb14919, ~40s.
 # build_site_data.py rewrites the tracked web/data/study.json (matrixOrigin points at a local
 # path); the rebuild resets the tree after each test, but recommit that file on main.)

@@ -299,7 +299,10 @@ done <"$MF"
 log "manifest $MANIFEST_SRC: ${#B[@]} entries"
 
 # ---------------------------------------------------------------- build worktree
-WT="$(mktemp -d "${TMPDIR:-/tmp}/nightly-build.XXXXXX")"
+# Build on disk, not /tmp: /tmp is often a small tmpfs and full installs overflow it.
+WORKROOT="${NIGHTLY_WORKDIR:-${RUNNER_TEMP:-${XDG_CACHE_HOME:-$HOME/.cache}/nightly-rebuild}}"
+mkdir -p "$WORKROOT"
+WT="$(mktemp -d "$WORKROOT/nightly-build.XXXXXX")"
 git worktree add --quiet --detach "$WT" "$BASE_SHA"
 GITC=(git -C "$WT" -c rerere.enabled=false)
 if [[ "$RERERE" -eq 1 ]]; then
@@ -621,7 +624,7 @@ else
     fi
   fi
   if [[ "$RERERE" -eq 1 && "$SAVE_RERERE" -eq 1 && -d "$COMMON_DIR/rr-cache" ]]; then
-    rrtmp="$(mktemp -d)"; rridx="$(mktemp -u)"
+    rrtmp="$(mktemp -d "$WORKROOT/rerere.XXXXXX")"; rridx="$(mktemp -u "$WORKROOT/rerere-idx.XXXXXX")"
     cp -r "$COMMON_DIR/rr-cache" "$rrtmp/"
     GIT_INDEX_FILE="$rridx" git --work-tree="$rrtmp" add -A .
     rrtree="$(GIT_INDEX_FILE="$rridx" git write-tree)"
