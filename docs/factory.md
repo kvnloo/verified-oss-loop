@@ -48,10 +48,11 @@ Do not:
 When the factory contributes to a community that already has S-tier bots (example: [BerriAI/litellm#40744](https://github.com/BerriAI/litellm/pull/40744)):
 
 1. Search origin issues/PRs. Stop on overlap.
-2. Follow origin PR template **and** attach a loop-shaped receipt if it fits in the origin "Screenshots / Proof" section without fighting their template.
-3. Treat Greptile/Codecov/CodSpeed as independent review evidence. Fix the objections they raise when they are right.
-4. Do not install verified-oss-loop labels onto origin.
-5. Do not merge origin. Maintainer Review waits on *their* authorized path.
+2. If an origin PR already owns the scope, validate that exact head instead of recreating its patch. Keep any downstream QA artifact issue-first; if CI requires a PR, use a reference-only draft and never promote it without a recorded novel diff. Preserve origin authorship/provenance rather than re-committing an identical patch under the worker identity.
+3. Follow origin PR template **and** attach a loop-shaped receipt if it fits in the origin "Screenshots / Proof" section without fighting their template.
+4. Treat Greptile/Codecov/CodSpeed as independent review evidence. Fix the objections they raise when they are right.
+5. Do not install verified-oss-loop labels onto origin.
+6. Do not merge origin. Maintainer Review waits on *their* authorized path.
 
 ## Origin publish from Maintainer Review
 
