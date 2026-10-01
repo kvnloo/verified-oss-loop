@@ -64,6 +64,29 @@ ai_assistance: project-required-disclosure
 
 Receipts must distinguish local evidence, CI, simulation, and real-device/runtime evidence.
 
+### 4.1 Requirement validation
+
+Evidence that a behavior exists is distinct from evidence that the behavior should change.
+
+Before a contribution proposes a user-visible or semantic behavior change, the receipt must identify requirement evidence from at least one of:
+
+- a documented project contract, invariant, or supported workflow;
+- a concrete failure on a supported path with user/runtime impact;
+- an existing maintainer issue or design decision requesting the behavior;
+- explicit maintainer agreement that the behavior is desired.
+
+Synthetic reproducers, red/green tests, sandbox harnesses, and tests authored for the candidate change are implementation evidence. They do not establish the product requirement by themselves.
+
+If requirement evidence is absent, the work remains exploratory/downstream and must not be represented as a verified upstream bug or desired feature. Independent review should return `DISCARD_WRONG_DIRECTION` when the premise is contradicted by project intent, or `CHANGES_REQUIRED` / `BLOCKED_EXTERNAL` when requirement validation is still obtainable.
+
+Reviewers should distinguish:
+
+- reproduced behavior;
+- validated requirement;
+- demonstrated impact;
+- fix correctness;
+- contribution-policy compliance.
+
 ## 5. Review contract
 
 An independent reviewer checks the exact head:
