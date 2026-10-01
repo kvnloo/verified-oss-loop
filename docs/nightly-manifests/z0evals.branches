@@ -6,12 +6,10 @@
 # feat/z0intelligence-story-route (the function-routing story on preview) needs a
 # rebase onto main before it can be listed.
 #
+# Removed 2026-09-30 (GRADUATED in the first nightly run: already in the default branch):
+#   feat/z0archy-core-manifest-20260930, fix/blog-page-smoke-markers, study/unified-memory-cohort-v0, docs/z0intelligence-function-routing, fix/blog-ui-voice-unification
+#
 # branch                                mode      owner
-feat/z0archy-core-manifest-20260930     required  kevin
 study/claude-code-savings-v0            required  claude-code
 docs/jev-literature-deep-dive           required  kevin        # PR #66
-fix/blog-page-smoke-markers             required  kevin
-study/unified-memory-cohort-v0          required  kevin
 study/unified-memory-56-dsh-runner      required  kevin
-docs/z0intelligence-function-routing    required  kevin
-fix/blog-ui-voice-unification           required  kevin        # dry-run: drops on web/app/page.tsx until rebased

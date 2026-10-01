@@ -5,9 +5,11 @@
 # download and fixed port 4178. Append `&& cd language && bun install && bunx playwright
 # install chromium && bun run test:e2e` on a runner that has bun.)
 #
+# Removed 2026-09-30 (GRADUATED in the first nightly run: already in the default branch):
+#   feat/z0archy-core-manifest-20260930
+#
 # branch                                mode      owner
 fix/validate-non-scalar-fields          required  claude-code
 feat/canonical-fingerprint              required  claude-code
-feat/z0archy-core-manifest-20260930     required  kevin
 fix/catalog-silhouette-scope-30         required  kevin        # PR #31 (retarget from preview to main)
-lab/agentweb-emma-v0                    required  kevin        # drops until rebased: aodl_contract/validator.py vs validate-non-scalar-fields
+nightly-fix/lab/agentweb-emma-v0        required  kevin        # lab/agentweb-emma-v0 rebased onto fix/validate-non-scalar-fields (validator.py conflict resolved: keeps both the bin-or-endpoint check and the _member() kind check); list lab/ again once it is rebased

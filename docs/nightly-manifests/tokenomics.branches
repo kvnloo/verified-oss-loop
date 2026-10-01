@@ -5,10 +5,9 @@
 # The measurement-*, logical-source-identity and release-pipeline branches conflict
 # with master on their own; rebase before listing.
 #
+# Removed 2026-09-30 (GRADUATED in the first nightly run: already in the default branch):
+#   feat/completeness-aware-aggregates, feat/preserve-emitter-measurement-state, feat/hermes-plugin, feat/z0archy-core-manifest-20260930
+#
 # branch                                   mode      owner
-feat/completeness-aware-aggregates         required  kevin
-feat/preserve-emitter-measurement-state    required  kevin
-feat/hermes-plugin                         required  kevin
 fix/typescript-accounting-parity           required  kevin     # PR #18
 feat/paired-cost-displacement-2026-09-30   required  kevin     # PR #21
-feat/z0archy-core-manifest-20260930        required  kevin
