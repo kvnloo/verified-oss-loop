@@ -1,0 +1,6 @@
+# kvnloo/kerdoios  (default: main)
+# NIGHTLY_TEST_CMD: python3 -m unittest discover -s tests
+# All other branches are 30 behind main and conflict; rebase before listing.
+#
+# branch                                mode      owner
+feat/measurement-state-observations     required  kevin

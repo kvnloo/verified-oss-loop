@@ -1,0 +1,16 @@
+# .nightly/branches: the ordered list of branches that ride `nightly`.
+#
+# nightly = the default branch + these branches, merged in this order, rebuilt
+# from scratch by .github/workflows/nightly-rebuild.yml. Docs:
+# https://github.com/kvnloo/verified-oss-loop/blob/main/docs/nightly.md
+#
+# One entry per line:   <branch>  <mode>  <owner>  # optional note
+#   mode   required  tests must pass or the branch is dropped (default)
+#          advisory  merged even when its tests fail; the failure is reported
+#   owner  bot tag: claude-code, grok, muse, omp, hermes, cursor, codex, kevin, ...
+#          It drives the report only. It never grants merge authority.
+#
+# Order matters. List a stack's TIP first; lower layers then report CONTAINED.
+# Graduation to the default branch stays a reviewed PR per branch.
+#
+# branch                                mode      owner        note

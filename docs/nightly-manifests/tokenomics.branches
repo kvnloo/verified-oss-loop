@@ -1,0 +1,14 @@
+# kvnloo/tokenomics  (default: master)
+# NIGHTLY_TEST_CMD: python3 -m venv .venv && . .venv/bin/activate && pip install -q -e '.[all]' && pytest -q && PYTHONPATH=packages/python/src python scripts/check_conformance.py && cd packages/typescript && npm install --no-package-lock --ignore-scripts --no-audit --no-fund && npm test
+# (CI's python + typescript jobs; green on master@65e8f2d: 63 pytest, conformance ok, 10/10 TS.
+# The package-smoke job is a packaging check and is left out.)
+# The measurement-*, logical-source-identity and release-pipeline branches conflict
+# with master on their own; rebase before listing.
+#
+# branch                                   mode      owner
+feat/completeness-aware-aggregates         required  kevin
+feat/preserve-emitter-measurement-state    required  kevin
+feat/hermes-plugin                         required  kevin
+fix/typescript-accounting-parity           required  kevin     # PR #18
+feat/paired-cost-displacement-2026-09-30   required  kevin     # PR #21
+feat/z0archy-core-manifest-20260930        required  kevin

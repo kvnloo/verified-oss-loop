@@ -1,5 +1,7 @@
 # Rollout schemes
 
+> **Superseded for integration by [nightly.md](nightly.md).** The `preview`/`dev` ladder and its automerge/promote workflows are being retired in favour of a linux-next-style `nightly` that is rebuilt from the default branch plus `.nightly/branches`. Use `scheme: stable` with `nightly-rebuild.yml`. The schemes below remain for repos that have not migrated.
+
 This is **not a second loop**. [SPEC.md](../SPEC.md) still owns claims, receipts, and merge authority for `dev` and `main`. `.verified-oss-loop/rollout.yml` only chooses **how fast** work rolls toward those gates.
 
 Default is **Arch-style rolling** (bleeding edge). Set `scheme: staged` or `scheme: stable` for slower repos. Credit: [Arch Linux](https://wiki.archlinux.org/title/Arch_Linux) rolling release — we take the *pace*, not a worker merge of `main`.
@@ -63,5 +65,6 @@ Arch-style: keep `rolling`. Feature PRs land on preview so you can try them; ove
 - `.github/workflows/automerge-preview.yml`
 - `.github/workflows/automerge-nightly.yml`
 - `.github/workflows/promote-preview.yml` (manual preview → nightly)
+- `.github/workflows/nightly-rebuild.yml` + `.verified-oss-loop/nightly-rebuild.sh` + `.nightly/branches` (the replacement; see [nightly.md](nightly.md))
 
 They no-op when `rollout.yml` forbids that channel. Fork PRs are never auto-merged.

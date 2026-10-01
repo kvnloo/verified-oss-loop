@@ -1,0 +1,8 @@
+# kvnloo/verified-oss-loop  (default: main)
+# NIGHTLY_TEST_CMD: bash tests/smoke.sh
+#
+# branch                                   mode      owner
+policy/no-duplicate-mirror-pr              required  kevin     # PR #15
+feat/repo-preflight-archetype-collision    required  kevin
+fix/exact-revision-receipts-2026-09-30     required  kevin     # PR #17 (retarget from preview to main)
+arch/promotion-hardening                   required  kevin     # superseded once promote-* is retired; drop then

@@ -267,6 +267,11 @@ if [[ "$AUTOMATION" -eq 1 ]]; then
   copy_file .github/workflows/automerge-preview.yml
   copy_file .github/workflows/automerge-nightly.yml
   copy_file .github/workflows/promote-preview.yml
+  # linux-next-style nightly (docs/nightly.md). The script lives under
+  # .verified-oss-loop/ so the workflow path is the same in both layouts.
+  copy_file .github/workflows/nightly-rebuild.yml
+  copy_file .nightly/branches
+  copy_raw .verified-oss-loop/nightly-rebuild.sh "$HERE/scripts/nightly-rebuild.sh" 755
   if [[ -f "$TARGET/.github/scripts/create-labels.sh" ]]; then
     chmod +x "$TARGET/.github/scripts/create-labels.sh"
   fi

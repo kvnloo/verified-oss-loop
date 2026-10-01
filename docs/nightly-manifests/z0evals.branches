@@ -1,0 +1,17 @@
+# kvnloo/z0evals  (default: main)
+# NIGHTLY_TEST_CMD: uv venv -q -p 3.12 .venv && . .venv/bin/activate && uv pip install -q -r requirements.txt && python scripts/validate.py && python scripts/audit_web_source.py && python scripts/build_site.py && test -f site/index.html && python scripts/build_site_data.py && cd web && npm ci --no-audit --no-fund && npm run typecheck && Z0_BASE_PATH=/z0evals npx next build && test -f out/index.html && cd .. && python scripts/audit_web_export.py --root web/out
+# (the whole CI job incl. the Next.js typecheck/build/export audit; green on main@fb14919, ~40s.
+# build_site_data.py rewrites the tracked web/data/study.json (matrixOrigin points at a local
+# path); the rebuild resets the tree after each test, but recommit that file on main.)
+# feat/z0intelligence-story-route (the function-routing story on preview) needs a
+# rebase onto main before it can be listed.
+#
+# branch                                mode      owner
+feat/z0archy-core-manifest-20260930     required  kevin
+study/claude-code-savings-v0            required  claude-code
+docs/jev-literature-deep-dive           required  kevin        # PR #66
+fix/blog-page-smoke-markers             required  kevin
+study/unified-memory-cohort-v0          required  kevin
+study/unified-memory-56-dsh-runner      required  kevin
+docs/z0intelligence-function-routing    required  kevin
+fix/blog-ui-voice-unification           required  kevin        # dry-run: drops on web/app/page.tsx until rebased

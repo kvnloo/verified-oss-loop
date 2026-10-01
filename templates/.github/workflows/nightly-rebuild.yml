@@ -1,0 +1,85 @@
+name: Nightly rebuild
+
+# nightly = default branch + every branch in .nightly/branches, rebuilt from
+# scratch (linux-next style) and force-pushed. Replaces automerge-preview.yml,
+# automerge-nightly.yml and promote-preview.yml. Docs: docs/nightly.md in the kit.
+#
+# Writes only refs/heads/nightly, refs/tags/nightly-YYYYMMDD and (with
+# NIGHTLY_RERERE=true) refs/heads/nightly-rerere. Never the default branch.
+#
+# Repository variables:
+#   NIGHTLY_TEST_CMD   full test command (required; the job refuses to push without one)
+#   NIGHTLY_SMOKE_CMD  optional faster per-branch check (defaults to NIGHTLY_TEST_CMD)
+#   NIGHTLY_RERERE     "true" to reuse recorded conflict resolutions
+
+on:
+  schedule:
+    - cron: "17 8 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build, test and report without pushing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: read   # `gh pr list --state merged` marks squash-merged entries GRADUATED
+
+concurrency:
+  group: nightly-rebuild
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    # One full-suite run per listed branch: z0intelligence's 12 entries took ~45 min locally.
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Merges create commits, so the runner needs an identity. Without it the
+      # job dies with "fatal: empty ident name (for <runner@...>) not allowed"
+      # (z0evals run 35667269549). The script sets the same identity itself.
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Several kvnloo NIGHTLY_TEST_CMDs build their own venv with uv
+      # (docs/nightly-manifests/*.branches).
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Rebuild nightly
+        env:
+          NIGHTLY_TEST_CMD: ${{ vars.NIGHTLY_TEST_CMD }}
+          NIGHTLY_SMOKE_CMD: ${{ vars.NIGHTLY_SMOKE_CMD }}
+          NIGHTLY_RERERE: ${{ vars.NIGHTLY_RERERE }}
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          # `.verified-oss-loop/` exists in both onboarding layouts; a root
+          # scripts/ path does not (the promote-preview.yml lesson).
+          args=()
+          if [ "${NIGHTLY_RERERE:-}" = "true" ]; then args+=(--rerere --save-rerere); fi
+          bash .verified-oss-loop/nightly-rebuild.sh "${args[@]}"
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f .nightly-out/REPORT.md ]; then cat .nightly-out/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-report
+          path: .nightly-out/
+          if-no-files-found: ignore
