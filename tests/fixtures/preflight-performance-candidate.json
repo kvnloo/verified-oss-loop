@@ -1,0 +1,8 @@
+{
+  "issue": 42,
+  "title": "Reduce renderer frame latency",
+  "kind": "performance",
+  "evidence": {
+    "benchmark": false
+  }
+}

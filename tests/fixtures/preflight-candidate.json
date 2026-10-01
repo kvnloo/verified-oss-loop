@@ -1,0 +1,8 @@
+{
+  "issue": 5793,
+  "title": "Codex child token usage counts inherited parent history",
+  "kind": "correctness",
+  "evidence": {
+    "benchmark": false
+  }
+}
