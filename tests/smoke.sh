@@ -376,4 +376,45 @@ grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs
 grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
 grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
 
+# ---- mature layout WITH automation -------------------------------------------
+# These two options were only ever tested apart. `--layout mature` installs the
+# kit under .verified-oss-loop/ and never creates a root scripts/; --with-automation
+# installs the channel workflows. Together, the templates used to call
+# `scripts/rollout.py`, which the mature layout does not have, so every preview /
+# nightly automerge and every preview->nightly promote failed with rc=2 while the
+# install reported success.
+#
+# The invariant: a workflow this kit installs may only invoke scripts this kit
+# also installs. It must not be able to pass vacuously -- a glob that matches no
+# file yields no invocations and an empty `missing`, which is a green result
+# about nothing.
+assert_workflow_scripts_resolve() {
+  local tree="$1" label="$2" wf invoked n=0 missing=""
+  for wf in automerge-preview automerge-nightly promote-preview; do
+    [[ -f "$tree/.github/workflows/$wf.yml" ]] \
+      || fail "$label: channel workflow $wf.yml was not installed"
+  done
+  while read -r invoked; do
+    [[ -z "$invoked" ]] && continue
+    n=$((n + 1))
+    [[ -f "$tree/$invoked" ]] || missing="$missing $invoked"
+  done < <(grep -ho 'python3 [^ ]*\.py' "$tree/.github/workflows/"*.yml \
+             | sed 's/^python3 //' | sort -u)
+  [[ "$n" -gt 0 ]] || fail "$label: found no script invocations to check (vacuous pass)"
+  [[ -z "$missing" ]] || fail "$label: installed workflows invoke missing scripts:$missing"
+}
+
+mkdir -p "$TMP/mature-auto"
+"$HERE/bin/oss-onboard" "$TMP/mature-auto" --layout mature --name MatureAuto --owner kvnloo --with-automation >/dev/null \
+  || fail "mature onboard with --with-automation failed"
+[[ -f "$TMP/mature-auto/.verified-oss-loop/rollout.py" ]] || fail "mature+automation missing kit rollout.py"
+[[ ! -f "$TMP/mature-auto/scripts/rollout.py" ]] || fail "mature layout must not gain a root scripts/rollout.py"
+assert_workflow_scripts_resolve "$TMP/mature-auto" "mature+automation"
+
+# Greenfield is the layout that DOES have a root scripts/, so it must keep
+# working. Reuses the --with-automation fixture installed above rather than
+# burning a second full onboard.
+assert_workflow_scripts_resolve "$TMP/auto" "greenfield+automation"
+
+
 echo "ok"

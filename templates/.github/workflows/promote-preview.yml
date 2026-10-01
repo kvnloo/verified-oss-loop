@@ -13,15 +13,38 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      # `git merge` creates a commit, so the runner needs an identity. Without
+      # this the job dies before the merge with:
+      #   fatal: empty ident name (for <runner@...>) not allowed
+      # Observed on a real run (z0evals run 35667269549) — this workflow had
+      # never succeeded, which is why every promote so far was done by hand.
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Merge preview into nightly when scheme allows
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! python3 scripts/rollout.py allow-promote preview-to-nightly; then
+          set -euo pipefail
+          # `.verified-oss-loop/rollout.py` is the path that exists in BOTH
+          # layouts: init-oss-repo.sh always runs
+          #   copy_raw .verified-oss-loop/rollout.py "$HERE/scripts/rollout.py"
+          # but under `--layout mature` there is no root `scripts/rollout.py`,
+          # so calling that path fails the step with rc=2 and the channel
+          # silently never automerges or promotes.
+          if ! python3 .verified-oss-loop/rollout.py allow-promote preview-to-nightly; then
             echo "scheme forbids preview→nightly promote"
             exit 0
           fi
           git fetch origin preview nightly
           git checkout nightly
+          # Promoting an already-contained branch is a no-op, not an empty merge
+          # commit. Without this guard a re-run adds a commit that says nothing.
+          if git merge-base --is-ancestor origin/preview HEAD; then
+            echo "nightly already contains preview; nothing to promote"
+            exit 0
+          fi
           git merge --no-ff origin/preview -m "Promote preview into nightly"
           git push origin nightly
