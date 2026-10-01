@@ -7,9 +7,11 @@
 # Legacy-root branches (cursor/*-9425, docs/jev-dogfood-first-branch-truth-20260920,
 # feat/openjev-track-b) need a real rebase onto trunk before they are listed.
 #
+# Removed 2026-09-30 (GRADUATED in the first nightly run: already in the default branch):
+#   feat/z0archy-core-manifest-20260930
+#
 # branch                                mode      owner
 fix/ci-jax                              required  kevin        # not merged into trunk yet; graduates when it does
-feat/z0archy-core-manifest-20260930     required  kevin
 exp/t3-cpu-population                   required  claude-code
 exp/z0-factorized-stack-v0              required  kevin        # PR #28
 exp/t3b-real-recovery                   required  claude-code

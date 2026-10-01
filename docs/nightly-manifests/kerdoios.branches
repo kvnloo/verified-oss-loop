@@ -2,5 +2,7 @@
 # NIGHTLY_TEST_CMD: python3 -m unittest discover -s tests
 # All other branches are 30 behind main and conflict; rebase before listing.
 #
+# Removed 2026-09-30 (GRADUATED in the first nightly run: already in the default branch):
+#   feat/measurement-state-observations
+#
 # branch                                mode      owner
-feat/measurement-state-observations     required  kevin
