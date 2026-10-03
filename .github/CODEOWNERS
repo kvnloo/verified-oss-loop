@@ -1,3 +1,7 @@
 # Verified OSS Loop — CODEOWNERS
 # Maintainers own merge. Path owners review; they are not a merge bot.
+# Required reviews belong on main/dev, not on preview/nightly.
 * @kvnloo
+/SPEC.md @kvnloo
+/templates/prompt.md @kvnloo
+/.github/workflows/ @kvnloo
