@@ -16,6 +16,10 @@ gh issue list --label claimable --state open
 gh pr list --state open
 ```
 
+## Existing PR review gate
+
+If you are reviewing or validating an already-open origin PR, test that exact head instead of recreating its patch as a normal PR. Preserve the origin author/provenance. Use an issue or receipt for evidence; if CI technically requires a PR, it must remain reference-only draft until a concrete novel diff exists, then close it after evidence transfer.
+
 ## Pick and claim
 
 Take **one** open issue labeled `claimable` and not `claimed`. Prefer `priority:P0`, then `P1`, then `good-first-issue`. Skip `needs-discussion` unless a human assigned it.
