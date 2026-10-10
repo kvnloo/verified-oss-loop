@@ -95,6 +95,27 @@ class ReceiptContract(unittest.TestCase):
         text = f'```yaml\noptions:\n  value: x\n```\n```yaml\n{body()}```'
         self.assertEqual(receipt.check(text, HEAD), [])
 
+    def test_quoted_or_commented_revision_is_the_same_revision(self):
+        for spelling in ('"{}"', "'{}'", '{}  # the reviewed head', '"{}"  # the reviewed head'):
+            with self.subTest(spelling=spelling):
+                text = body(spelling.format(BASE), spelling.format(HEAD))
+                self.assertEqual(receipt.check(text, HEAD), [])
+
+    def test_quoting_does_not_weaken_the_binding(self):
+        other = 'c' * 40
+        for head in (f'"{other}"', f'"{HEAD}', f'{HEAD}"', f'`{HEAD}`', f'"{HEAD}"x', f'"{HEAD[:7]}"', '"zz"'):
+            with self.subTest(head=head):
+                self.assertRejected(body(head=head))
+
+    def test_quoted_empty_value_is_empty(self):
+        for empty in ('""', "''"):
+            with self.subTest(empty=empty):
+                self.assertRejected(body(head=empty))
+                self.assertRejected(body().replace('red: python3 tests/test_receipt.py (expected failure)', f'red: {empty}'))
+
+    def test_issue_reference_keeps_its_hash(self):
+        self.assertEqual(receipt.check(body().replace('issue: 14', 'issue: #14'), HEAD), [])
+
     def test_missing_receipt_is_rejected(self):
         self.assertRejected('No evidence yet', reason='no evidence')
 
