@@ -70,6 +70,12 @@ def main() -> int:
     for want in ("expire #1 ", "keep #2 ", "expire #3 ", "keep #4 (no claim timestamp)", "released 2 lease(s)"):
         if want not in out:
             failures.append(f"missing {want!r}")
+    # A kept lease must not be reported with the comparison that would expire it.
+    for line in out.splitlines():
+        if line.startswith("keep #") and ("<=" in line or ">=" in line):
+            failures.append(f"kept lease reported as past its limit: {line!r}")
+        if line.startswith("expire #") and (" > now " in line or "s < " in line):
+            failures.append(f"expired lease reported as within its limit: {line!r}")
     if failures:
         print("expire-claims: FAIL")
         for f in failures:

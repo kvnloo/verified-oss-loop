@@ -58,10 +58,10 @@ for c in comments:
             pass
 if expiry is not None:
     expired = expiry <= now
-    reason = f"expires_at {expiry} <= now {now}"
+    reason = f"expires_at {expiry} {'<=' if expired else '>'} now {now}"
 elif claim_at is not None:
     expired = (now - claim_at) >= max_age
-    reason = f"claim comment age {now - claim_at}s >= {max_age}s"
+    reason = f"claim comment age {now - claim_at}s {'>=' if expired else '<'} {max_age}s"
 else:
     expired = False
     reason = "no claim timestamp"
