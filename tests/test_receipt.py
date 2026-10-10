@@ -107,6 +107,14 @@ class ReceiptContract(unittest.TestCase):
             with self.subTest(head=head):
                 self.assertRejected(body(head=head))
 
+    def test_only_a_matching_pair_of_quotes_is_removed(self):
+        for head in (f'"{HEAD}\'', f'\'{HEAD}"'):
+            with self.subTest(head=head):
+                self.assertRejected(body(head=head))
+
+    def test_a_comment_needs_a_space_after_a_closing_quote(self):
+        self.assertRejected(body(head=f'"{HEAD}"#note'))
+
     def test_quoted_empty_value_is_empty(self):
         for empty in ('""', "''"):
             with self.subTest(empty=empty):
