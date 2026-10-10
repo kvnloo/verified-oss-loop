@@ -10,6 +10,7 @@ Usage:
 
 from __future__ import annotations
 
+import datetime
 import json
 import os
 import stat
@@ -21,6 +22,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "expire-claims.sh"
 
+_NOW = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
 COMMENTS = {
     # explicit expiry in the past
     "1": [{"body": "Claiming for worker-a\nexpires_at: 2020-01-01T00:00:00Z", "created_at": "2019-12-31T00:00:00Z"}],
@@ -30,6 +33,8 @@ COMMENTS = {
     "3": [{"body": "claimant: worker-c", "created_at": "2020-01-01T00:00:00Z"}],
     # no claim timestamp at all
     "4": [{"body": "just a note", "created_at": "2020-01-01T00:00:00Z"}],
+    # no expiry, claim comment made just now -> still inside the max age
+    "5": [{"body": "claimant: worker-e", "created_at": _NOW}],
 }
 
 FAKE_GH = r"""#!/usr/bin/env python3
@@ -67,7 +72,7 @@ def main() -> int:
     failures = []
     if proc.returncode != 0:
         failures.append(f"exit {proc.returncode}: {proc.stderr.strip()}")
-    for want in ("expire #1 ", "keep #2 ", "expire #3 ", "keep #4 (no claim timestamp)", "released 2 lease(s)"):
+    for want in ("expire #1 ", "keep #2 ", "expire #3 ", "keep #4 (no claim timestamp)", "keep #5 (claim comment age ", "released 2 lease(s)"):
         if want not in out:
             failures.append(f"missing {want!r}")
     # A kept lease must not be reported with the comparison that would expire it.
