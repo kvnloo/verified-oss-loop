@@ -26,9 +26,10 @@ export VOL_NOW_EPOCH
 VOL_NOW_EPOCH="$(date -u +%s)"
 export VOL_MAX_AGE_SECS=$((MAX_HOURS * 3600))
 
-lease_state() {
-  # JSON comments array on stdin → two lines: yes|no and reason
-  python3 - <<'PY'
+# JSON comments array on stdin → two lines: yes|no and reason.
+# The script is passed with -c so stdin stays the piped comments; with
+# `python3 - <<'PY'` the heredoc itself became stdin and json.load saw EOF.
+read -r -d '' LEASE_STATE_PY <<'PY' || true
 import datetime, json, os, re, sys
 now = int(os.environ["VOL_NOW_EPOCH"])
 max_age = int(os.environ["VOL_MAX_AGE_SECS"])
@@ -67,6 +68,9 @@ else:
 print("yes" if expired else "no")
 print(reason)
 PY
+
+lease_state() {
+  python3 -c "$LEASE_STATE_PY"
 }
 
 issues="$(gh issue list --label claimed --state open --limit 100 --json number --jq '.[].number')"

@@ -320,5 +320,6 @@ grep -q 'LOCAL-SKILL' "$TMP/mature/skills/local-bot/SKILL.md" || fail "mature on
 grep -q -- '--layout mature' "$HERE/docs/verified-oss-loop.md" || fail "kit docs missing mature layout"
 grep -q -- '--layout mature' "$HERE/skills/factory/SKILL.md" || fail "factory skill missing mature layout"
 grep -q 'cluster-similar-issues.py' "$HERE/README.md" || fail "README missing clustering pointer"
+python3 "$HERE/tests/expire_claims.py" >/dev/null || fail "expire-claims must read piped comments (heredoc stdin regression)"
 
 echo "ok"
