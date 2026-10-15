@@ -82,7 +82,8 @@ fi
 released=0
 while IFS= read -r num; do
   [[ -n "$num" ]] || continue
-  comments="$(gh api "repos/{owner}/{repo}/issues/${num}/comments" --jq '[.[] | {body, createdAt: .created_at}]')"
+  # A renewed active lease can be on a later comments page; do not act on the first 30.
+  comments="$(gh api "repos/{owner}/{repo}/issues/${num}/comments" --paginate --slurp --jq '[.[][] | {body, createdAt: .created_at}]')"
   result="$(printf '%s' "$comments" | lease_state)"
   expired="$(printf '%s\n' "$result" | sed -n '1p')"
   reason="$(printf '%s\n' "$result" | sed -n '2p')"
