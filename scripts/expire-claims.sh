@@ -26,14 +26,14 @@ export VOL_NOW_EPOCH
 VOL_NOW_EPOCH="$(date -u +%s)"
 export VOL_MAX_AGE_SECS=$((MAX_HOURS * 3600))
 
-# JSON comments array on stdin → two lines: yes|no and reason.
+# JSON comment page arrays on stdin → two lines: yes|no and reason.
 # The script is passed with -c so stdin stays the piped comments; with
 # `python3 - <<'PY'` the heredoc itself became stdin and json.load saw EOF.
 read -r -d '' LEASE_STATE_PY <<'PY' || true
 import datetime, json, os, re, sys
 now = int(os.environ["VOL_NOW_EPOCH"])
 max_age = int(os.environ["VOL_MAX_AGE_SECS"])
-comments = json.load(sys.stdin)
+comments = [comment for page in json.load(sys.stdin) for comment in page]
 iso = re.compile(
     r"(?:expires_at|expires)\s*:\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:Z|[+-][0-9]{2}:[0-9]{2})?)",
     re.I,
@@ -83,7 +83,7 @@ released=0
 while IFS= read -r num; do
   [[ -n "$num" ]] || continue
   # A renewed active lease can be on a later comments page; do not act on the first 30.
-  comments="$(gh api "repos/{owner}/{repo}/issues/${num}/comments" --paginate --slurp --jq '[.[][] | {body, createdAt: .created_at}]')"
+  comments="$(gh api "repos/{owner}/{repo}/issues/${num}/comments" --paginate --slurp)"
   result="$(printf '%s' "$comments" | lease_state)"
   expired="$(printf '%s\n' "$result" | sed -n '1p')"
   reason="$(printf '%s\n' "$result" | sed -n '2p')"
