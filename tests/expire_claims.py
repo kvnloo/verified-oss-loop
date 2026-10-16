@@ -30,6 +30,18 @@ COMMENTS = {
     "3": [{"body": "claimant: worker-c", "created_at": "2020-01-01T00:00:00Z"}],
     # no claim timestamp at all
     "4": [{"body": "just a note", "created_at": "2020-01-01T00:00:00Z"}],
+    # Renewal beyond REST's first default 30-comment page: active lease must win.
+    "5": (
+        [{"body": "claiming for worker-old\nexpires: 2020-01-01T00:00:00Z", "created_at": "2019-12-31T00:00:00Z"}]
+        + [{"body": f"ordinary discussion {i}", "created_at": "2026-10-13T00:00:00Z"} for i in range(30)]
+        + [{"body": "claiming for worker-new\nexpires: 2999-01-01T00:00:00Z", "created_at": "2026-10-15T00:00:00Z"}]
+    ),
+    # 102 comments: genuine second REST page; the script must parse --slurp pages.
+    "6": (
+        [{"body": "claiming for worker-old\nexpires: 2020-01-01T00:00:00Z", "created_at": "2019-12-31T00:00:00Z"}]
+        + [{"body": f"ordinary discussion {i}", "created_at": "2026-10-13T00:00:00Z"} for i in range(100)]
+        + [{"body": "claiming for worker-new\nexpires: 2999-01-01T00:00:00Z", "created_at": "2026-10-15T00:00:00Z"}]
+    ),
 }
 
 FAKE_GH = r"""#!/usr/bin/env python3
@@ -41,7 +53,23 @@ if args[:2] == ["issue", "list"]:
     sys.exit(0)
 if args and args[0] == "api":
     num = args[1].split("/issues/")[1].split("/")[0]
-    print(json.dumps([{"body": c["body"], "createdAt": c["created_at"]} for c in data[num]]))
+    # Mirror CLI v2.102.0: --slurp and --jq are mutually exclusive.
+    if "--slurp" in args and "--jq" in args:
+        sys.stderr.write("the `--slurp` option is not supported with `--jq` or `--template`\n")
+        sys.exit(2)
+    if "--paginate" in args:
+        # gh api streams one JSON array per page unless --slurp wraps pages.
+        pages = [data[num][i:i + 100] for i in range(0, len(data[num]), 100)]
+        if "--slurp" in args:
+            print(json.dumps(pages))
+        else:
+            for page in pages:
+                print(json.dumps(page))
+        sys.exit(0)
+    selected = data[num][:30]
+    if "--jq" in args:
+        selected = [{"body": c["body"], "createdAt": c["created_at"]} for c in selected]
+    print(json.dumps(selected))
     sys.exit(0)
 sys.stderr.write("fake gh: unexpected call %r\n" % (args,))
 sys.exit(3)
@@ -67,7 +95,7 @@ def main() -> int:
     failures = []
     if proc.returncode != 0:
         failures.append(f"exit {proc.returncode}: {proc.stderr.strip()}")
-    for want in ("expire #1 ", "keep #2 ", "expire #3 ", "keep #4 (no claim timestamp)", "released 2 lease(s)"):
+    for want in ("expire #1 ", "keep #2 ", "expire #3 ", "keep #4 (no claim timestamp)", "keep #5 ", "keep #6 ", "released 2 lease(s)"):
         if want not in out:
             failures.append(f"missing {want!r}")
     if failures:
@@ -76,7 +104,7 @@ def main() -> int:
             print(f"  - {f}")
         print(out)
         return 1
-    print("expire-claims: OK (4 fixture issues, 2 released in dry-run)")
+    print("expire-claims: OK (6 fixture issues, 2 released in dry-run)")
     return 0
 
 
