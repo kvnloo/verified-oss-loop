@@ -47,16 +47,17 @@ if args[:2] == ["issue", "list"]:
     sys.exit(0)
 if args and args[0] == "api":
     num = args[1].split("/issues/")[1].split("/")[0]
-    # REST supplies only the first 30 comments by default. With --paginate,
-    # --slurp and the flattening jq expression, gh returns all pages together.
-    if "--paginate" in args:
-        if "--slurp" not in args or ".[][]" not in args[args.index("--jq") + 1]:
-            sys.stderr.write("paged arrays must be slurped and flattened\n")
-            sys.exit(4)
-        selected = data[num]
+    # Match gh's raw page arrays and reject unsupported formatting flags.
+    if "--slurp" in args and ("--jq" in args or "--template" in args):
+        sys.stderr.write("the --slurp option is not supported with --jq or --template\n")
+        sys.exit(1)
+    selected = data[num] if "--paginate" in args else data[num][:30]
+    if "--slurp" in args:
+        print(json.dumps([selected[i:i + 30] for i in range(0, len(selected), 30)]))
+    elif "--jq" in args:
+        print(json.dumps([{"body": c["body"], "createdAt": c["created_at"]} for c in selected]))
     else:
-        selected = data[num][:30]
-    print(json.dumps([{"body": c["body"], "createdAt": c["created_at"]} for c in selected]))
+        print(json.dumps(selected))
     sys.exit(0)
 sys.stderr.write("fake gh: unexpected call %r\n" % (args,))
 sys.exit(3)
