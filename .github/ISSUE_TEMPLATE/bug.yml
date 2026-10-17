@@ -1,11 +1,12 @@
 name: Bug
 description: Something is broken in the protocol or the onboarding scripts.
-labels: ["bug"]
+labels: ["bug", "needs-discussion"]
 body:
   - type: markdown
     attributes:
       value: |
         Search open issues and PRs first. Issues are not claims.
+        This form applies `needs-discussion`. Maintainers add `claimable` when the leaf is ready.
   - type: textarea
     id: expected
     attributes:

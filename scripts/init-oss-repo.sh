@@ -239,6 +239,7 @@ else
     .github/ISSUE_TEMPLATE/config.yml
     .github/ISSUE_TEMPLATE/bug.yml
     .github/ISSUE_TEMPLATE/feature.yml
+    .github/ISSUE_TEMPLATE/discussion.yml
     .github/ISSUE_TEMPLATE/claim.yml
     .github/labels.md
   )

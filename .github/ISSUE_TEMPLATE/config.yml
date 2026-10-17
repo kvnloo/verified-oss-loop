@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: How issues become PRs
+    url: https://github.com/kvnloo/verified-oss-loop/blob/main/CONTRIBUTING.md
+    about: Search, discuss, wait for claimable, then one isolated PR with a receipt
   - name: Security report
     url: https://github.com/kvnloo/verified-oss-loop/security/advisories/new
     about: Do not file public issues with secrets or vulnerability PoCs

@@ -1,11 +1,12 @@
 name: Bug
 description: Something is broken. Include a red command if you have one.
-labels: ["bug"]
+labels: ["bug", "needs-discussion"]
 body:
   - type: markdown
     attributes:
       value: |
-        Search open issues and PRs first. Issues are not claims — a claim lease comes after this is triaged `claimable`.
+        Search open issues and PRs first. Issues are not claims.
+        This form applies `needs-discussion`. A claim lease comes after maintainers add `claimable`.
   - type: textarea
     id: expected
     attributes:

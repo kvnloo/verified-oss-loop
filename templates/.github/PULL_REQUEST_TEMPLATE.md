@@ -6,7 +6,9 @@
 
 - [ ] **Ownership respected**: changes stay inside `AGENTS.md` boundaries
 - [ ] **Searched issues/PRs**: no duplicate in-flight work
+- [ ] **One leaf**: linked `claimable` issue (not discussion-only unless a human assigned it)
 - [ ] **Claimed issue**: work started after a bounded claim, not from the issue title alone
+- [ ] **Receipt SHA**: `head_revision` is this PR's SHA (set it before push when you can)
 - [ ] **Fail-then-pass**: bug fixes include the red command and the green command
 - [ ] **No secrets**: no tokens, API keys, `.env`, or pairing files
 - [ ] **Mode** (select one):
@@ -30,7 +32,7 @@ limitations: []
 ai_assistance:
 ```
 
-Tests from another head are not evidence. If mutation is `n/a`, write `n/a` — do not invent a score. The receipt workflow fails the PR if these keys are empty or `head_revision` is not this PR's SHA.
+Tests from another head are not evidence. If mutation is `n/a`, write `n/a` — do not invent a score. Receipt CI reads the **live** PR body; it fails if these keys are empty or `head_revision` is not this PR's SHA.
 
 ## Related
 
