@@ -1,0 +1,51 @@
+version: 1
+repo: kvnloo/verified-oss-loop
+id: verified-oss-loop
+kind: suite
+summary: Evidence-gated distributed open-source contribution protocol with bounded claims, isolated work, revision-bound verification, staged rollout, and explicit human merge authority.
+
+architecture:
+  subsystems:
+    - id: contribution-contract
+      name: Contribution contract
+      kind: governance
+      summary: Defines roadmap ownership, claim leases, revision binding, independent verification, KEEP/DISCARD outcomes, and human merge authority.
+      paths: [SPEC.md, README.md, HITL.md]
+    - id: onboarding-kit
+      name: Repository onboarding kit
+      kind: tooling
+      summary: Installs project-neutral contribution policy, templates, skills, labels, and stack-aware verification defaults without overwriting local authority.
+      paths: [bin/, scripts/, templates/, skills/, harnesses/]
+      depends_on: [contribution-contract]
+    - id: evidence-receipts
+      name: Evidence receipts
+      kind: evidence
+      summary: Binds RED/GREEN/sabotage/build and exact-head evidence to the tested revision for independent review.
+      paths: [.verified-oss-loop/, scripts/, tests/]
+      depends_on: [contribution-contract]
+    - id: rollout
+      name: Staged rollout
+      kind: lifecycle
+      summary: Supports preview, nightly, dev, and main promotion schemes under repository-owned policy and human authority.
+      paths: [.verified-oss-loop/, docs/rollout.md, .github/]
+      depends_on: [evidence-receipts]
+    - id: factory-hitl
+      name: Factory HITL adapter
+      kind: integration
+      summary: Maps external factory/Linear states onto the contribution loop while keeping GitHub writes and merge authority explicitly gated.
+      paths: [HITL.md, docs/factory.md, scripts/publish-origin-from-hitl.py]
+      depends_on: [contribution-contract]
+
+  provides_interfaces: []
+  consumes_interfaces: []
+  produces_representations: []
+  consumes_representations: []
+
+  boundaries:
+    owns: [claim/evidence contribution protocol, onboarding kit, receipt verification contract, staged rollout semantics]
+    not_here: [project roadmap authority, autonomous merge authority, source repository execution semantics, compute mesh transport]
+
+  evidence:
+    docs: [README.md, SPEC.md, HITL.md, docs/]
+    tests: [tests/]
+    schemas: [.verified-oss-loop/]
