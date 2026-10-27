@@ -131,6 +131,9 @@ def decide(root: Path, rel: str, incoming: Path, dest: Path, force: bool) -> tup
 
     incoming_hash = sha256_file(incoming)
     dest_hash = sha256_file(dest)
+    if source == "modified" and dest_hash == incoming_hash:
+        return True, "update", "matches new kit; reclaim"
+
     if dest_hash == incoming_hash:
         return False, "unchanged", "already current"
 
@@ -145,9 +148,6 @@ def decide(root: Path, rel: str, incoming: Path, dest: Path, force: bool) -> tup
     recorded = entry.get("sha256") or ""
     if source == "kit" and recorded and dest_hash == recorded:
         return True, "update", "kit file unmodified since last sync"
-
-    if source == "modified" and dest_hash == incoming_hash:
-        return True, "update", "matches new kit; reclaim"
 
     return False, "skip", "modified"
 
