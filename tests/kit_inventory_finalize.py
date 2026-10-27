@@ -7,7 +7,6 @@ import hashlib
 import importlib.util
 import io
 import json
-import re
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -68,8 +67,10 @@ class KitInventoryFinalizeTests(unittest.TestCase):
         code, _ = self.invoke("finalize", "--session", str(session))
         self.assertEqual(code, 0)
         files = self.inventory()["files"]
-        self.assertEqual({name: files[name]["source"] for name in ("a.txt", "b.txt", "c.txt")},
-                         {"a.txt": "kit", "b.txt": "modified", "c.txt": "local"})
+        self.assertEqual(
+            {name: files[name]["source"] for name in ("a.txt", "b.txt", "c.txt")},
+            {"a.txt": "kit", "b.txt": "modified", "c.txt": "local"},
+        )
         self.assertEqual(files["a.txt"]["kit_sha256"], incoming_a)
         self.assertEqual(files["b.txt"]["kit_sha256"], incoming_b)
         for name, path in (("a.txt", a), ("b.txt", b), ("c.txt", c)):
