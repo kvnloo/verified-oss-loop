@@ -38,7 +38,12 @@ Edit `~/factory/factory.json` (or your own copy of the example, then re-apply):
   `hermes chat` does not accept `--run-budget`).
 - `interrupt_cmd` (optional): how to stop a running turn. Killing a `hermes chat` client only
   detaches it; the gateway keeps working. Use the bundled shim with Hermes' own Python, e.g.
-  `["<hermes venv>/bin/python", "adapters/hermes/interrupt.py", "--profile", "{profile}", "{session_id}"]`.
+  `["<hermes venv>/bin/python", "adapters/hermes/interrupt.py", "--hermes-src", "<hermes checkout>",
+  "--profile", "{profile}", "{session_id}"]`. Cancel then stops the owned `systemd-run --user --scope`
+  unit and reads back that the process and scope are gone.
+- Isolation limit: the scope holds the `hermes chat` client only. Hermes tools execute in the
+  gateway, in the `--in` worktree, with the gateway's privileges. This slice does not sandbox tool
+  execution; treat builder runs as trusted-repo only until an executor sandbox is qualified.
 
 ## 4. Admission
 

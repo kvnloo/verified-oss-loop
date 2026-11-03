@@ -32,8 +32,11 @@ async def _interrupt(session_id: str) -> dict:
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--profile", required=True)
+    p.add_argument("--hermes-src", help="Hermes checkout to import from when not installed in this Python")
     p.add_argument("session_id")
     a = p.parse_args()
+    if a.hermes_src:
+        sys.path.insert(0, a.hermes_src)
     home = Path(os.environ.get("HERMES_ROOT", Path.home() / ".hermes"))
     os.environ["HERMES_HOME"] = str(home / "profiles" / a.profile) if a.profile != "default" else str(home)
     try:
