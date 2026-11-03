@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kvnloo/verified-oss-loop/contracts/attempt.schema.json",
+  "title": "Verified OSS Loop factory attempt",
+  "description": "One builder or verifier attempt on one frozen task. Field names reuse SPEC.md receipts (issue, base_revision, head_revision, changed_files, tests) and section 5 verdicts. Disposition is the attempt's execution state, not a project tracker status.",
+  "type": "object",
+  "required": ["schema_version", "attempt_id", "task", "role", "lease", "submit_intent_id", "native", "disposition"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "vol.attempt/v0"},
+    "attempt_id": {"type": "string", "pattern": "^att-[0-9a-f]{16}$"},
+    "task": {
+      "type": "object",
+      "required": ["task_id", "repo", "issue", "base_revision", "goal_lock"],
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1},
+        "repo": {"type": "string", "minLength": 1},
+        "issue": {"type": "string", "minLength": 1},
+        "base_revision": {"$ref": "#/$defs/full_sha"},
+        "goal_lock": {
+          "type": "object",
+          "required": ["objective", "digest"],
+          "properties": {
+            "objective": {"type": "string", "minLength": 1},
+            "allowed_paths": {"type": "array", "items": {"type": "string"}},
+            "test_cmd": {"type": "array", "items": {"type": "string"}},
+            "policy": {"type": "string"},
+            "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+          }
+        }
+      }
+    },
+    "role": {"enum": ["builder", "verifier"]},
+    "lease": {
+      "type": "object",
+      "required": ["owner", "fence"],
+      "additionalProperties": false,
+      "properties": {
+        "owner": {"type": "string", "minLength": 1},
+        "fence": {"type": "integer", "minimum": 1},
+        "expires_at": {"type": ["string", "null"]}
+      }
+    },
+    "submit_intent_id": {"type": "string", "pattern": "^intent-[0-9a-f]{32}$"},
+    "native": {
+      "type": "object",
+      "required": ["harness", "session_id"],
+      "properties": {
+        "harness": {"enum": ["hermes", "local-exec"]},
+        "profile": {"type": "string"},
+        "provider": {"type": "string"},
+        "model": {"type": "string"},
+        "lane": {"type": "string"},
+        "principal": {"type": "string"},
+        "unit": {"type": ["string", "null"]},
+        "session_id": {"type": ["string", "null"]}
+      }
+    },
+    "head_revision": {"oneOf": [{"$ref": "#/$defs/full_sha"}, {"type": "null"}]},
+    "verifies_attempt": {"type": "string", "pattern": "^att-[0-9a-f]{16}$"},
+    "evidence": {
+      "type": "object",
+      "description": "Builder: native terminal cause, tool exits, log refs and claim problems. Verifier: SPEC section 5 verdict with its own red/green test runs.",
+      "properties": {
+        "verdict": {"enum": ["APPROVE_EXACT_HEAD", "CHANGES_REQUIRED", "DISCARD_DUPLICATE", "DISCARD_WRONG_DIRECTION", "BLOCKED_EXTERNAL"]},
+        "changed_files": {"type": "array", "items": {"type": "string"}},
+        "tests": {"type": "object"},
+        "tool_runs": {"type": "array", "items": {"type": "object"}},
+        "logs": {"type": "object"}
+      }
+    },
+    "disposition": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {"enum": ["authorized", "submitted", "reconciling", "completed", "independently_verified", "held"]},
+        "reason": {"type": "string"},
+        "resume_trigger": {"type": "string"}
+      },
+      "if": {"properties": {"state": {"const": "held"}}},
+      "then": {"required": ["state", "reason", "resume_trigger"]}
+    }
+  },
+  "$defs": {
+    "full_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+  }
+}

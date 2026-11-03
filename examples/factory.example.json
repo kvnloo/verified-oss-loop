@@ -1,0 +1,43 @@
+{
+  "schema": "vol.factory-config/v0",
+  "state_dir": "state",
+  "work_dir": "work",
+  "admission_file": "admission.json",
+  "harnesses": {
+    "hermes-builder": {
+      "kind": "hermes",
+      "bin": ["hermes"],
+      "profile": "factory-builder",
+      "provider": "example-free",
+      "model": "example/free-model",
+      "lane": "example-free",
+      "max_turns": 30,
+      "source": "tool",
+      "isolation": "auto",
+      "scope_properties": ["MemoryMax=2G"],
+      "interrupt_cmd": null
+    }
+  },
+  "roster": {
+    "builder": {"harness": "hermes-builder", "principal": "builder@factory.example"},
+    "verifier": {"kind": "local-exec", "principal": "verifier@factory.example"}
+  },
+  "repos": [
+    {
+      "id": "alpha-calc",
+      "path": "repos/alpha-calc",
+      "test_cmd": ["python3", "-m", "unittest", "-q"],
+      "test_markers": ["unittest"],
+      "allowed_paths": ["calc.py"],
+      "policy": "AGENTS.md"
+    },
+    {
+      "id": "beta-strings",
+      "path": "repos/beta-strings",
+      "test_cmd": ["python3", "-m", "unittest", "-q"],
+      "test_markers": ["unittest"],
+      "allowed_paths": ["strings.py"],
+      "policy": "AGENTS.md"
+    }
+  ]
+}

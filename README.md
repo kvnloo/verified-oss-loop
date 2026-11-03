@@ -85,6 +85,25 @@ See [scripts/init-oss-repo.sh](scripts/init-oss-repo.sh), [harnesses/stacks.json
 
 Proof for this kit: `bash tests/smoke.sh`.
 
+## Factory runtime (Hermes first)
+
+A minimal, stdlib-only runtime that executes this protocol for one task at a time. It is a narrow
+seam, not a scheduler, router or daemon:
+
+- `contracts/attempt.schema.json`: one builder or verifier attempt (task + goal lock, base/head
+  revision, lease owner + fence, submit intent, native session id, evidence, disposition
+  `authorized | submitted | reconciling | completed | independently_verified | held`).
+- `runtime/`: SQLite single-writer ledger (atomic lease + monotonic fence, renew CAS, durable submit
+  intent before the call, reconcile-on-unknown without resend, stale-fence rejection, idempotent
+  completion, held lanes), admission consumer, and exact-head independent verifier that reuses
+  `scripts/check-receipt.py` as its format gate.
+- `adapters/hermes/`: submits through native `hermes chat --format stream-json`, binds the native
+  session id, cancels via Hermes' own interrupt plus an owned systemd scope, collects the candidate.
+- `tests/acceptance/`: offline acceptance suite with a fake harness and two fictional repos;
+  `guard_revert.py` shows each test fails when its guard is removed.
+
+Onboarding: [docs/onboarding-factory.md](docs/onboarding-factory.md).
+
 ## Minimal adoption
 
 A project needs only:

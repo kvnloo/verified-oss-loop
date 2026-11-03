@@ -1,0 +1,46 @@
+{
+  "schema_version": "vol.attempt/v0",
+  "attempt_id": "att-6648bc54e72f4f2a",
+  "task": {
+    "task_id": "alpha-calc#1@e0a9bb983125",
+    "repo": "alpha-calc",
+    "issue": "1",
+    "base_revision": "e0a9bb9831257aea04c01084fba757d8bb209d17",
+    "goal_lock": {
+      "objective": "fix the failing test",
+      "allowed_paths": ["calc.py"],
+      "test_cmd": ["python3", "-m", "unittest", "-q"],
+      "policy": "AGENTS.md",
+      "digest": "sha256:681969f4dd9f5a73168a593b84d48426e9c2684347e2ac6c4cfa16260241b31a"
+    }
+  },
+  "role": "builder",
+  "lease": {"owner": "builder@factory.example", "fence": 1, "expires_at": null},
+  "submit_intent_id": "intent-be6f32a486e14700b4c96d57ca3f00bc",
+  "native": {
+    "harness": "hermes",
+    "profile": "factory-builder",
+    "provider": "example-free",
+    "model": "example/free-model",
+    "lane": "example-free",
+    "unit": null,
+    "session_id": "local-fake-f9b225cf3a384bf79c33595fd80d1476"
+  },
+  "head_revision": "3586b5f811595a25f10d529440b2dac6990b2e2f",
+  "evidence": {
+    "base_revision": "e0a9bb9831257aea04c01084fba757d8bb209d17",
+    "head_revision": "3586b5f811595a25f10d529440b2dac6990b2e2f",
+    "terminal_cause": "result",
+    "exit_code": 0,
+    "error": null,
+    "builder_claim_problems": [],
+    "model_reported": "example/free-model",
+    "tokens": {"input": 10, "output": 5, "total": 15, "cache_read": 0, "cache_write": 0},
+    "tool_runs": [{"tool": "terminal", "command": "python3 -m unittest -q", "exit_code": 0, "is_error": false}],
+    "logs": {
+      "stream": "state/attempts/att-6648bc54e72f4f2a/stream.jsonl",
+      "stderr": "state/attempts/att-6648bc54e72f4f2a/stderr.txt"
+    }
+  },
+  "disposition": {"state": "independently_verified"}
+}

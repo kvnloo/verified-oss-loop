@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""vol-factory: apply a factory home and run, inspect, reconcile or cancel one attempt.
+
+  vol-factory apply   --home H --config C       # idempotent; prints 'no-op' when nothing changed
+  vol-factory run     --home H --repo ID --issue N --objective TEXT
+  vol-factory inspect --home H --attempt ATT    # contract JSON (contracts/attempt.schema.json)
+  vol-factory reconcile --home H --attempt ATT  # never re-sends
+  vol-factory cancel  --home H --attempt ATT
+  vol-factory submit  --home H --repo ID --issue N --objective TEXT   # submit only (no wait)
+
+Never pushes, posts upstream or merges.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from runtime import admission, factory  # noqa: E402
+from runtime.ledger import Ledger, LedgerError  # noqa: E402
+
+
+def _ledger(home: Path) -> tuple[dict, Ledger]:
+    cfg = factory.load_config(home / "factory.json")
+    return cfg, Ledger(factory.resolve(home, cfg.get("state_dir", "state")) / "ledger.sqlite")
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="vol-factory", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = p.add_subparsers(dest="cmd", required=True)
+    for name in ("apply", "run", "submit", "inspect", "reconcile", "cancel"):
+        s = sub.add_parser(name)
+        s.add_argument("--home", required=True, type=lambda v: Path(v).expanduser())
+        if name == "apply":
+            s.add_argument("--config", required=True)
+        if name in ("run", "submit"):
+            s.add_argument("--repo", required=True)
+            s.add_argument("--issue", required=True)
+            s.add_argument("--objective", required=True)
+            s.add_argument("--wall-budget", type=float, default=900)
+        if name in ("inspect", "reconcile", "cancel"):
+            s.add_argument("--attempt", required=True)
+    a = p.parse_args(argv)
+    try:
+        if a.cmd == "apply":
+            changes = factory.apply(a.home, a.config)
+            print("\n".join(changes) if changes else "no-op")
+            return 0
+        if a.cmd == "run":
+            out = factory.run_task(a.home, a.repo, a.issue, a.objective, wall_budget=a.wall_budget)
+            print(json.dumps(out, indent=2, sort_keys=True, default=str))
+            return 0
+        cfg, ledger = _ledger(a.home)
+        adapter = factory.make_adapter(cfg, ledger, a.home)
+        if a.cmd == "submit":
+            prep = factory.prepare_builder(a.home, a.repo, a.issue, a.objective, ledger=ledger)
+            doc = admission.load(factory.resolve(a.home, cfg.get("admission_file", "admission.json")))
+            print(json.dumps(adapter.submit(prep.lease, prep.worktree, prep.prompt, doc), sort_keys=True), flush=True)
+            return 0
+        if a.cmd == "inspect":
+            print(json.dumps(ledger.to_contract(a.attempt), indent=2, sort_keys=True))
+        elif a.cmd == "reconcile":
+            print(json.dumps(adapter.reconcile(a.attempt), indent=2, sort_keys=True, default=str))
+        elif a.cmd == "cancel":
+            print(json.dumps(adapter.cancel(a.attempt, "operator_cancel"), indent=2, sort_keys=True, default=str))
+        return 0
+    except LedgerError as exc:
+        print(json.dumps({"error": exc.code, "detail": str(exc)}), file=sys.stderr)
+        return 3
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
