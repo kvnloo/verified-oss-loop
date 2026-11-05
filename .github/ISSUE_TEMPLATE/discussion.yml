@@ -1,0 +1,29 @@
+name: Proposal
+description: Discuss a change. Maintainers promote to claimable; do not open a PR yet.
+labels: ["needs-discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This lands in the discussion queue, not the work queue.
+        Agents and humans may leave a one-paragraph proposal. They must not self-apply `claimable`.
+        Search open issues first. Do not invent a second loop.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is wrong or missing in the protocol or kit
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Smallest change that would close this. Point at SPEC.md, a template, or a script.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: What a reviewer could check
+      placeholder: tests/smoke.sh case, SPEC.md section, or file path

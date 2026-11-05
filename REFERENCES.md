@@ -38,7 +38,7 @@ Expanded table: [docs/prior-art.md](docs/prior-art.md).
 
 ## Origin of this loop
 
-Grew from the [Community-wide Distributed Self-Development Loop](https://github.com/AndyMik90/Aperant/discussions/306), then Hermes autoresearch ([#5114](https://github.com/NousResearch/hermes-agent/issues/5114)) and reversible harness refinement ([#93306](https://github.com/NousResearch/hermes-agent/issues/93306)).
+Grew from the [Community-wide Distributed Self-Development Loop](https://github.com/AndyMik90/Aperant/discussions/306), then Hermes autoresearch ([#5114](https://github.com/NousResearch/hermes-agent/issues/5114)) and reversible harness refinement ([#93306](https://github.com/NousResearch/hermes-agent/issues/93306)). Hermetic CI (isolated processes, blank credentials, local runner = CI) and one-shot coding CLIs such as [oh-my-pi / `omp`](https://omp.sh/) inform [docs/ci-cd.md](docs/ci-cd.md); we do not vendor their runners.
 
 ## Quality bots (Level 1 assistants, not merge)
 

@@ -1,0 +1,27 @@
+name: Proposal
+description: Discuss a change. Maintainers promote to claimable; do not open a PR yet.
+labels: ["needs-discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This lands in the discussion queue, not the work queue.
+        Agents and humans may leave a one-paragraph proposal. They must not self-apply `claimable`.
+        Search open issues first. Issues are not claims.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: What a reviewer could check
+      description: Test name, docs path, or runtime check

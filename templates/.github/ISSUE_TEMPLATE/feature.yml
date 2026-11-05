@@ -1,11 +1,11 @@
 name: Feature
 description: A proposed change. Maintainers own whether it is claimable.
-labels: ["enhancement"]
+labels: ["enhancement", "needs-discussion"]
 body:
   - type: markdown
     attributes:
       value: |
-        Do not start work until this issue is `claimable` and you hold a claim lease.
+        This form applies `needs-discussion`. Do not start work until this issue is `claimable` and you hold a claim lease.
   - type: textarea
     id: problem
     attributes:

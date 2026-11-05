@@ -66,7 +66,7 @@ Canonical short list: [REFERENCES.md](../REFERENCES.md).
 | GitHub merge queue | https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue | `merge_group` CI when the project enables a queue | queue merge as worker authority |
 | Arch Linux rolling release | https://wiki.archlinux.org/title/Arch_Linux | bleeding-edge default channel (`rolling`) | worker merge of `main`; one scheme for every repo |
 
-Factory HITL: [HITL.md](../HITL.md) (adapter: [factory.md](factory.md)). Copied vs catalog: [quality-bots.md](quality-bots.md). Channel speed: [rollout.md](rollout.md). Long-lived OSS TAKE/SKIP: [quality-at-scale.md](quality-at-scale.md).
+Factory HITL: [HITL.md](../HITL.md) (adapter: [factory.md](factory.md)). Copied vs catalog: [quality-bots.md](quality-bots.md). Channel speed: [rollout.md](rollout.md). Long-lived OSS TAKE/SKIP: [quality-at-scale.md](quality-at-scale.md). Harness/CI hygiene: [ci-cd.md](ci-cd.md) (Hermes isolated runners; [oh-my-pi](https://omp.sh/) as a one-shot CLI, not a merge bot).
 
 ## Agentic onboarding tools (orient; do not vendor)
 
