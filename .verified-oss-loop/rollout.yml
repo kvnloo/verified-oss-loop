@@ -1,2 +1,2 @@
 schema: verified-oss-loop.rollout.v1
-scheme: rolling
+scheme: stable
